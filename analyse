@@ -1,0 +1,77 @@
+Analyse TFE - WorkMatch - OZKARA Ozkan
+
+Use cases :
+
+Page d’entrée avec bouton de signup et de login 
+Page de login avec mail et mdp demandé
+Page de signup avec un email, un username et un mot de passe demandé
+
+Onboarding :
+Page suivante : demande de “chercheur d’emploi” ou “entreprise” ? 
+Si entreprise, nouvelle page avec numéro de vérification unique fournie car toutes les entreprises peuvent avoir que 1 seul compte ( sauf exception, amélioration)
+Si chercheur d’emploi (individu), nouvelle page avec âge demandé
+Si chercheur d’emploi (individu), nouvelle page avec photos demandé
+
+Main page : 
+Ensuite redirection vers page principale avec les offres d’emploi (info et bouton oui non et swipe à droite ou swipe à gauche), également un bouton profil en haut et chats. Si entreprise, bouton ajouter une offre d’emploi et bouton voir mes offres d’emploi en haut 
+
+Profile page : 
+Page avec profile contient photo et deux boutons , editer profile et settings
+
+Edit page : 
+Page editer profile : ajouter/supp photos et changer bio 
+
+Settings page : 
+Page settings : pour filtrer distance offre d’emploi ou individu, ou autoriser ou pas notification push , possibilité de déco, supprimer profile ou faire une pause, nous contacter etc…
+
+Chat page : 
+Page chatting : contient les matchs et les discussions en cours , possibilté de mettre favoris etc 
+
+Mes offres d’emplois page :
+Liste d’offres d’emploi avec possibilité d’agrandir pour voir info et les users qui ont matchés
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Maquettes : 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Diagramme des classes : 
+
+
+
+
+Techno utilisées : 
+
+JAVA, react native pour le cross platform , expo : pour construire, déployer et gérer app react, node.js pour le backend, mongodb pour la BDD, elastic search pour recherche données users, redis comme système de cache pour la perf, firebase pour l’auth, notifications etc…
+
+Conditions supplémentaires:
+Utilisation des données réelles ( que je peux prendre dans un api comme celle d’indeed.com)
+Système matching de compétences pour optimiser les demandes entre employeurs/employés
