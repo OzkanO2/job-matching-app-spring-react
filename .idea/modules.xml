@@ -2,7 +2,11 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
+<<<<<<< HEAD
       <module fileurl="file://$PROJECT_DIR$/.idea/WorkMatchFrontend.iml" filepath="$PROJECT_DIR$/.idea/WorkMatchFrontend.iml" />
+=======
+      <module fileurl="file://$PROJECT_DIR$/.idea/workmatch-backend.iml" filepath="$PROJECT_DIR$/.idea/workmatch-backend.iml" />
+>>>>>>> 13dfb1934badcd6f9bcaca2ca2aaf4f8fcd858d5
     </modules>
   </component>
 </project>
