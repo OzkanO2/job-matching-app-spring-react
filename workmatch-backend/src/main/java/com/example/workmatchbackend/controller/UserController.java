@@ -10,10 +10,14 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/users")
+@RequestMapping("/login")
 public class UserController {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private UserRepository userRepository;
 
     @GetMapping
     public List<User> getAllUsers() {
@@ -47,5 +51,17 @@ public class UserController {
     @DeleteMapping("/{id}")
     public void deleteUser(@PathVariable String id) {
         userService.deleteUser(id);
+    }
+
+    @PostMapping
+    public ResponseEntity<?> loginUser(@RequestBody Map<String, String> user) {
+        String username = user.get("username");
+        String password = user.get("password");
+        User existingUser = userRepository.findByUsername(username);
+        if (existingUser != null && existingUser.getPassword().equals(password)) {
+            return ResponseEntity.ok("Login successful");
+        } else {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");
+        }
     }
 }
