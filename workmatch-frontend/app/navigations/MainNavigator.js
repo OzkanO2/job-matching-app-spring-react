@@ -12,7 +12,7 @@ const Stack = createStackNavigator();
 function MainStackNavigator() {
 const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
   return (
-    <Stack.Navigator initialRouteName="Home">
+    <Stack.Navigator initialRouteName="SignIn">
       <Stack.Screen name="SignIn" component={SignInPage} />
       <Stack.Screen name="SignUp" component={SignUpPage} />
       <Stack.Screen name="Home" component={HomePage} />

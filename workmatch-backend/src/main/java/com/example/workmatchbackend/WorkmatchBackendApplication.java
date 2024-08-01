@@ -8,6 +8,6 @@ public class WorkmatchBackendApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(WorkmatchBackendApplication.class, args);
-	}
 
+	}
 }

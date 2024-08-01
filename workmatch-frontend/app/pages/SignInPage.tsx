@@ -23,22 +23,37 @@ export default function SignInPage({ navigation }) {
 //         alert('An error occurred. Please try again.');
 //       });
 //   };
-const handleSignIn = async () => {
-    try {
-      const response = await axios.post('http://localhost:8080/users/login', { username, password });
-      if (response.data.token) {
-        const token = response.data.token;
-        // Stocker le token dans AsyncStorage
-        await AsyncStorage.setItem('token', token);
-        navigation.navigate('Home');
-      } else {
-        alert('Invalid credentials');
-      }
-    } catch (error) {
-      console.error(error);
-      alert('An error occurred. Please try again.');
-    }
-  };
+const handleSignIn = () => {
+    console.log('Attempting to sign1 in with:', { username, password }); // Affiche les données de connexion
+
+    axios.post('http://localhost:8080/users/login', { username, password })
+        .then(response => {
+            console.log('Server response:', response.data); // Affiche la réponse du serveur
+            if (response.data.message === 'Login successful') {
+                const token = response.data.token;
+                console.log('Token received:', token); // Affiche le token reçu
+                // Stocker le token dans AsyncStorage ou dans un état global
+                navigation.navigate('Home');
+            } else {
+                alert('Invalid credentials');
+            }
+        })
+        .catch(error => {
+            console.error('An error occurred:', error); // Affiche les erreurs
+            if (error.response) {
+                console.error('Response data:', error.response.data);
+                console.error('Response status:', error.response.status);
+                console.error('Response headers:', error.response.headers);
+            } else if (error.request) {
+                console.error('Request data:', error.request);
+            } else {
+                console.error('Error message:', error.message);
+            }
+            alert('An error occurred1. Please try again.');
+        });
+};
+
+
 
 
   return (

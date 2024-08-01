@@ -8,14 +8,19 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.List;
 import java.util.Optional;
 
+
 @RestController
 @RequestMapping("/users")
+@CrossOrigin(origins = "*", allowedHeaders = "*")
 public class UserController {
 
     @Autowired
@@ -71,6 +76,8 @@ public class UserController {
     public ResponseEntity<?> loginUser(@RequestBody Map<String, String> user) {
         String username = user.get("username");
         String password = user.get("password");
+        System.out.println(username);
+        System.out.println(password);
         User existingUser = userRepository.findByUsername(username);
         if (existingUser != null && existingUser.getPassword().equals(password)) {
             String token = jwtUtil.generateToken(username);
