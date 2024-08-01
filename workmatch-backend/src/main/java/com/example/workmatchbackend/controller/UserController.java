@@ -3,11 +3,13 @@ package com.example.workmatchbackend.controller;
 import com.example.workmatchbackend.model.User;
 import com.example.workmatchbackend.repository.UserRepository;
 import com.example.workmatchbackend.service.UserService;
+import com.example.workmatchbackend.util.JWTUtil;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.List;
 import java.util.Optional;
@@ -18,6 +20,9 @@ public class UserController {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private JWTUtil jwtUtil;
 
     @Autowired
     private UserRepository userRepository;
@@ -68,7 +73,10 @@ public class UserController {
         String password = user.get("password");
         User existingUser = userRepository.findByUsername(username);
         if (existingUser != null && existingUser.getPassword().equals(password)) {
-            return ResponseEntity.ok("Login successful");
+            String token = jwtUtil.generateToken(username);
+            Map<String, String> response = new HashMap<>();
+            response.put("token", token);
+            return ResponseEntity.ok(response);
         } else {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");
         }

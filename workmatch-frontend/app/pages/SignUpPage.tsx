@@ -7,15 +7,21 @@ export default function SignUpPage({ navigation }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
-  const handleSignUp = async () => {
-    try {
-      const response = await axios.post('http://localhost:8080/api/signup', { username, email, password });
-      // Handle success response
-      console.log('Sign up successful', response.data);
-    } catch (error) {
-      // Handle error response
-      console.error('Sign up failed', error);
-    }
+
+  const handleSignUp = () => {
+    axios.post('http://localhost:8080/users/register', { username, email, password })
+      .then(response => {
+        if (response.status === 201) {
+          alert('User registered successfully');
+          navigation.navigate('SignIn');
+        } else {
+          alert('Registration failed');
+        }
+      })
+      .catch(error => {
+        console.error(error);
+        alert('An error occurred. Please try again.');
+      });
   };
 
   return (
