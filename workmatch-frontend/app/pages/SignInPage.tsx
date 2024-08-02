@@ -29,7 +29,8 @@ const handleSignIn = () => {
     axios.post('http://localhost:8080/users/login', { username, password })
         .then(response => {
             console.log('Server response:', response.data); // Affiche la réponse du serveur
-            if (response.data.message === 'Login successful') {
+            const token = response.data.token;
+            if (token) {
                 const token = response.data.token;
                 console.log('Token received:', token); // Affiche le token reçu
                 // Stocker le token dans AsyncStorage ou dans un état global
