@@ -1,15 +1,37 @@
 package com.example.workmatchbackend.model;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
 
-@Entity
+@Document(collection = "settings")
 public class Settings {
     @Id
-    private Long userId;
-
+    private String id;
     private int distanceFilter;
     private boolean notificationPermission;
 
-    // Getters and setters
+    // Getters and Setters
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public int getDistanceFilter() {
+        return distanceFilter;
+    }
+
+    public void setDistanceFilter(int distanceFilter) {
+        this.distanceFilter = distanceFilter;
+    }
+
+    public boolean isNotificationPermission() {
+        return notificationPermission;
+    }
+
+    public void setNotificationPermission(boolean notificationPermission) {
+        this.notificationPermission = notificationPermission;
+    }
 }
