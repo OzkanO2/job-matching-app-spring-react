@@ -22,7 +22,7 @@ const ProfilePage = () => {
             <View style={styles.content}>
                 <Image source={{ uri: 'https://example.com/photo.jpg' }} style={styles.photo} />
                 <Text style={styles.infoText}>User Info</Text>
-                <Button title="EDIT" onPress={() => {}} />
+                <Button title="EDIT" onPress={() => navigation.navigate('EditProfilePage')} />
                 <Button title="SETTINGS" onPress={() => {}} />
             </View>
             <View style={styles.footer}>
