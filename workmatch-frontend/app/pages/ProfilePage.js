@@ -2,7 +2,7 @@ import React from 'react';
 import { Button, View, Text, StyleSheet, Image } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 
-const HomePage = () => {
+const ProfilePage = () => {
     const navigation = useNavigation();
 
     React.useLayoutEffect(() => {
@@ -15,21 +15,19 @@ const HomePage = () => {
         <View style={styles.container}>
             <View style={styles.topButtons}>
                 <Button title="Profile" onPress={() => navigation.navigate('ProfilePage')} />
-                <Button title="Main Menu" onPress={() => console.log('Main Menu')} />
-                <Button title="Chat" onPress={() => console.log('Chat')} />
-                <Button title="Mes Offres" onPress={() => console.log('Mes Offres')} />
+                <Button title="Main Menu" onPress={() => navigation.navigate('Home')} />
+                <Button title="Chat" onPress={() => {}} />
+                <Button title="Mes Offres" onPress={() => {}} />
             </View>
-
             <View style={styles.content}>
-                <Image source={{uri: 'https://via.placeholder.com/150'}} style={styles.photo} />
-                <Text style={styles.infoText}>INFO (offre emploi ou du chercheur d'emploi)</Text>
+                <Image source={{ uri: 'https://example.com/photo.jpg' }} style={styles.photo} />
+                <Text style={styles.infoText}>User Info</Text>
+                <Button title="EDIT" onPress={() => {}} />
+                <Button title="SETTINGS" onPress={() => {}} />
             </View>
-
-            <View style={styles.bottomButtons}>
-                <Button title="Non" onPress={() => {  }} />
-                <Button title="Oui" onPress={() => {  }} />
+            <View style={styles.footer}>
+                <Button title="SIGN OUT" onPress={() => navigation.navigate('SignIn')} />
             </View>
-
         </View>
     );
 };
@@ -59,12 +57,6 @@ const styles = StyleSheet.create({
         textAlign: 'center',
         marginBottom: 20,
     },
-    bottomButtons: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        paddingHorizontal: 10,
-        marginBottom: 20,
-    },
     footer: {
         justifyContent: 'flex-end',
         marginBottom: 36,
@@ -72,4 +64,4 @@ const styles = StyleSheet.create({
     },
 });
 
-export default HomePage;
+export default ProfilePage;
