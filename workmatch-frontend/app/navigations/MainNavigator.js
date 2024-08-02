@@ -9,6 +9,8 @@ import ProtectedPage from '../pages/ProtectedPage';
 import ProfilePage from '../pages/ProfilePage';
 import EditProfilePage from '../pages/EditProfilePage';
 import SettingsPage from '../pages/SettingsPage';
+import ChatPage from '../pages/ChatPage';
+import MyOffersPage from '../pages/MyOffersPage';
 
 const Stack = createStackNavigator();
 
@@ -20,6 +22,8 @@ const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
       <Stack.Screen name="SignUp" component={SignUpPage} />
       <Stack.Screen name="Home" component={HomePage} />
       <Stack.Screen name="Settings" component={SettingsPage} />
+      <Stack.Screen name="ChatPage" component={ChatPage} />
+      <Stack.Screen name="MyOffersPage" component={MyOffersPage} />
       <Stack.Screen name="ProfilePage" component={ProfilePage} />
       <Stack.Screen name="EditProfilePage" component={EditProfilePage} />
       <Stack.Screen name="Protected" component={ProtectedPage} />

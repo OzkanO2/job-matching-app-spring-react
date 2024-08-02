@@ -1,8 +1,8 @@
 import React from 'react';
-import { Button, View, Text, StyleSheet, Image } from 'react-native';
+import { Button, View, Text, StyleSheet } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 
-const HomePage = () => {
+const ChatPage = () => {
     const navigation = useNavigation();
 
     React.useLayoutEffect(() => {
@@ -20,13 +20,13 @@ const HomePage = () => {
                 <Button title="My Offers" onPress={() => navigation.navigate('MyOffersPage')} />
             </View>
             <View style={styles.content}>
-                <Image source={{uri: 'https://via.placeholder.com/150'}} style={styles.photo} />
-                <Text style={styles.infoText}>INFO (offre emploi ou du chercheur d'emploi)</Text>
-            </View>
-
-            <View style={styles.bottomButtons}>
-                <Button title="Non" onPress={() => {  }} />
-                <Button title="Oui" onPress={() => {  }} />
+                <Text style={styles.matches}>MATCHES LOGO 1 2 3 4</Text>
+                <Text style={styles.chatListTitle}>CHAT LIST</Text>
+                <View style={styles.chatList}>
+                    <Text>1</Text>
+                    <Text>2</Text>
+                    <Text>3</Text>
+                </View>
             </View>
 
         </View>
@@ -49,20 +49,14 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
     },
-    photo: {
-        width: 150,
-        height: 150,
+    matches: {
         marginBottom: 20,
     },
-    infoText: {
-        textAlign: 'center',
-        marginBottom: 20,
+    chatListTitle: {
+        marginBottom: 10,
     },
-    bottomButtons: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        paddingHorizontal: 10,
-        marginBottom: 20,
+    chatList: {
+        fontSize: 14,
     },
     footer: {
         justifyContent: 'flex-end',
@@ -71,4 +65,4 @@ const styles = StyleSheet.create({
     },
 });
 
-export default HomePage;
+export default ChatPage;
