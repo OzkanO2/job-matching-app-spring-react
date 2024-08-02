@@ -23,7 +23,7 @@ const ProfilePage = () => {
                 <Image source={{ uri: 'https://example.com/photo.jpg' }} style={styles.photo} />
                 <Text style={styles.infoText}>User Info</Text>
                 <Button title="EDIT" onPress={() => navigation.navigate('EditProfilePage')} />
-                <Button title="SETTINGS" onPress={() => {}} />
+                <Button title="SETTINGS" onPress={() => navigation.navigate('Settings')} />
             </View>
             <View style={styles.footer}>
                 <Button title="SIGN OUT" onPress={() => navigation.navigate('SignIn')} />
