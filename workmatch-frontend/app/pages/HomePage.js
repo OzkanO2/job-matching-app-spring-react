@@ -23,7 +23,7 @@ const HomePage = () => {
             <View style={styles.content}>
                 <Image source={{ uri: 'https://via.placeholder.com/150' }} style={styles.photo} />
                 <Text style={styles.infoText}>INFO (offre emploi ou du chercheur d'emploi)</Text>
-                <JobSwiper jobOffers={jobOffers} />
+
             </View>
             <View style={styles.bottomButtons}>
                 <Button title="Non" onPress={() => {  }} />
