@@ -1,6 +1,7 @@
 import React from 'react';
 import { Button, View, Text, StyleSheet, Image } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import { JobSwiper } from '../../components/JobSwiper';
 
 const HomePage = () => {
     const navigation = useNavigation();
@@ -20,10 +21,10 @@ const HomePage = () => {
                 <Button title="My Offers" onPress={() => navigation.navigate('MyOffersPage')} />
             </View>
             <View style={styles.content}>
-                <Image source={{uri: 'https://via.placeholder.com/150'}} style={styles.photo} />
+                <Image source={{ uri: 'https://via.placeholder.com/150' }} style={styles.photo} />
                 <Text style={styles.infoText}>INFO (offre emploi ou du chercheur d'emploi)</Text>
+                <JobSwiper jobOffers={jobOffers} />
             </View>
-
             <View style={styles.bottomButtons}>
                 <Button title="Non" onPress={() => {  }} />
                 <Button title="Oui" onPress={() => {  }} />
