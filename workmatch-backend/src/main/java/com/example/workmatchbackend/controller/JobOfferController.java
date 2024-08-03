@@ -4,6 +4,8 @@ import com.example.workmatchbackend.model.JobOffer;
 import com.example.workmatchbackend.service.JobOfferService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.beans.factory.annotation.Value;
 
 import java.util.List;
 import java.util.Optional;
@@ -12,8 +14,18 @@ import java.util.Optional;
 @RequestMapping("/joboffers")
 @CrossOrigin(origins = "*", allowedHeaders = "*")
 public class JobOfferController {
+
     @Autowired
     private JobOfferService jobOfferService;
+
+    @Autowired
+    private RestTemplate restTemplate;
+
+    @Value("${ADZUNA_APP_ID}")
+    private String appId;
+
+    @Value("${ADZUNA_APP_KEY}")
+    private String appKey;
 
     @GetMapping
     public List<JobOffer> getAllJobOffers() {
@@ -46,5 +58,24 @@ public class JobOfferController {
     @DeleteMapping("/{id}")
     public void deleteJobOffer(@PathVariable String id) {
         jobOfferService.deleteJobOffer(id);
+    }
+
+    @GetMapping("/external")
+    public List<JobOffer> fetchJobOffers(@RequestParam String location) {
+        String url = String.format("https://api.adzuna.com/v1/api/jobs/us/search/1?app_id=%s&app_key=%s&location0=%s", appId, appKey, location);
+        AdzunaResponse response = restTemplate.getForObject(url, AdzunaResponse.class);
+        return response.getResults();
+    }
+}
+
+class AdzunaResponse {
+    private List<JobOffer> results;
+
+    public List<JobOffer> getResults() {
+        return results;
+    }
+
+    public void setResults(List<JobOffer> results) {
+        this.results = results;
     }
 }

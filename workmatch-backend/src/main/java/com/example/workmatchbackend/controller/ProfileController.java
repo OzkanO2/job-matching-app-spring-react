@@ -12,6 +12,7 @@ import java.util.Optional;
 @RequestMapping("/profiles")
 @CrossOrigin(origins = "*", allowedHeaders = "*")
 public class ProfileController {
+
     @Autowired
     private ProfileService profileService;
 

@@ -3,15 +3,24 @@ package com.example.workmatchbackend.service;
 import com.example.workmatchbackend.model.JobOffer;
 import com.example.workmatchbackend.repository.JobOfferRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
 import java.util.Optional;
 
 @Service
 public class JobOfferService {
+
+    private final RestTemplate restTemplate;
+    private final JobOfferRepository jobOfferRepository;
+
     @Autowired
-    private JobOfferRepository jobOfferRepository;
+    public JobOfferService(@Qualifier("adzunaRestTemplate") RestTemplate restTemplate, JobOfferRepository jobOfferRepository) {
+        this.restTemplate = restTemplate;
+        this.jobOfferRepository = jobOfferRepository;
+    }
 
     public List<JobOffer> getAllJobOffers() {
         return jobOfferRepository.findAll();
