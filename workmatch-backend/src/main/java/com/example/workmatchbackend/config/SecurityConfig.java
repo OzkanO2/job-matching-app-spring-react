@@ -38,10 +38,13 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.csrf().disable()
                 .authorizeRequests()
-                .requestMatchers("/users/login", "/users/register").permitAll() // Mettez à jour les chemins ici
+                .requestMatchers("/users/login", "/users/register", "/adzuna/fetch").permitAll() // Mettez à jour les chemins ici
                 .anyRequest().authenticated()
                 .and()
                 .cors();
+
+        http.addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
+
         return http.build();
     }
 }

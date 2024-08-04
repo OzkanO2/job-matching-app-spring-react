@@ -7,22 +7,6 @@ export default function SignInPage({ navigation }) {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
 
-//   const handleSignIn = () => {
-//     axios.post('http://localhost:8080/users/login', { username, password })
-//       .then(response => {
-//         if (response.data.message === 'Login successful') {
-//           const token = response.data.token;
-//           // Stocker le token dans AsyncStorage ou dans un état global
-//           navigation.navigate('Home');
-//         } else {
-//           alert('Invalid credentials');
-//         }
-//       })
-//       .catch(error => {
-//         console.error(error);
-//         alert('An error occurred. Please try again.');
-//       });
-//   };
 const handleSignIn = () => {
     console.log('Attempting to sign1 in with:', { username, password }); // Affiche les données de connexion
 

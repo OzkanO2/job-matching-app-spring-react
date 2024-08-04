@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Button, View, Text, StyleSheet, Image } from 'react-native';
+import { Button, View, Text, StyleSheet, Image, ScrollView  } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import axios from 'axios';
 import JobSwiper from '../../components/JobSwiper';
@@ -7,23 +7,43 @@ import JobSwiper from '../../components/JobSwiper';
 const HomePage = () => {
     const navigation = useNavigation();
     const [jobOffers, setJobOffers] = useState([]);
+    const [isLoading, setIsLoading] = useState(true);
+    const [error, setError] = useState(null);
 
     useEffect(() => {
             navigation.setOptions({
                 headerLeft: null,
             });
 
+            console.log("Fetching job offers from backend...");
+
             // Fetch job offers from backend
             axios.get('http://localhost:8080/adzuna/fetch')
-                .then(response => setJobOffers(response.data))
-                .catch(error => console.error(error));
+                .then(response => {
+                console.log('Job offers fetched:', response.data);
+                setJobOffers(response.data);
+                setIsLoading(false);
+            })
+            .catch(error => {
+                console.error("Error fetching job offers:", error);
+                setError(error);
+                setIsLoading(false);
+            });
         }, [navigation]);
 
-    const handleSwipeRight = (job) => {
-        axios.post('http://localhost:8080/job-offers/save', job)
-            .then(response => console.log('Job saved:', response.data))
-            .catch(error => console.error(error));
-    };
+//    const handleSwipeRight = (job) => {
+//        axios.post('http://localhost:8080/job-offers/save', job)
+//            .then(response => console.log('Job saved:', response.data))
+//            .catch(error => console.error(error));
+//    };
+
+    if (isLoading) {
+            return <Text>Loading...</Text>;
+        }
+
+    if (error) {
+        return <Text>Error: {error.message}</Text>;
+    }
 
     return (
         <View style={styles.container}>
@@ -34,9 +54,13 @@ const HomePage = () => {
                 <Button title="My Offers" onPress={() => navigation.navigate('MyOffersPage')} />
             </View>
             <View style={styles.content}>
-                <Image source={{ uri: 'https://via.placeholder.com/150' }} style={styles.photo} />
-                <Text style={styles.infoText}>INFO (offre emploi ou du chercheur d'emploi)</Text>
-                <JobSwiper jobOffers={jobOffers} onSwipeRight={handleSwipeRight} />
+                           <Image source={{ uri: 'https://via.placeholder.com/150' }} style={styles.photo} />
+                           <Text style={styles.infoText}>INFO (offre emploi ou du chercheur d ) </Text>
+
+                       </View>
+            <View style={styles.rawDataContainer}>
+                <Text style={styles.rawDataTitle}>Raw Data from API:</Text>
+                <Text style={styles.rawDataText}>{JSON.stringify(jobOffers, null, 2)}</Text>
             </View>
             <View style={styles.bottomButtons}>
                 <Button title="Non" onPress={() => {  }} />

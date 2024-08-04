@@ -18,6 +18,7 @@ public class CorsConfig {
         config.addAllowedHeader("*");
         config.addAllowedMethod("*");
         source.registerCorsConfiguration("/**", config);
+        System.out.println("CORS configuration applied for http://localhost:8081");
         return new CorsFilter(source);
     }
 }
