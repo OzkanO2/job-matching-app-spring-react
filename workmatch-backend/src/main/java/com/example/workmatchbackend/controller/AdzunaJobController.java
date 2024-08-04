@@ -16,11 +16,13 @@ public class AdzunaJobController {
     private AdzunaJobService adzunaJobService;
 
     @GetMapping("/fetch")
-    public List<JobOffer> fetchJobOffers() {
+    public List<JobOffer> fetchJobOffers(@RequestParam String country, @RequestParam String what) {
         try {
-            return adzunaJobService.fetchAndSaveJobOffers();
+            System.out.println("On rentre bien dans le fetch du controller adzuna");
+            List<JobOffer> jobOffers = adzunaJobService.fetchAndSaveJobOffers(country, what);
+            System.out.println("Job offers fetched: " + jobOffers);
+            return jobOffers;
         } catch (Exception e) {
-            // Log the exception (add a logging framework like SLF4J)
             System.err.println("Failed to fetch job offers: " + e.getMessage());
             return List.of();
         }

@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { Button, View, Text, StyleSheet, Image, ScrollView  } from 'react-native';
+import { Button, View, Text, StyleSheet, Image, ScrollView } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import axios from 'axios';
-import JobSwiper from '../../components/JobSwiper';
 
 const HomePage = () => {
     const navigation = useNavigation();
@@ -11,15 +10,20 @@ const HomePage = () => {
     const [error, setError] = useState(null);
 
     useEffect(() => {
-            navigation.setOptions({
-                headerLeft: null,
-            });
+        navigation.setOptions({
+            headerLeft: null,
+        });
 
-            console.log("Fetching job offers from backend...");
+        console.log("Fetching job offers from backend...");
 
-            // Fetch job offers from backend
-            axios.get('http://localhost:8080/adzuna/fetch')
-                .then(response => {
+        // Fetch job offers from backend
+        axios.get('http://localhost:8080/adzuna/fetch', {
+            params: {
+                country: 'us',
+                what: 'software developer'
+            }
+        })
+            .then(response => {
                 console.log('Job offers fetched:', response.data);
                 setJobOffers(response.data);
                 setIsLoading(false);
@@ -29,24 +33,10 @@ const HomePage = () => {
                 setError(error);
                 setIsLoading(false);
             });
-        }, [navigation]);
-
-//    const handleSwipeRight = (job) => {
-//        axios.post('http://localhost:8080/job-offers/save', job)
-//            .then(response => console.log('Job saved:', response.data))
-//            .catch(error => console.error(error));
-//    };
-
-    if (isLoading) {
-            return <Text>Loading...</Text>;
-        }
-
-    if (error) {
-        return <Text>Error: {error.message}</Text>;
-    }
+    }, [navigation]);
 
     return (
-        <View style={styles.container}>
+        <ScrollView style={styles.container}>
             <View style={styles.topButtons}>
                 <Button title="Profile" onPress={() => navigation.navigate('ProfilePage')} />
                 <Button title="Main Menu" onPress={() => navigation.navigate('Home')} />
@@ -54,27 +44,26 @@ const HomePage = () => {
                 <Button title="My Offers" onPress={() => navigation.navigate('MyOffersPage')} />
             </View>
             <View style={styles.content}>
-                           <Image source={{ uri: 'https://via.placeholder.com/150' }} style={styles.photo} />
-                           <Text style={styles.infoText}>INFO (offre emploi ou du chercheur d ) </Text>
-
-                       </View>
-            <View style={styles.rawDataContainer}>
-                <Text style={styles.rawDataTitle}>Raw Data from API:</Text>
-                <Text style={styles.rawDataText}>{JSON.stringify(jobOffers, null, 2)}</Text>
+                <Image source={{ uri: 'https://via.placeholder.com/150' }} style={styles.photo} />
+                <Text style={styles.infoText}>INFO (offre emploi ou du chercheur d'emploi) </Text>
+                {jobOffers.length > 0 ? (
+                    jobOffers.map((job, index) => (
+                        <View key={index} style={styles.jobCard}>
+                            <Text>{job.info}</Text>
+                        </View>
+                    ))
+                ) : (
+                    <Text>No job offers available</Text>
+                )}
             </View>
-            <View style={styles.bottomButtons}>
-                <Button title="Non" onPress={() => {  }} />
-                <Button title="Oui" onPress={() => {  }} />
-            </View>
-
-        </View>
+        </ScrollView>
     );
 };
 
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        justifyContent: 'space-between',
+        padding: 10,
     },
     topButtons: {
         flexDirection: 'row',
@@ -96,16 +85,14 @@ const styles = StyleSheet.create({
         textAlign: 'center',
         marginBottom: 20,
     },
-    bottomButtons: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        paddingHorizontal: 10,
-        marginBottom: 20,
-    },
-    footer: {
-        justifyContent: 'flex-end',
-        marginBottom: 36,
-        alignItems: 'center',
+    jobCard: {
+        padding: 10,
+        marginVertical: 10,
+        backgroundColor: '#fff',
+        borderColor: '#ddd',
+        borderWidth: 1,
+        borderRadius: 5,
+        width: '100%',
     },
 });
 
