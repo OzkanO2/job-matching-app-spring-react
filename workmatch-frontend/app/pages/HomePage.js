@@ -1,16 +1,29 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Button, View, Text, StyleSheet, Image } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { JobSwiper } from '../../components/JobSwiper';
+import axios from 'axios';
+import JobSwiper from '../../components/JobSwiper';
 
 const HomePage = () => {
     const navigation = useNavigation();
+    const [jobOffers, setJobOffers] = useState([]);
 
-    React.useLayoutEffect(() => {
-        navigation.setOptions({
-            headerLeft: null,
-        });
-    }, [navigation]);
+    useEffect(() => {
+            navigation.setOptions({
+                headerLeft: null,
+            });
+
+            // Fetch job offers from backend
+            axios.get('http://localhost:8080/adzuna/fetch')
+                .then(response => setJobOffers(response.data))
+                .catch(error => console.error(error));
+        }, [navigation]);
+
+    const handleSwipeRight = (job) => {
+        axios.post('http://localhost:8080/job-offers/save', job)
+            .then(response => console.log('Job saved:', response.data))
+            .catch(error => console.error(error));
+    };
 
     return (
         <View style={styles.container}>
@@ -23,7 +36,7 @@ const HomePage = () => {
             <View style={styles.content}>
                 <Image source={{ uri: 'https://via.placeholder.com/150' }} style={styles.photo} />
                 <Text style={styles.infoText}>INFO (offre emploi ou du chercheur d'emploi)</Text>
-
+                <JobSwiper jobOffers={jobOffers} onSwipeRight={handleSwipeRight} />
             </View>
             <View style={styles.bottomButtons}>
                 <Button title="Non" onPress={() => {  }} />

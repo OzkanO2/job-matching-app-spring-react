@@ -2,7 +2,9 @@ import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import Swiper from 'react-native-deck-swiper';
 
-const JobSwiper = ({ jobOffers }) => {
+const JobSwiper = ({ jobOffers, onSwipeRight }) => {
+    console.log('JobSwiper component loaded', jobOffers);  // Ligne de débogage
+
     return (
         <Swiper
             cards={jobOffers}
@@ -12,8 +14,7 @@ const JobSwiper = ({ jobOffers }) => {
                     <Text>{card.description}</Text>
                 </View>
             )}
-            onSwiped={(cardIndex) => { console.log(cardIndex); }}
-            onSwipedAll={() => { console.log('All swiped!'); }}
+            onSwipedRight={(cardIndex) => onSwipeRight(jobOffers[cardIndex])}
             cardIndex={0}
             backgroundColor={'#4FD0E9'}
             stackSize={3}

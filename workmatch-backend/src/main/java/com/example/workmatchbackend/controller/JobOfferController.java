@@ -42,6 +42,11 @@ public class JobOfferController {
         return jobOfferService.saveJobOffer(jobOffer);
     }
 
+    @PostMapping("/save")
+    public JobOffer saveJobOffer(@RequestBody JobOffer jobOffer) {
+        return jobOfferService.saveJobOffer(jobOffer);
+    }
+
     @PutMapping("/{id}")
     public JobOffer updateJobOffer(@PathVariable String id, @RequestBody JobOffer jobOfferDetails) {
         Optional<JobOffer> optionalJobOffer = jobOfferService.getJobOfferById(id);

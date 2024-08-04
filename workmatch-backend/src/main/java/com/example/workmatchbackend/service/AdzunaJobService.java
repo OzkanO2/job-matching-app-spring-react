@@ -21,7 +21,7 @@ public class AdzunaJobService {
     public AdzunaJobService(@Qualifier("adzunaRestTemplate") RestTemplate restTemplate) {
         this.restTemplate = restTemplate;
     }
-    private static final String API_URL = "https://api.adzuna.com/v1/api/jobs/us/search/1?app_id=YOUR_APP_ID&app_key=YOUR_APP_KEY&results_per_page=100&what=software%20developer";
+    private static final String API_URL = "https://api.adzuna.com/v1/api/jobs/us/search/1?app_id=b50d337a&app_key=7a9d8272a034e629a9f62ae0adb917ba&results_per_page=100&what=software%20developer";
 
     public List<JobOffer> fetchAndSaveJobOffers() {
         RestTemplate restTemplate = new RestTemplate();
