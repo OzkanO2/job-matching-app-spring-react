@@ -36,7 +36,7 @@ const HomePage = () => {
     }, [navigation]);
 
     return (
-        <ScrollView style={styles.container}>
+        <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
             <View style={styles.topButtons}>
                 <Button title="Profile" onPress={() => navigation.navigate('ProfilePage')} />
                 <Button title="Main Menu" onPress={() => navigation.navigate('Home')} />
@@ -63,7 +63,10 @@ const HomePage = () => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        padding: 10,
+    },
+    contentContainer: {
+        flexGrow: 1,
+        justifyContent: 'space-between',
     },
     topButtons: {
         flexDirection: 'row',

@@ -9,6 +9,10 @@ const ProfilePage = () => {
     const [userInfo, setUserInfo] = useState(null);
 
     useEffect(() => {
+        navigation.setOptions({
+            headerLeft: () => null,
+        });
+
         const fetchUserInfo = async () => {
             try {
                 const token = await AsyncStorage.getItem('userToken');
