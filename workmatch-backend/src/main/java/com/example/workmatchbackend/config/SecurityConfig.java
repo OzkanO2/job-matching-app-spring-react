@@ -38,7 +38,7 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.csrf().disable()
                 .authorizeRequests()
-                .requestMatchers("/users/login", "/users/register", "/adzuna/fetch").permitAll() // Mettez à jour les chemins ici
+                .requestMatchers("/users/login", "/users/register", "/adzuna/fetch", "/users/{username}").permitAll() // Mettez à jour les chemins ici
                 .anyRequest().authenticated()
                 .and()
                 .cors();

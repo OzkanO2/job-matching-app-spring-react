@@ -1,15 +1,39 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Button, View, Text, StyleSheet, Image } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import axios from 'axios';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const ProfilePage = () => {
     const navigation = useNavigation();
+    const [userInfo, setUserInfo] = useState(null);
 
-    React.useLayoutEffect(() => {
-        navigation.setOptions({
-            headerLeft: null,
-        });
-    }, [navigation]);
+    useEffect(() => {
+        const fetchUserInfo = async () => {
+            try {
+                const token = await AsyncStorage.getItem('userToken');
+                const username = await AsyncStorage.getItem('username');
+                if (!token || !username) {
+                    throw new Error('No token found');
+                }
+
+                const response = await axios.get(`http://localhost:8080/users/${username}`, {
+                    headers: {
+                        Authorization: token,
+                    },
+                });
+                setUserInfo(response.data);
+            } catch (error) {
+                console.error("Failed to load user info:", error);
+            }
+        };
+
+        fetchUserInfo();
+    }, []);
+
+    if (!userInfo) {
+        return <Text>Loading...</Text>;
+    }
 
     return (
         <View style={styles.container}>
@@ -22,6 +46,9 @@ const ProfilePage = () => {
             <View style={styles.content}>
                 <Image source={{ uri: 'https://example.com/photo.jpg' }} style={styles.photo} />
                 <Text style={styles.infoText}>User Info</Text>
+                <Text>{userInfo.username}</Text>
+                <Text>{userInfo.email}</Text>
+                <Text>{userInfo.userType}</Text>
                 <Button title="EDIT" onPress={() => navigation.navigate('EditProfilePage')} />
                 <Button title="SETTINGS" onPress={() => navigation.navigate('Settings')} />
             </View>

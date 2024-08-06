@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import com.example.workmatchbackend.model.UserType;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -42,12 +43,13 @@ public class UserController {
         return userService.saveUser(user);
     }
 
-    @GetMapping("/{id}")
+    // Change the mapping to avoid ambiguity
+    @GetMapping("/id/{id}")
     public Optional<User> getUserById(@PathVariable String id) {
         return userService.getUserById(id);
     }
 
-    @PutMapping("/{id}")
+    @PutMapping("/id/{id}")
     public User updateUser(@PathVariable String id, @RequestBody User userDetails) {
         Optional<User> optionalUser = userService.getUserById(id);
         if (optionalUser.isPresent()) {
@@ -61,15 +63,31 @@ public class UserController {
         return null;
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/id/{id}")
     public void deleteUser(@PathVariable String id) {
         userService.deleteUser(id);
     }
+//    @PostMapping("/register")
+//    public ResponseEntity<?> registerUser(@RequestBody User user) {
+//        userRepository.save(user);
+//        return new ResponseEntity<>(HttpStatus.CREATED);
+//    }
 
     @PostMapping("/register")
-    public ResponseEntity<?> registerUser(@RequestBody User user) {
-        userRepository.save(user);
-        return new ResponseEntity<>(HttpStatus.CREATED);
+    public ResponseEntity<User> registerUser(@RequestBody User user) {
+        Optional<User> existingUser = userRepository.findByEmail(user.getEmail());
+        if (existingUser.isPresent()) {
+            return ResponseEntity.status(409).build(); // Conflit si l'utilisateur existe déjà
+        }
+
+        user.setUserType(user.getUserType() != null ? user.getUserType() : UserType.INDIVIDUAL); // Défaut à INDIVIDUAL
+        User savedUser = userRepository.save(user);
+        return ResponseEntity.status(201).body(savedUser);
+    }
+
+    @GetMapping("/{username}")
+    public User getUserInfo(@PathVariable String username) {
+        return userRepository.findByUsername(username);
     }
 
     @PostMapping("/login")

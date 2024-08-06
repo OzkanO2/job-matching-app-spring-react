@@ -6,6 +6,8 @@ export default function SignUpPage({ navigation }) {
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [userType, setUserType] = useState('INDIVIDUAL'); // Par défaut à INDIVIDUAL
+
 
     const validateInput = () => {
         if (username.length < 4) {
@@ -29,11 +31,11 @@ export default function SignUpPage({ navigation }) {
         return;
       }
 
-    axios.post('http://localhost:8080/users/register', { username, email, password })
+    axios.post('http://localhost:8080/users/register', { username, email, password, userType })
       .then(response => {
         if (response.status === 201) {
           alert('User registered successfully');
-          const userInfo = { username, email, password };
+          const userInfo = { username, email, password, userType };
           navigation.navigate('OnboardingPage', { userInfo });
         } else {
           alert('Registration failed');

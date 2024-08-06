@@ -13,6 +13,7 @@ public class User {
     private String email;
     private String password;
     private List<String> skills;  // Competence list
+    private UserType userType;  // Ajoutez ce champ
 
     // Getters and setters
 
@@ -54,5 +55,13 @@ public class User {
 
     public void setSkills(List<String> skills) {
         this.skills = skills;
+    }
+
+    public UserType getUserType() {
+        return userType;
+    }
+
+    public void setUserType(UserType userType) {
+        this.userType = userType;
     }
 }
