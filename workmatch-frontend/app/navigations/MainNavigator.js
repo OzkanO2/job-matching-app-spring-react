@@ -13,6 +13,7 @@ import ChatPage from '../pages/chat/ChatPage';
 import MyOffersPage from '../pages/offers/MyOffersPage';
 import OnboardingPage from '../pages/onboarding/OnboardingPage';
 import JobSeekerOnboardingPage from '../pages/onboarding/JobSeekerOnboardingPage';
+import CompanyOnboardingPage from '../pages/onboarding/CompanyOnboardingPage';
 
 const Stack = createStackNavigator();
 
@@ -30,6 +31,7 @@ const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
       <Stack.Screen name="MyOffersPage" component={MyOffersPage} />
       <Stack.Screen name="ProfilePage" component={ProfilePage} />
       <Stack.Screen name="EditProfilePage" component={EditProfilePage} />
+      <Stack.Screen name="CompanyOnboarding" component={CompanyOnboardingPage} />
       <Stack.Screen name="Protected" component={ProtectedPage} />
     </Stack.Navigator>
   );

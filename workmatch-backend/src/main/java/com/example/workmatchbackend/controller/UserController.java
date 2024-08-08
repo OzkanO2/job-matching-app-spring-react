@@ -8,16 +8,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
 import com.example.workmatchbackend.model.UserType;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.List;
 import java.util.Optional;
-
 
 @RestController
 @RequestMapping("/users")
@@ -33,6 +30,9 @@ public class UserController {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
     @GetMapping
     public List<User> getAllUsers() {
         return userService.getAllUsers();
@@ -43,7 +43,6 @@ public class UserController {
         return userService.saveUser(user);
     }
 
-    // Change the mapping to avoid ambiguity
     @GetMapping("/id/{id}")
     public Optional<User> getUserById(@PathVariable String id) {
         return userService.getUserById(id);
@@ -56,7 +55,7 @@ public class UserController {
             User user = optionalUser.get();
             user.setEmail(userDetails.getEmail());
             user.setUsername(userDetails.getUsername());
-            user.setPassword(userDetails.getPassword());
+            user.setPassword(passwordEncoder.encode(userDetails.getPassword()));
             user.setSkills(userDetails.getSkills());
             return userService.saveUser(user);
         }
@@ -67,23 +66,45 @@ public class UserController {
     public void deleteUser(@PathVariable String id) {
         userService.deleteUser(id);
     }
-//    @PostMapping("/register")
-//    public ResponseEntity<?> registerUser(@RequestBody User user) {
-//        userRepository.save(user);
-//        return new ResponseEntity<>(HttpStatus.CREATED);
-//    }
 
     @PostMapping("/register")
-    public ResponseEntity<User> registerUser(@RequestBody User user) {
-        Optional<User> existingUser = userRepository.findByEmail(user.getEmail());
-        if (existingUser.isPresent()) {
-            return ResponseEntity.status(409).build(); // Conflit si l'utilisateur existe déjà
+    public ResponseEntity<?> registerUser(@RequestBody User user) {
+        System.out.println("Registering user: " + user.getUsername() + ", " + user.getEmail() + ", UserType: " + user.getUserType());
+
+        if (userService.existsByEmail(user.getEmail())) {
+            System.out.println("Email already in use: " + user.getEmail());
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("Email already in use");
+        }
+        if (userService.existsByUsername(user.getUsername())) {
+            System.out.println("Username already in use: " + user.getUsername());
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("Username already in use");
         }
 
-        user.setUserType(user.getUserType() != null ? user.getUserType() : UserType.INDIVIDUAL); // Défaut à INDIVIDUAL
-        User savedUser = userRepository.save(user);
-        return ResponseEntity.status(201).body(savedUser);
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        // Ne redéfinissez pas userType par défaut ici
+        System.out.println("UserType: " + user.getUserType());
+
+        User savedUser = userService.saveUser(user);
+        System.out.println("User registered successfully: " + savedUser.getUsername() + ", UserType: " + savedUser.getUserType());
+        return ResponseEntity.status(HttpStatus.CREATED).body(savedUser);
     }
+    @PostMapping("/updateUserType")
+    public ResponseEntity<?> updateUserType(@RequestBody User user) {
+        System.out.println("Updating user type for user: " + user.getUsername() + " to " + user.getUserType());
+
+        Optional<User> optionalUser = userService.getUserByUsername(user.getUsername());
+        if (optionalUser.isPresent()) {
+            User existingUser = optionalUser.get();
+            existingUser.setUserType(user.getUserType());
+            userService.saveUser(existingUser);
+            return ResponseEntity.ok(existingUser);
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
+        }
+    }
+
+
+
 
     @GetMapping("/{username}")
     public User getUserInfo(@PathVariable String username) {
@@ -94,10 +115,9 @@ public class UserController {
     public ResponseEntity<?> loginUser(@RequestBody Map<String, String> user) {
         String username = user.get("username");
         String password = user.get("password");
-        System.out.println(username);
-        System.out.println(password);
+
         User existingUser = userRepository.findByUsername(username);
-        if (existingUser != null && existingUser.getPassword().equals(password)) {
+        if (existingUser != null && passwordEncoder.matches(password, existingUser.getPassword())) {
             String token = jwtUtil.generateToken(username);
             Map<String, String> response = new HashMap<>();
             response.put("token", token);

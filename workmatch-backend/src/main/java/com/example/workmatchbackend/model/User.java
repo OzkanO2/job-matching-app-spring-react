@@ -12,8 +12,8 @@ public class User {
     private String username;
     private String email;
     private String password;
-    private List<String> skills;  // Competence list
-    private UserType userType;  // Ajoutez ce champ
+    private List<String> skills;
+    private UserType userType;
 
     // Getters and setters
 
