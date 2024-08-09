@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Button, View, Text, StyleSheet, Image } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -8,32 +8,30 @@ const ProfilePage = () => {
     const navigation = useNavigation();
     const [userInfo, setUserInfo] = useState(null);
 
-    useEffect(() => {
-        navigation.setOptions({
-            headerLeft: () => null,
-        });
-
-        const fetchUserInfo = async () => {
-            try {
-                const token = await AsyncStorage.getItem('userToken');
-                const username = await AsyncStorage.getItem('username');
-                if (!token || !username) {
-                    throw new Error('No token found');
-                }
-
-                const response = await axios.get(`http://localhost:8080/users/${username}`, {
-                    headers: {
-                        Authorization: token,
-                    },
-                });
-                setUserInfo(response.data);
-            } catch (error) {
-                console.error("Failed to load user info:", error);
+    const fetchUserInfo = async () => {
+        try {
+            const token = await AsyncStorage.getItem('userToken');
+            const username = await AsyncStorage.getItem('username');
+            if (!token || !username) {
+                throw new Error('No token found');
             }
-        };
 
-        fetchUserInfo();
-    }, []);
+            const response = await axios.get(`http://localhost:8080/users/${username}`, {
+                headers: {
+                    Authorization: token,
+                },
+            });
+            setUserInfo(response.data);
+        } catch (error) {
+            console.error("Failed to load user info:", error);
+        }
+    };
+
+    useFocusEffect(
+        React.useCallback(() => {
+            fetchUserInfo();  // Appeler fetchUserInfo chaque fois que la page est affichée
+        }, [])
+    );
 
     if (!userInfo) {
         return <Text>Loading...</Text>;

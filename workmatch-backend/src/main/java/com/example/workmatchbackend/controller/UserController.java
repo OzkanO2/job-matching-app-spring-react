@@ -62,6 +62,25 @@ public class UserController {
         return null;
     }
 
+    @PutMapping("/{username}")
+    public ResponseEntity<?> updateUserProfile(@PathVariable String username, @RequestBody User userDetails) {
+        Optional<User> optionalUser = userRepository.findOptionalByUsername(username);
+        if (optionalUser.isPresent()) {
+            User user = optionalUser.get();
+            user.setUsername(userDetails.getUsername());
+            user.setEmail(userDetails.getEmail());
+            // Vous pouvez également mettre à jour d'autres champs si nécessaire
+            userRepository.save(user);
+            return ResponseEntity.ok(user);
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
+        }
+    }
+
+
+
+
+
     @DeleteMapping("/id/{id}")
     public void deleteUser(@PathVariable String id) {
         userService.deleteUser(id);
