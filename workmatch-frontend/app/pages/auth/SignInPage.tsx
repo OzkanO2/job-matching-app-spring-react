@@ -7,22 +7,23 @@ export default function SignInPage({ navigation }) {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
 
-    const handleSignIn = async () => {
-        try {
-            const response = await axios.post('http://localhost:8080/users/login', { username, password });
-            const token = response.data.token;
-            if (token) {
-                await AsyncStorage.setItem('userToken', `Bearer ${token}`);
-                await AsyncStorage.setItem('username', username); // Stocker le nom d'utilisateur
-                navigation.navigate('Home');
-            } else {
-                Alert.alert('Invalid credentials');
-            }
-        } catch (error) {
-            console.error('An error occurred:', error);
-            Alert.alert('An error occurred. Please try again.');
-        }
-    };
+   const handleSignIn = async () => {
+       try {
+           const response = await axios.post('http://localhost:8080/users/login', { username, password });
+           const token = response.data.token;
+           if (token) {
+               await AsyncStorage.setItem('userToken', `Bearer ${token}`);
+               await AsyncStorage.setItem('username', username);
+               navigation.navigate('Home');
+           } else {
+               Alert.alert('Invalid credentials');
+           }
+       } catch (error) {
+           console.error('An error occurred:', error);
+           Alert.alert('An error occurred. Please try again.');
+       }
+   };
+
 
     return (
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>

@@ -154,4 +154,14 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");
         }
     }
+    @PostMapping("/logout")
+    public ResponseEntity<?> logoutUser(@RequestBody Map<String, String> tokenMap) {
+        String token = tokenMap.get("token");
+
+        // Optionnel : Ajouter le token à une liste de révocation ou à un cache pour le rendre invalide
+        // revokeToken(token); // Implémentez cette méthode pour invalider le token (par exemple, stocker dans une base de données)
+
+        return ResponseEntity.ok("Successfully logged out");
+    }
+
 }

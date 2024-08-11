@@ -12,17 +12,14 @@ const ProfilePage = () => {
         try {
             const token = await AsyncStorage.getItem('userToken');
             const username = await AsyncStorage.getItem('username');
+            console.log('Token récupéré:', token); // Log le token
+            console.log('Nom d\'utilisateur récupéré:', username); // Log le nom d'utilisateur
+
             if (!token || !username) {
                 throw new Error('No token or username found');
             }
 
-            // Log pour vérifier le token récupéré
-            console.log('Retrieved Token:', token);
-
-            // Ajouter "Bearer " devant le token
             const bearerToken = `${token}`;
-            console.log('Bearer Token Sent:', bearerToken); // Log pour vérifier le token envoyé
-
             const response = await axios.get(`http://localhost:8080/users/${username}`, {
                 headers: {
                     Authorization: bearerToken,
@@ -41,8 +38,28 @@ const ProfilePage = () => {
         }, [])
     );
 
+    const handleSignOut = async () => {
+        try {
+            const token = await AsyncStorage.getItem('userToken');
+            const username = await AsyncStorage.getItem('username');
+            console.log('Token avant déconnexion:', token);
+            console.log('Nom d\'utilisateur avant déconnexion:', username);
+
+            if (token) {
+                await AsyncStorage.removeItem('userToken');
+                await AsyncStorage.removeItem('username');
+                console.log('Token après déconnexion:', await AsyncStorage.getItem('userToken'));
+                console.log('Nom d\'utilisateur après déconnexion:', await AsyncStorage.getItem('username'));
+
+                navigation.navigate('SignIn');
+            }
+        } catch (error) {
+            console.error('Failed to sign out:', error);
+        }
+    };
+
     if (!userInfo) {
-        return <Text>Loading...</Text>;
+        return <Text>Loading...</Text>; // Vous pouvez personnaliser ce message de chargement
     }
 
     return (
@@ -63,7 +80,7 @@ const ProfilePage = () => {
                 <Button title="SETTINGS" onPress={() => navigation.navigate('Settings')} />
             </View>
             <View style={styles.footer}>
-                <Button title="SIGN OUT" onPress={() => navigation.navigate('SignIn')} />
+                <Button title="SIGN OUT" onPress={handleSignOut} />
             </View>
         </View>
     );

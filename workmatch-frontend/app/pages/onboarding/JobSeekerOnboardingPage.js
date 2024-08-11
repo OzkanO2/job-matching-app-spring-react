@@ -1,7 +1,10 @@
 import React, { useState } from 'react';
 import { View, Text, Button, StyleSheet, CheckBox } from 'react-native';
+import axios from 'axios';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const JobSeekerOnboardingPage = ({ navigation, route }) => {
+  const { userInfo } = route.params;
   const [skills, setSkills] = useState([]);
   const allSkills = ['JavaScript', 'React', 'Node.js', 'Python', 'Java', 'C#', 'Ruby', 'Swift'];
 
@@ -13,12 +16,30 @@ const JobSeekerOnboardingPage = ({ navigation, route }) => {
     }
   };
 
-  const handleSubmit = () => {
-    const { userInfo } = route.params;
-    const updatedUserInfo = { ...userInfo, skills };
-    // Save updatedUserInfo to AsyncStorage or send it to the backend
-    navigation.navigate('Home', { userInfo: updatedUserInfo });
-  };
+  const handleSubmit = async () => {
+     try {
+       const updatedUserInfo = { ...userInfo, skills };
+
+       // Connexion automatique après la sélection du type
+       const response = await axios.post('http://localhost:8080/users/login', {
+         username: userInfo.username,
+         password: userInfo.password,
+       });
+
+       const token = response.data.token;
+       if (token) {
+         await AsyncStorage.setItem('userToken', `Bearer ${token}`);
+         await AsyncStorage.setItem('username', userInfo.username);
+
+         // Rediriger vers la page d'accueil avec les informations utilisateur mises à jour
+         navigation.navigate('Home', { userInfo: updatedUserInfo });
+       } else {
+         alert('Login failed');
+       }
+     } catch (error) {
+       console.error('Login failed:', error);
+     }
+   };
 
   return (
     <View style={styles.container}>

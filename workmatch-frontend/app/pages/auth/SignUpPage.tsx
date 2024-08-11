@@ -46,6 +46,7 @@ export default function SignUpPage({ navigation }) {
           Alert.alert('Error', 'An error occurred. Please try again.');
         }
       });
+
   };
 
   return (
