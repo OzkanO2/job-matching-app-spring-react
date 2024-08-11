@@ -154,6 +154,19 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");
         }
     }
+
+    @PostMapping("/like")
+    public ResponseEntity<Like> likeOffer(@RequestBody Like like) {
+        Like savedLike = likeService.saveLike(like);
+        return ResponseEntity.status(HttpStatus.CREATED).body(savedLike);
+    }
+
+    @GetMapping("/matches/{userId}")
+    public List<Match> getMatchesForUser(@PathVariable String userId) {
+        return matchService.getMatchesForUser(userId);
+    }
+
+
     @PostMapping("/logout")
     public ResponseEntity<?> logoutUser(@RequestBody Map<String, String> tokenMap) {
         String token = tokenMap.get("token");

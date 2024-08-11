@@ -8,4 +8,6 @@ import org.springframework.stereotype.Repository;
 public interface CompanyRepository extends MongoRepository<Company, String> {
     Company findByEmail(String email);
     Company findByUsername(String username);
+    boolean existsByUniqueNumber(String uniqueNumber); // Requête pour vérifier l'existence d'une entreprise par son numéro unique
+
 }

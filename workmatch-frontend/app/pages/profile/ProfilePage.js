@@ -7,13 +7,17 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 const ProfilePage = () => {
     const navigation = useNavigation();
     const [userInfo, setUserInfo] = useState(null);
+    const [userType, setUserType] = useState('');
 
-    const fetchUserInfo = async () => {
-        try {
+    useEffect(() => {
+        const fetchUserInfo = async () => {
             const token = await AsyncStorage.getItem('userToken');
             const username = await AsyncStorage.getItem('username');
-            console.log('Token récupéré:', token); // Log le token
-            console.log('Nom d\'utilisateur récupéré:', username); // Log le nom d'utilisateur
+            const type = await AsyncStorage.getItem('userType');
+            setUserType(type);
+
+            console.log('Token récupéré:', token);
+            console.log('Nom d\'utilisateur récupéré:', username);
 
             if (!token || !username) {
                 throw new Error('No token or username found');
@@ -27,39 +31,32 @@ const ProfilePage = () => {
             });
 
             setUserInfo(response.data);
-        } catch (error) {
-            console.error("Failed to load user info:", error);
-        }
-    };
+        };
 
-    useFocusEffect(
-        React.useCallback(() => {
-            fetchUserInfo();  // Appeler fetchUserInfo chaque fois que la page est affichée
-        }, [])
-    );
+        fetchUserInfo();
+    }, [navigation]);
 
     const handleSignOut = async () => {
         try {
-            const token = await AsyncStorage.getItem('userToken');
-            const username = await AsyncStorage.getItem('username');
-            console.log('Token avant déconnexion:', token);
-            console.log('Nom d\'utilisateur avant déconnexion:', username);
-
-            if (token) {
-                await AsyncStorage.removeItem('userToken');
-                await AsyncStorage.removeItem('username');
-                console.log('Token après déconnexion:', await AsyncStorage.getItem('userToken'));
-                console.log('Nom d\'utilisateur après déconnexion:', await AsyncStorage.getItem('username'));
-
-                navigation.navigate('SignIn');
-            }
+            await AsyncStorage.removeItem('userToken');
+            await AsyncStorage.removeItem('username');
+            await AsyncStorage.removeItem('userType');
+            navigation.navigate('SignIn');
         } catch (error) {
             console.error('Failed to sign out:', error);
         }
     };
 
+    const navigateToOffersPage = () => {
+        if (userType === 'INDIVIDUAL') {
+            navigation.navigate('MyJobMatchesPage');
+        } else if (userType === 'COMPANY') {
+            navigation.navigate('MyCompanyOffersPage');
+        }
+    };
+
     if (!userInfo) {
-        return <Text>Loading...</Text>; // Vous pouvez personnaliser ce message de chargement
+        return <Text>Loading...</Text>;
     }
 
     return (
@@ -68,7 +65,7 @@ const ProfilePage = () => {
                 <Button title="Profile" onPress={() => navigation.navigate('ProfilePage')} />
                 <Button title="Main Menu" onPress={() => navigation.navigate('Home')} />
                 <Button title="Chat" onPress={() => navigation.navigate('ChatPage')} />
-                <Button title="My Offers" onPress={() => navigation.navigate('MyOffersPage')} />
+                <Button title="My Offers" onPress={navigateToOffersPage} />
             </View>
             <View style={styles.content}>
                 <Image source={{ uri: 'https://example.com/photo.jpg' }} style={styles.photo} />
@@ -76,6 +73,7 @@ const ProfilePage = () => {
                 <Text>{userInfo.username}</Text>
                 <Text>{userInfo.email}</Text>
                 <Text>{userInfo.userType}</Text>
+                <Text>Certification: {userInfo.companyCertified ? 'Certified' : 'Not Certified'}</Text>
                 <Button title="EDIT" onPress={() => navigation.navigate('EditProfilePage')} />
                 <Button title="SETTINGS" onPress={() => navigation.navigate('Settings')} />
             </View>

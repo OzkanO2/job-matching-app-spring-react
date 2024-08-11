@@ -4,6 +4,8 @@ import com.example.workmatchbackend.model.Company;
 import com.example.workmatchbackend.service.CompanyService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 
 import java.util.List;
 import java.util.Optional;
@@ -26,8 +28,14 @@ public class CompanyController {
     }
 
     @PostMapping
-    public Company createCompany(@RequestBody Company company) {
-        return companyService.saveCompany(company);
+    public ResponseEntity<?> createCompany(@RequestBody Company company) {
+        // Vérifier si une entreprise avec ce numéro unique existe déjà
+        if (companyService.existsByUniqueNumber(company.getUniqueNumber())) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("Cette entreprise est déjà inscrite avec ce numéro unique.");
+        }
+
+        Company savedCompany = companyService.saveCompany(company);
+        return ResponseEntity.status(HttpStatus.CREATED).body(savedCompany);
     }
 
     @PutMapping("/{id}")
@@ -42,6 +50,18 @@ public class CompanyController {
             return companyService.saveCompany(company);
         }
         return null;
+    }
+
+    @PutMapping("/{id}/certify")
+    public ResponseEntity<?> certifyCompany(@PathVariable String id, @RequestParam boolean certified) {
+        Optional<Company> optionalCompany = companyService.getCompanyById(id);
+        if (optionalCompany.isPresent()) {
+            Company company = optionalCompany.get();
+            company.setCertified(certified);
+            companyService.saveCompany(company);
+            return ResponseEntity.ok(company);
+        }
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Entreprise non trouvée");
     }
 
     @DeleteMapping("/{id}")

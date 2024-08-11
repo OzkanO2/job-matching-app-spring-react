@@ -1,15 +1,32 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button, View, Text, StyleSheet } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const MyOffersPage = () => {
     const navigation = useNavigation();
+    const [userType, setUserType] = useState('');
 
-    React.useLayoutEffect(() => {
+    useEffect(() => {
+        const fetchUserType = async () => {
+            const type = await AsyncStorage.getItem('userType');
+            setUserType(type);
+        };
+
+        fetchUserType();
+
         navigation.setOptions({
             headerLeft: null,
         });
     }, [navigation]);
+
+    const navigateToOffersPage = () => {
+        if (userType === 'INDIVIDUAL') {
+            navigation.navigate('MyJobMatchesPage');
+        } else if (userType === 'COMPANY') {
+            navigation.navigate('MyCompanyOffersPage');
+        }
+    };
 
     return (
         <View style={styles.container}>
@@ -17,7 +34,7 @@ const MyOffersPage = () => {
                  <Button title="Profile" onPress={() => navigation.navigate('ProfilePage')} />
                  <Button title="Main Menu" onPress={() => navigation.navigate('Home')} />
                  <Button title="Chat" onPress={() => navigation.navigate('ChatPage')} />
-                 <Button title="My Offers" onPress={() => navigation.navigate('MyOffersPage')} />
+                 <Button title="My Offers" onPress={navigateToOffersPage} />
              </View>
             <View style={styles.content}>
                 <Text style={styles.infoText}>LISTE OFFRE D'EMPLOIS</Text>
@@ -45,19 +62,9 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
     },
-    photo: {
-        width: 150,
-        height: 150,
-        marginBottom: 20,
-    },
     infoText: {
         textAlign: 'center',
         marginBottom: 20,
-    },
-    footer: {
-        justifyContent: 'flex-end',
-        marginBottom: 36,
-        alignItems: 'center',
     },
 });
 

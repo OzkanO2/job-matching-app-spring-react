@@ -36,4 +36,15 @@ public class CompanyService {
     public Company findByUsername(String username) {
         return companyRepository.findByUsername(username);
     }
+
+    public boolean existsByUniqueNumber(String uniqueNumber) {
+        return companyRepository.existsByUniqueNumber(uniqueNumber);
+    }
+    public Company getCompanyByName(String name) {
+        return companyRepository.findByName(name);
+    }
+    public boolean isCompanyCertified(String name) {
+        Company company = companyRepository.findByName(name);
+        return company != null && company.isCertified();
+    }
 }

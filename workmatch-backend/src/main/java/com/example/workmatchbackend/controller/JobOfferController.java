@@ -19,6 +19,9 @@ public class JobOfferController {
     private JobOfferService jobOfferService;
 
     @Autowired
+    private CompanyService companyService;
+
+    @Autowired
     private RestTemplate restTemplate;
 
     @Value("${ADZUNA_APP_ID}")
@@ -39,6 +42,14 @@ public class JobOfferController {
 
     @PostMapping
     public JobOffer createJobOffer(@RequestBody JobOffer jobOffer) {
+        // Vérifiez si l'entreprise est certifiée
+        Company company = companyService.getCompanyByName(jobOffer.getCompany());
+        if (company != null) {
+            jobOffer.setCompanyCertified(company.isCertified());
+        } else {
+            jobOffer.setCompanyCertified(false); // Si l'entreprise n'existe pas ou n'est pas trouvée
+        }
+
         return jobOfferService.saveJobOffer(jobOffer);
     }
 
@@ -55,10 +66,22 @@ public class JobOfferController {
             jobOffer.setInfo(jobOfferDetails.getInfo());
             jobOffer.setCompetences(jobOfferDetails.getCompetences());
             jobOffer.setTag(jobOfferDetails.getTag());
+            jobOffer.setCompanyCertified(jobOfferDetails.isCompanyCertified());
             return jobOfferService.saveJobOffer(jobOffer);
         }
         return null;
     }
+    @PostMapping("/like")
+    public ResponseEntity<Like> likeOffer(@RequestBody Like like) {
+        Like savedLike = likeService.saveLike(like);
+        return ResponseEntity.status(HttpStatus.CREATED).body(savedLike);
+    }
+
+    @GetMapping("/matches/{userId}")
+    public List<Match> getMatchesForUser(@PathVariable String userId) {
+        return matchService.getMatchesForUser(userId);
+    }
+
 
     @DeleteMapping("/{id}")
     public void deleteJobOffer(@PathVariable String id) {

@@ -11,6 +11,8 @@ public class Company {
     private String username;
     private String password;
     private String verificationCode;
+    private String uniqueNumber; // Ajoutez ce champ pour stocker le numéro unique de l'entreprise
+    private boolean certified; // Nouveau champ pour indiquer si l'entreprise est certifiée
 
     // Getters and Setters
     public String getId() {
@@ -51,5 +53,20 @@ public class Company {
 
     public void setVerificationCode(String verificationCode) {
         this.verificationCode = verificationCode;
+    }
+
+    public String getUniqueNumber() {
+        return uniqueNumber;
+    }
+
+    public void setUniqueNumber(String uniqueNumber) {
+        this.uniqueNumber = uniqueNumber;
+    }
+    public boolean isCertified() {
+        return certified;
+    }
+
+    public void setCertified(boolean certified) {
+        this.certified = certified;
     }
 }

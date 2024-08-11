@@ -18,6 +18,7 @@ public class JobOffer {
     private Double salaryMin;
     private Double salaryMax;
     private String url;
+    private boolean companyCertified; // Ajoutez ce champ
 
     // Getters and Setters
     public String getInfo() {
@@ -90,5 +91,13 @@ public class JobOffer {
 
     public void setUrl(String url) {
         this.url = url;
+    }
+
+    public boolean isCompanyCertified() {
+        return companyCertified;
+    }
+
+    public void setCompanyCertified(boolean companyCertified) {
+        this.companyCertified = companyCertified;
     }
 }

@@ -1,15 +1,32 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button, View, Text, StyleSheet } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const ChatPage = () => {
     const navigation = useNavigation();
+    const [userType, setUserType] = useState('');
 
-    React.useLayoutEffect(() => {
+    useEffect(() => {
+        const fetchUserType = async () => {
+            const type = await AsyncStorage.getItem('userType');
+            setUserType(type);
+        };
+
+        fetchUserType();
+
         navigation.setOptions({
             headerLeft: null,
         });
     }, [navigation]);
+
+    const navigateToOffersPage = () => {
+        if (userType === 'INDIVIDUAL') {
+            navigation.navigate('MyJobMatchesPage');
+        } else if (userType === 'COMPANY') {
+            navigation.navigate('MyCompanyOffersPage');
+        }
+    };
 
     return (
         <View style={styles.container}>
@@ -17,7 +34,7 @@ const ChatPage = () => {
                 <Button title="Profile" onPress={() => navigation.navigate('ProfilePage')} />
                 <Button title="Main Menu" onPress={() => navigation.navigate('Home')} />
                 <Button title="Chat" onPress={() => navigation.navigate('ChatPage')} />
-                <Button title="My Offers" onPress={() => navigation.navigate('MyOffersPage')} />
+                <Button title="My Offers" onPress={navigateToOffersPage} />
             </View>
             <View style={styles.content}>
                 <Text style={styles.matches}>MATCHES LOGO 1 2 3 4</Text>
@@ -28,7 +45,6 @@ const ChatPage = () => {
                     <Text>3</Text>
                 </View>
             </View>
-
         </View>
     );
 };
