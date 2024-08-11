@@ -12,44 +12,64 @@ const EditProfilePage = () => {
 
     useEffect(() => {
         const loadUserData = async () => {
-            const storedUsername = await AsyncStorage.getItem('username');
-            const token = await AsyncStorage.getItem('userToken');
-            const response = await axios.get(`http://localhost:8080/users/${storedUsername}`, {
-                headers: {
-                    Authorization: token,
-                },
-            });
-            setUsername(response.data.username);
-            setEmail(response.data.email);
-            setUserInfo(response.data);
+            try {
+                const storedUsername = await AsyncStorage.getItem('username');
+                const token = await AsyncStorage.getItem('userToken');
+
+                // Assurez-vous que le token est précédé de "Bearer "
+                const bearerToken = `Bearer ${token}`;
+
+                const response = await axios.get(`http://localhost:8080/users/${storedUsername}`, {
+                    headers: {
+                        Authorization: bearerToken,
+                    },
+                });
+
+                setUsername(response.data.username);
+                setEmail(response.data.email);
+                setUserInfo(response.data);
+            } catch (error) {
+                console.error('Failed to load user info:', error);
+                Alert.alert('Failed to load user info');
+            }
         };
+
         loadUserData();
     }, []);
 
-    const handleSave = async () => {
-        try {
-            const token = await AsyncStorage.getItem('userToken');
-            const response = await axios.put(
-                `http://localhost:8080/users/${userInfo.username}`, // userInfo.username est l'ancien nom d'utilisateur
-                {
-                    username: username,
-                    email: email,
-                },
-                {
-                    headers: {
-                        Authorization: token,
-                    },
-                }
-            );
-            Alert.alert('Profile updated successfully');
-            // Mettre à jour le stockage local si le nom d'utilisateur a changé
-            await AsyncStorage.setItem('username', username);
-            navigation.goBack();
-        } catch (error) {
-            console.error('An error occurred:', error);
-            Alert.alert('Failed to update profile');
-        }
-    };
+
+   const handleSave = async () => {
+       try {
+           const token = await AsyncStorage.getItem('userToken');
+           const bearerToken = `Bearer ${token}`;
+
+           console.log('Bearer Token Sent in EditProfilePage:', bearerToken); // Log pour vérifier le token
+
+           const response = await axios.put(
+               'http://localhost:8080/users/updateUsername',
+               {
+                   oldUsername: userInfo.username,
+                   newUsername: username,
+               },
+               {
+                   headers: {
+                       Authorization: bearerToken,
+                   },
+               }
+           );
+
+           const newToken = response.data.token;
+           await AsyncStorage.setItem('userToken', `Bearer ${newToken}`);
+
+           await AsyncStorage.setItem('username', username);
+
+           Alert.alert('Profile updated successfully');
+           navigation.goBack();
+       } catch (error) {
+           console.error('An error occurred:', error);
+           Alert.alert('Failed to update profile');
+       }
+   };
 
     return (
         <View style={styles.container}>

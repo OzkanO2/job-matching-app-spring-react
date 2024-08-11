@@ -62,20 +62,29 @@ public class UserController {
         return null;
     }
 
-    @PutMapping("/{username}")
-    public ResponseEntity<?> updateUserProfile(@PathVariable String username, @RequestBody User userDetails) {
-        Optional<User> optionalUser = userRepository.findOptionalByUsername(username);
+    @PutMapping("/updateUsername")
+    public ResponseEntity<?> updateUsername(@RequestBody Map<String, String> updateRequest) {
+        String oldUsername = updateRequest.get("oldUsername");
+        String newUsername = updateRequest.get("newUsername");
+
+        Optional<User> optionalUser = userRepository.findOptionalByUsername(oldUsername);
         if (optionalUser.isPresent()) {
             User user = optionalUser.get();
-            user.setUsername(userDetails.getUsername());
-            user.setEmail(userDetails.getEmail());
-            // Vous pouvez également mettre à jour d'autres champs si nécessaire
-            userRepository.save(user);
-            return ResponseEntity.ok(user);
+            user.setUsername(newUsername);
+            userRepository.save(user);  // Mise à jour du nom d'utilisateur dans la base de données
+
+            // Regénérer le token avec le nouveau nom d'utilisateur
+            String newToken = jwtUtil.generateToken(newUsername);
+
+            // Retourner le nouveau token au client
+            Map<String, String> response = new HashMap<>();
+            response.put("token", newToken);
+            return ResponseEntity.ok(response);
         } else {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
         }
     }
+
 
 
 

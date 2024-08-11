@@ -18,6 +18,9 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
+import io.jsonwebtoken.MalformedJwtException;
+
+
 @Component
 public class JwtRequestFilter extends OncePerRequestFilter {
 
@@ -39,9 +42,12 @@ public class JwtRequestFilter extends OncePerRequestFilter {
         if (requestTokenHeader != null && requestTokenHeader.startsWith("Bearer ")) {
             jwtToken = requestTokenHeader.substring(7);
             try {
+                System.out.println("Received JWT Token: " + jwtToken);
                 username = jwtUtil.extractUsername(jwtToken);
+            } catch (MalformedJwtException e) {
+                System.out.println("Malformed JWT Token: " + e.getMessage());
             } catch (IllegalArgumentException | ExpiredJwtException | SignatureException e) {
-                System.out.println("Unable to get JWT Token or Token has expired/Invalid signature");
+                System.out.println("JWT Token error: " + e.getMessage());
             }
         } else {
             logger.warn("JWT Token does not begin with Bearer String");
@@ -59,4 +65,6 @@ public class JwtRequestFilter extends OncePerRequestFilter {
         }
         chain.doFilter(request, response);
     }
+
+
 }

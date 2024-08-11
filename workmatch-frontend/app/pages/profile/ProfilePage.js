@@ -13,14 +13,22 @@ const ProfilePage = () => {
             const token = await AsyncStorage.getItem('userToken');
             const username = await AsyncStorage.getItem('username');
             if (!token || !username) {
-                throw new Error('No token found');
+                throw new Error('No token or username found');
             }
+
+            // Log pour vérifier le token récupéré
+            console.log('Retrieved Token:', token);
+
+            // Ajouter "Bearer " devant le token
+            const bearerToken = `Bearer ${token}`;
+            console.log('Bearer Token Sent:', bearerToken); // Log pour vérifier le token envoyé
 
             const response = await axios.get(`http://localhost:8080/users/${username}`, {
                 headers: {
-                    Authorization: token,
+                    Authorization: bearerToken,
                 },
             });
+
             setUserInfo(response.data);
         } catch (error) {
             console.error("Failed to load user info:", error);

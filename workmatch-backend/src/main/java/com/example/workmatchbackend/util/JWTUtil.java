@@ -13,8 +13,6 @@ import java.util.function.Function;
 @Component
 public class JWTUtil {
 
-    private String secret = "workmatchSecretKey";
-
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
     }
@@ -29,23 +27,44 @@ public class JWTUtil {
     }
 
     private Claims extractAllClaims(String token) {
-        return Jwts.parser().setSigningKey(secret).parseClaimsJws(token).getBody();
+        String secret = "mysecretkey"; // La même clé doit être utilisée ici
+        return Jwts.parser()
+                .setSigningKey(secret)
+                .parseClaimsJws(token)
+                .getBody();
     }
+
+
 
     private Boolean isTokenExpired(String token) {
         return extractExpiration(token).before(new Date());
     }
 
     public String generateToken(String username) {
+        String secret = "mysecretkey"; // Assurez-vous que cette clé est correcte
         Map<String, Object> claims = new HashMap<>();
-        return createToken(claims, username);
+        return Jwts.builder()
+                .setClaims(claims)
+                .setSubject(username)
+                .setIssuedAt(new Date(System.currentTimeMillis()))
+                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 10)) // 10 heures
+                .signWith(SignatureAlgorithm.HS256, secret)
+                .compact();
     }
 
+
+
     private String createToken(Map<String, Object> claims, String subject) {
-        return Jwts.builder().setClaims(claims).setSubject(subject).setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 10))
-                .signWith(SignatureAlgorithm.HS256, secret).compact();
+        String secret = "mysecretkey";
+        return Jwts.builder()
+                .setClaims(claims)
+                .setSubject(subject)
+                .setIssuedAt(new Date(System.currentTimeMillis()))
+                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 10)) // 10 heures
+                .signWith(SignatureAlgorithm.HS256, secret)
+                .compact();
     }
+
 
     public Boolean validateToken(String token, String username) {
         final String extractedUsername = extractUsername(token);
