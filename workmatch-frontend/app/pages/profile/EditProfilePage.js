@@ -41,7 +41,7 @@ const EditProfilePage = () => {
    const handleSave = async () => {
        try {
            const token = await AsyncStorage.getItem('userToken');
-           const bearerToken = `Bearer ${token}`;
+           const bearerToken = `${token}`;
 
            console.log('Bearer Token Sent in EditProfilePage:', bearerToken); // Log pour vérifier le token
 

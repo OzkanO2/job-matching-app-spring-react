@@ -20,7 +20,7 @@ const ProfilePage = () => {
             console.log('Retrieved Token:', token);
 
             // Ajouter "Bearer " devant le token
-            const bearerToken = `Bearer ${token}`;
+            const bearerToken = `${token}`;
             console.log('Bearer Token Sent:', bearerToken); // Log pour vérifier le token envoyé
 
             const response = await axios.get(`http://localhost:8080/users/${username}`, {
