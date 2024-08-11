@@ -9,8 +9,11 @@ import java.util.List;
 public class Match {
     @Id
     private String id;
+    private String userId;
+    private String jobId;
     private JobOffer jobOffer;
     private List<User> matchedUsers;
+    private String companyId;
 
     // Getters and Setters
     public String getId() {
@@ -20,7 +23,20 @@ public class Match {
     public void setId(String id) {
         this.id = id;
     }
+    public String getUserId() {
+        return userId;
+    }
 
+    public void setUserId(String userId) {
+        this.userId = userId;
+    }
+    public String getJobId() {
+        return jobId;
+    }
+
+    public void setJobId(String jobId) {
+        this.jobId = jobId;
+    }
     public JobOffer getJobOffer() {
         return jobOffer;
     }
@@ -35,5 +51,12 @@ public class Match {
 
     public void setMatchedUsers(List<User> matchedUsers) {
         this.matchedUsers = matchedUsers;
+    }
+    public String getCompanyId() {
+        return companyId;
+    }
+
+    public void setCompanyId(String companyId) {
+        this.companyId = companyId;
     }
 }

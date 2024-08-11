@@ -13,8 +13,13 @@ const HomePage = () => {
 
     useEffect(() => {
         const fetchUserType = async () => {
-            const type = await AsyncStorage.getItem('userType');
-            setUserType(type);
+            try {
+                const storedUserType = await AsyncStorage.getItem('userType');
+                console.log('Retrieved userType:', storedUserType); // Log pour vérifier le userType
+                setUserType(storedUserType);
+            } catch (error) {
+                console.error("Failed to fetch userType:", error);
+            }
         };
 
         fetchUserType();
@@ -26,7 +31,7 @@ const HomePage = () => {
         console.log("Fetching job offers from backend...");
 
         // Fetch job offers from backend
-        axios.get('http://localhost:8080/job-offers', {
+        axios.get('http://localhost:8080/adzuna/fetch', {
             params: {
                 country: 'us',
                 what: 'software developer'
@@ -45,12 +50,16 @@ const HomePage = () => {
     }, [navigation]);
 
     const navigateToOffersPage = () => {
+        console.log("Navigating to offers page, userType:", userType); // Log pour vérifier le userType
         if (userType === 'INDIVIDUAL') {
+            console.log("Navigating to MyJobMatchesPage");
             navigation.navigate('MyJobMatchesPage');
         } else if (userType === 'COMPANY') {
+            console.log("Navigating to MyCompanyOffersPage");
             navigation.navigate('MyCompanyOffersPage');
         }
     };
+
 
     return (
         <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
@@ -62,20 +71,11 @@ const HomePage = () => {
             </View>
             <View style={styles.content}>
                 <Image source={{ uri: 'https://via.placeholder.com/150' }} style={styles.photo} />
-                <Text style={styles.infoText}>Job Offers</Text>
-                {isLoading ? (
-                    <Text>Loading...</Text>
-                ) : error ? (
-                    <Text>Error loading job offers</Text>
-                ) : jobOffers.length > 0 ? (
+                <Text style={styles.infoText}>INFO (offre emploi ou du chercheur d'emploi) </Text>
+                {jobOffers.length > 0 ? (
                     jobOffers.map((job, index) => (
                         <View key={index} style={styles.jobCard}>
                             <Text>{job.info}</Text>
-                            <Text>Company: {job.company}</Text>
-                            <Text>Location: {job.location}</Text>
-                            <Text>Description: {job.description}</Text>
-                            <Text>Salary: {job.salaryMin} - {job.salaryMax}</Text>
-                            <Text>Certification: {job.companyCertified ? 'Certified' : 'Not Certified'}</Text>
                         </View>
                     ))
                 ) : (

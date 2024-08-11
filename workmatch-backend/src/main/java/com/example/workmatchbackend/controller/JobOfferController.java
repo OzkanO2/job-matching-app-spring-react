@@ -6,7 +6,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseEntity;
+import com.example.workmatchbackend.model.Company;
 
+import com.example.workmatchbackend.model.Like;
+import com.example.workmatchbackend.model.Match;
+import com.example.workmatchbackend.service.CompanyService;
+import com.example.workmatchbackend.service.LikeService;
+import com.example.workmatchbackend.service.MatchService;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import java.util.List;
 import java.util.Optional;
 
@@ -20,6 +29,12 @@ public class JobOfferController {
 
     @Autowired
     private CompanyService companyService;
+
+    @Autowired
+    private LikeService likeService;
+
+    @Autowired
+    private MatchService matchService; // Injectez MatchService
 
     @Autowired
     private RestTemplate restTemplate;
@@ -81,7 +96,12 @@ public class JobOfferController {
     public List<Match> getMatchesForUser(@PathVariable String userId) {
         return matchService.getMatchesForUser(userId);
     }
-
+    // Exemple d'utilisation de matchService
+    @PostMapping("/match")
+    public ResponseEntity<?> createMatch(@RequestBody Match match) {
+        matchService.saveMatch(match);
+        return new ResponseEntity<>(HttpStatus.CREATED);
+    }
 
     @DeleteMapping("/{id}")
     public void deleteJobOffer(@PathVariable String id) {

@@ -10,6 +10,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import com.example.workmatchbackend.model.UserType;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import com.example.workmatchbackend.model.Like;
+import com.example.workmatchbackend.model.Match;
+import com.example.workmatchbackend.service.LikeService;
+import com.example.workmatchbackend.service.MatchService;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -20,6 +24,12 @@ import java.util.Optional;
 @RequestMapping("/users")
 @CrossOrigin(origins = "*", allowedHeaders = "*")
 public class UserController {
+
+    @Autowired
+    private LikeService likeService; // Injectez LikeService
+
+    @Autowired
+    private MatchService matchService;
 
     @Autowired
     private UserService userService;

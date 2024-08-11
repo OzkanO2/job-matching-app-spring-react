@@ -24,6 +24,7 @@ const OnboardingPage = ({ navigation, route }) => {
         if (token) {
           await AsyncStorage.setItem('userToken', `Bearer ${token}`);
           await AsyncStorage.setItem('username', updatedUserInfo.username);
+          await AsyncStorage.setItem('userType', userType);  // Stocke le userType ici
 
           // Rediriger vers la page d'accueil avec les informations utilisateur
           navigation.navigate('Home', { userInfo: updatedUserInfo });

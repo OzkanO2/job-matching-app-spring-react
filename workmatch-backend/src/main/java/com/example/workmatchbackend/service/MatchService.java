@@ -13,6 +13,9 @@ public class MatchService {
     @Autowired
     private MatchRepository matchRepository;
 
+    public List<Match> getMatchesForUser(String userId) {
+        return matchRepository.findByUserId(userId);
+    }
     public List<Match> getAllMatches() {
         return matchRepository.findAll();
     }

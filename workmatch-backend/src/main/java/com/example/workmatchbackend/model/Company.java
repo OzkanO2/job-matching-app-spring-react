@@ -7,6 +7,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 public class Company {
     @Id
     private String id;
+    private String name;  // Ajoutez cette ligne
     private String email;
     private String username;
     private String password;
@@ -68,5 +69,12 @@ public class Company {
 
     public void setCertified(boolean certified) {
         this.certified = certified;
+    }
+    public String getName() {
+        return name;  // Ajoutez cette méthode getter
+    }
+
+    public void setName(String name) {
+        this.name = name;  // Ajoutez cette méthode setter
     }
 }

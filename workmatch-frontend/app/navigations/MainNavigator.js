@@ -20,22 +20,7 @@ import MyCompanyOffersPage from '../pages/offers/MyCompanyOffersPage'; // Nouvel
 const Stack = createStackNavigator();
 
 function MainStackNavigator() {
-const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
-const [userType, setUserType] = React.useState(null);
-
-   React.useEffect(() => {
-          const fetchUserType = async () => {
-              try {
-                  const storedUserType = await AsyncStorage.getItem('userType');
-                  setUserType(storedUserType);
-              } catch (error) {
-                  console.error('Failed to fetch user type:', error);
-              }
-          };
-
-          fetchUserType();
-      }, []);
-
+  const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
   return (
     <Stack.Navigator initialRouteName="SignIn">
       <Stack.Screen name="SignIn" component={SignInPage} />
@@ -45,16 +30,15 @@ const [userType, setUserType] = React.useState(null);
       <Stack.Screen name="JobSeekerOnboarding" component={JobSeekerOnboardingPage} />
       <Stack.Screen name="OnboardingPage" component={OnboardingPage} />
       <Stack.Screen name="ChatPage" component={ChatPage} />
+      <Stack.Screen name="MyOffersPage" component={MyOffersPage} />
       <Stack.Screen name="ProfilePage" component={ProfilePage} />
       <Stack.Screen name="EditProfilePage" component={EditProfilePage} />
       <Stack.Screen name="CompanyOnboarding" component={CompanyOnboardingPage} />
       <Stack.Screen name="Protected" component={ProtectedPage} />
-      {userType === 'INDIVIDUAL' ? (
-            <Stack.Screen name="MyOffersPage" component={MyJobMatchesPage} />
-        ) : (
-            <Stack.Screen name="MyOffersPage" component={MyCompanyOffersPage} />
-        )}
+      <Stack.Screen name="MyJobMatchesPage" component={MyJobMatchesPage} />
+      <Stack.Screen name="MyCompanyOffersPage" component={MyCompanyOffersPage} />
     </Stack.Navigator>
   );
 }
+
 export default MainStackNavigator;

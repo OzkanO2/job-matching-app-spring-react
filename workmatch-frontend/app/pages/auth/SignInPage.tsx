@@ -11,9 +11,13 @@ export default function SignInPage({ navigation }) {
        try {
            const response = await axios.post('http://localhost:8080/users/login', { username, password });
            const token = response.data.token;
+           const userType = response.data.userType; // Assurez-vous que le serveur renvoie `userType`
+
            if (token) {
                await AsyncStorage.setItem('userToken', `Bearer ${token}`);
                await AsyncStorage.setItem('username', username);
+               await AsyncStorage.setItem('userType', userType); // Stockez `userType` ici
+
                navigation.navigate('Home');
            } else {
                Alert.alert('Invalid credentials');
