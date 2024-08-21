@@ -37,4 +37,8 @@ public class JobOfferService {
     public void deleteJobOffer(String id) {
         jobOfferRepository.deleteById(id);
     }
+
+    public JobOffer findByExternalId(String externalId) {
+        return jobOfferRepository.findByExternalId(externalId);
+    }
 }

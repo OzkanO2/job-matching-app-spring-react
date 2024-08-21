@@ -24,6 +24,7 @@ public class CompanyController {
 
     @GetMapping("/{id}")
     public Optional<Company> getCompanyById(@PathVariable String id) {
+
         return companyService.getCompanyById(id);
     }
 
@@ -47,6 +48,9 @@ public class CompanyController {
             company.setUsername(companyDetails.getUsername());
             company.setPassword(companyDetails.getPassword());
             company.setVerificationCode(companyDetails.getVerificationCode());
+            company.setCertified(companyDetails.isCertified());
+            company.setApiSource(companyDetails.getApiSource());
+            company.setExternalId(companyDetails.getExternalId());
             return companyService.saveCompany(company);
         }
         return null;

@@ -10,4 +10,5 @@ public interface CompanyRepository extends MongoRepository<Company, String> {
     Company findByUsername(String username);
     boolean existsByUniqueNumber(String uniqueNumber); // Requête pour vérifier l'existence d'une entreprise par son numéro unique
     Company findByName(String name);
+    Company findByExternalId(String externalId); // Requête pour trouver une entreprise par son ID externe
 }

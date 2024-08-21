@@ -40,11 +40,17 @@ public class CompanyService {
     public boolean existsByUniqueNumber(String uniqueNumber) {
         return companyRepository.existsByUniqueNumber(uniqueNumber);
     }
+
     public Company getCompanyByName(String name) {
         return companyRepository.findByName(name);
     }
+
     public boolean isCompanyCertified(String name) {
         Company company = companyRepository.findByName(name);
         return company != null && company.isCertified();
+    }
+
+    public Company findByExternalId(String externalId) {
+        return companyRepository.findByExternalId(externalId);
     }
 }

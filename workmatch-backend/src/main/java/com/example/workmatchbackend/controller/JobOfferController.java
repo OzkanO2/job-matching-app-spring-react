@@ -1,21 +1,20 @@
 package com.example.workmatchbackend.controller;
 
 import com.example.workmatchbackend.model.JobOffer;
-import com.example.workmatchbackend.service.JobOfferService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.client.RestTemplate;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.ResponseEntity;
 import com.example.workmatchbackend.model.Company;
-
-import com.example.workmatchbackend.model.Like;
-import com.example.workmatchbackend.model.Match;
+import com.example.workmatchbackend.service.JobOfferService;
 import com.example.workmatchbackend.service.CompanyService;
 import com.example.workmatchbackend.service.LikeService;
 import com.example.workmatchbackend.service.MatchService;
-import org.springframework.http.HttpStatus;
+import com.example.workmatchbackend.model.Like;
+import com.example.workmatchbackend.model.Match;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.client.RestTemplate;
+
 import java.util.List;
 import java.util.Optional;
 
@@ -34,7 +33,7 @@ public class JobOfferController {
     private LikeService likeService;
 
     @Autowired
-    private MatchService matchService; // Injectez MatchService
+    private MatchService matchService;
 
     @Autowired
     private RestTemplate restTemplate;
@@ -58,18 +57,13 @@ public class JobOfferController {
     @PostMapping
     public JobOffer createJobOffer(@RequestBody JobOffer jobOffer) {
         // Vérifiez si l'entreprise est certifiée
-        Company company = companyService.getCompanyByName(jobOffer.getCompany());
+        Company company = companyService.getCompanyByName(jobOffer.getCompany().getName());
         if (company != null) {
             jobOffer.setCompanyCertified(company.isCertified());
         } else {
             jobOffer.setCompanyCertified(false); // Si l'entreprise n'existe pas ou n'est pas trouvée
         }
 
-        return jobOfferService.saveJobOffer(jobOffer);
-    }
-
-    @PostMapping("/save")
-    public JobOffer saveJobOffer(@RequestBody JobOffer jobOffer) {
         return jobOfferService.saveJobOffer(jobOffer);
     }
 
@@ -81,26 +75,17 @@ public class JobOfferController {
             jobOffer.setInfo(jobOfferDetails.getInfo());
             jobOffer.setCompetences(jobOfferDetails.getCompetences());
             jobOffer.setTag(jobOfferDetails.getTag());
-            jobOffer.setCompanyCertified(jobOfferDetails.isCompanyCertified());
+            jobOffer.setCompany(jobOfferDetails.getCompany());
+            jobOffer.setLocation(jobOfferDetails.getLocation());
+            jobOffer.setDescription(jobOfferDetails.getDescription());
+            jobOffer.setSalaryMin(jobOfferDetails.getSalaryMin());
+            jobOffer.setSalaryMax(jobOfferDetails.getSalaryMax());
+            jobOffer.setUrl(jobOfferDetails.getUrl());
+            jobOffer.setApiSource(jobOfferDetails.getApiSource());
+            jobOffer.setExternalId(jobOfferDetails.getExternalId());
             return jobOfferService.saveJobOffer(jobOffer);
         }
         return null;
-    }
-    @PostMapping("/like")
-    public ResponseEntity<Like> likeOffer(@RequestBody Like like) {
-        Like savedLike = likeService.saveLike(like);
-        return ResponseEntity.status(HttpStatus.CREATED).body(savedLike);
-    }
-
-    @GetMapping("/matches/{userId}")
-    public List<Match> getMatchesForUser(@PathVariable String userId) {
-        return matchService.getMatchesForUser(userId);
-    }
-    // Exemple d'utilisation de matchService
-    @PostMapping("/match")
-    public ResponseEntity<?> createMatch(@RequestBody Match match) {
-        matchService.saveMatch(match);
-        return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
     @DeleteMapping("/{id}")
@@ -113,6 +98,23 @@ public class JobOfferController {
         String url = String.format("https://api.adzuna.com/v1/api/jobs/us/search/1?app_id=%s&app_key=%s&location0=%s", appId, appKey, location);
         AdzunaResponse response = restTemplate.getForObject(url, AdzunaResponse.class);
         return response.getResults();
+    }
+
+    @PostMapping("/like")
+    public ResponseEntity<Like> likeOffer(@RequestBody Like like) {
+        Like savedLike = likeService.saveLike(like);
+        return ResponseEntity.status(HttpStatus.CREATED).body(savedLike);
+    }
+
+    @GetMapping("/matches/{userId}")
+    public List<Match> getMatchesForUser(@PathVariable String userId) {
+        return matchService.getMatchesForUser(userId);
+    }
+
+    @PostMapping("/match")
+    public ResponseEntity<?> createMatch(@RequestBody Match match) {
+        matchService.saveMatch(match);
+        return new ResponseEntity<>(HttpStatus.CREATED);
     }
 }
 
