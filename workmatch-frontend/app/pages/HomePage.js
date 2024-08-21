@@ -30,23 +30,45 @@ const HomePage = () => {
 
         console.log("Fetching job offers from backend...");
 
-        // Fetch job offers from backend
-        axios.get('http://localhost:8080/adzuna/fetch', {
-            params: {
-                country: 'us',
-                what: 'software developer'
-            }
-        })
-            .then(response => {
-                console.log('Job offers fetched:', response.data);
-                setJobOffers(response.data);
+        // Fetch job offers from backend with pagination
+        const fetchJobOffers = async () => {
+            let allJobOffers = [];
+            let currentPage = 1;
+            const maxResults = 1000;
+            const resultsPerPage = 100; // Maximum de résultats par page
+
+            try {
+                while (allJobOffers.length < maxResults) {
+                    const response = await axios.get('http://localhost:8080/adzuna/fetch', {
+                        params: {
+                            country: 'us',
+                            what: 'software developer',
+                            page: currentPage,
+                            results_per_page: resultsPerPage
+                        }
+                    });
+
+                    if (response.data.length === 0) {
+                        break; // Quittez la boucle si aucune donnée n'est retournée
+                    }
+
+                    allJobOffers = [...allJobOffers, ...response.data];
+                    currentPage++;
+
+                    if (allJobOffers.length >= maxResults) {
+                        break;
+                    }
+                }
+
+                setJobOffers(allJobOffers.slice(0, maxResults));
                 setIsLoading(false);
-            })
-            .catch(error => {
+            } catch (error) {
                 console.error("Error fetching job offers:", error);
                 setError(error);
                 setIsLoading(false);
-            });
+            }
+        };
+        fetchJobOffers();
     }, [navigation]);
 
     const navigateToOffersPage = () => {
