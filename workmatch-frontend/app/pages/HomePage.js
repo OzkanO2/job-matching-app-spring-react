@@ -15,7 +15,7 @@ const HomePage = () => {
         const fetchUserType = async () => {
             try {
                 const storedUserType = await AsyncStorage.getItem('userType');
-                console.log('Retrieved userType:', storedUserType); // Log pour vérifier le userType
+                console.log('Retrieved userType:', storedUserType);
                 setUserType(storedUserType);
             } catch (error) {
                 console.error("Failed to fetch userType:", error);
@@ -30,37 +30,31 @@ const HomePage = () => {
 
         console.log("Fetching job offers from backend...");
 
-        // Fetch job offers from backend with pagination
-        const fetchJobOffers = async () => {
-            let allJobOffers = [];
-            let currentPage = 1;
-            const maxResults = 1000;
-            const resultsPerPage = 100; // Maximum de résultats par page
-
-            try {
-                while (allJobOffers.length < maxResults) {
-                    const response = await axios.get('http://localhost:8080/adzuna/fetch', {
-                        params: {
-                            country: 'us',
-                            what: 'software developer',
-                            page: currentPage,
-                            results_per_page: resultsPerPage
-                        }
-                    });
-
-                    if (response.data.length === 0) {
-                        break; // Quittez la boucle si aucune donnée n'est retournée
-                    }
-
-                    allJobOffers = [...allJobOffers, ...response.data];
-                    currentPage++;
-
-                    if (allJobOffers.length >= maxResults) {
-                        break;
-                    }
+        // Fonction pour récupérer des offres pour un domaine spécifique
+        const fetchDomainJobs = async (domain, maxResults) => {
+            const response = await axios.get('http://localhost:8080/adzuna/fetch', {
+                params: {
+                    country: 'us',
+                    what: domain,
+                    results_per_page: maxResults
                 }
+            });
+            return response.data;
+        };
 
-                setJobOffers(allJobOffers.slice(0, maxResults));
+        const fetchAllJobs = async () => {
+            try {
+                // Récupérer 200 jobs pour chaque domaine
+                const itJobs = await fetchDomainJobs('software developer', 200);
+                const marketingJobs = await fetchDomainJobs('marketing', 200);
+                const financeJobs = await fetchDomainJobs('finance', 200);
+                const healthcareJobs = await fetchDomainJobs('healthcare', 200);
+                const salesJobs = await fetchDomainJobs('sales', 200);
+
+                // Combiner les résultats
+                const allJobs = [...itJobs, ...marketingJobs, ...financeJobs, ...healthcareJobs, ...salesJobs];
+
+                setJobOffers(allJobs);
                 setIsLoading(false);
             } catch (error) {
                 console.error("Error fetching job offers:", error);
@@ -68,11 +62,12 @@ const HomePage = () => {
                 setIsLoading(false);
             }
         };
-        fetchJobOffers();
+
+        fetchAllJobs();
     }, [navigation]);
 
     const navigateToOffersPage = () => {
-        console.log("Navigating to offers page, userType:", userType); // Log pour vérifier le userType
+        console.log("Navigating to offers page, userType:", userType);
         if (userType === 'INDIVIDUAL') {
             console.log("Navigating to MyJobMatchesPage");
             navigation.navigate('MyJobMatchesPage');
@@ -81,7 +76,6 @@ const HomePage = () => {
             navigation.navigate('MyCompanyOffersPage');
         }
     };
-
 
     return (
         <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
@@ -93,7 +87,7 @@ const HomePage = () => {
             </View>
             <View style={styles.content}>
                 <Image source={{ uri: 'https://via.placeholder.com/150' }} style={styles.photo} />
-                <Text style={styles.infoText}>INFO (offre emploi ou du chercheur d'emploi) </Text>
+                <Text style={styles.infoText}>INFO (offre emploi ou du chercheur d'emploi)</Text>
                 {jobOffers.length > 0 ? (
                     jobOffers.map((job, index) => (
                         <View key={index} style={styles.jobCard}>
