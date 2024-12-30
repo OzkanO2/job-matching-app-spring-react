@@ -1,37 +1,38 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import Swiper from 'react-native-deck-swiper';
+import { useSwipeable } from 'react-swipeable';
 
-const JobSwiper = ({ jobOffers, onSwipeRight }) => {
-    console.log('JobSwiper component loaded', jobOffers);  // Ligne de débogage
-
+const JobSwiper = ({ jobs, onSwipeLeft, onSwipeRight }) => {
     return (
-        <Swiper
-            cards={jobOffers}
-            renderCard={(card) => (
-                <View style={styles.card}>
-                    <Text>{card.title}</Text>
-                    <Text>{card.description}</Text>
+        <View style={styles.swipeContainer}>
+            {jobs.map((job, index) => (
+                <View key={index} style={styles.jobCard}>
+                    <Text style={styles.jobTitle}>{job.info}</Text>
+                    <Text>Swipe left to ignore, right to save</Text>
                 </View>
-            )}
-            onSwipedRight={(cardIndex) => onSwipeRight(jobOffers[cardIndex])}
-            cardIndex={0}
-            backgroundColor={'#4FD0E9'}
-            stackSize={3}
-        />
+            ))}
+        </View>
     );
 };
 
 const styles = StyleSheet.create({
-    card: {
+    swipeContainer: {
         flex: 1,
-        justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: 'white',
-        borderRadius: 4,
-        borderWidth: 2,
-        borderColor: '#E8E8E8',
+    },
+    jobCard: {
+        width: 300,
+        padding: 20,
+        backgroundColor: '#fff',
+        borderRadius: 10,
         marginVertical: 10,
+        shadowColor: '#000',
+        shadowOpacity: 0.2,
+        shadowRadius: 5,
+    },
+    jobTitle: {
+        fontSize: 18,
+        fontWeight: 'bold',
     },
 });
 

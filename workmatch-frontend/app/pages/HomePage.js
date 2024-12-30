@@ -3,6 +3,9 @@ import { Button, View, Text, StyleSheet, Image, ScrollView } from 'react-native'
 import { useNavigation } from '@react-navigation/native';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import JobSwiper from '../../components/JobSwiper';
+import 'react-native-gesture-handler';
+
 
 const HomePage = () => {
     const navigation = useNavigation();
@@ -89,15 +92,16 @@ const HomePage = () => {
                 <Image source={{ uri: 'https://via.placeholder.com/150' }} style={styles.photo} />
                 <Text style={styles.infoText}>INFO (offre emploi ou du chercheur d'emploi)</Text>
                 {jobOffers.length > 0 ? (
-                    jobOffers.map((job, index) => (
-                        <View key={index} style={styles.jobCard}>
-                            <Text>{job.info}</Text>
-                        </View>
-                    ))
+                    <JobSwiper
+                        jobs={jobOffers}
+                        onSwipeLeft={(jobId) => console.log(`Ignored job ID: ${jobId}`)}
+                        onSwipeRight={(jobId) => console.log(`Saved job ID: ${jobId}`)}
+                    />
                 ) : (
                     <Text>No job offers available</Text>
                 )}
             </View>
+
         </ScrollView>
     );
 };
