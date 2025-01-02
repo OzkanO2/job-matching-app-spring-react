@@ -1,39 +1,54 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import { useSwipeable } from 'react-swipeable';
+import Swiper from 'react-native-deck-swiper';
 
 const JobSwiper = ({ jobs, onSwipeLeft, onSwipeRight }) => {
-    return (
-        <View style={styles.swipeContainer}>
-            {jobs.map((job, index) => (
-                <View key={index} style={styles.jobCard}>
-                    <Text style={styles.jobTitle}>{job.info}</Text>
-                    <Text>Swipe left to ignore, right to save</Text>
-                </View>
-            ))}
-        </View>
-    );
+  return (
+    <View style={styles.container}>
+      <Swiper
+        cards={jobs}
+        renderCard={(job) => (
+          <View style={styles.card}>
+            <Text style={styles.title}>{job.title}</Text>
+            <Text style={styles.description}>{job.description}</Text>
+          </View>
+        )}
+        onSwipedLeft={(cardIndex) => onSwipeLeft(jobs[cardIndex].id)}
+        onSwipedRight={(cardIndex) => onSwipeRight(jobs[cardIndex].id)}
+        cardIndex={0}
+        backgroundColor="#f0f0f0"
+        stackSize={3}
+      />
+    </View>
+  );
 };
 
 const styles = StyleSheet.create({
-    swipeContainer: {
-        flex: 1,
-        alignItems: 'center',
-    },
-    jobCard: {
-        width: 300,
-        padding: 20,
-        backgroundColor: '#fff',
-        borderRadius: 10,
-        marginVertical: 10,
-        shadowColor: '#000',
-        shadowOpacity: 0.2,
-        shadowRadius: 5,
-    },
-    jobTitle: {
-        fontSize: 18,
-        fontWeight: 'bold',
-    },
+  container: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  card: {
+    flex: 1,
+    borderRadius: 10,
+    borderWidth: 2,
+    borderColor: '#e8e8e8',
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#fff',
+    padding: 20,
+  },
+  title: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    marginBottom: 10,
+  },
+  description: {
+    fontSize: 16,
+    textAlign: 'center',
+    color: '#666',
+  },
 });
 
 export default JobSwiper;

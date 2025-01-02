@@ -81,38 +81,32 @@ const HomePage = () => {
     };
 
     return (
-        <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
+        <View style={styles.container}>
             <View style={styles.topButtons}>
                 <Button title="Profile" onPress={() => navigation.navigate('ProfilePage')} />
                 <Button title="Main Menu" onPress={() => navigation.navigate('Home')} />
                 <Button title="Chat" onPress={() => navigation.navigate('ChatPage')} />
                 <Button title="My Offers" onPress={navigateToOffersPage} />
             </View>
-            <View style={styles.content}>
-                <Image source={{ uri: 'https://via.placeholder.com/150' }} style={styles.photo} />
-                <Text style={styles.infoText}>INFO (offre emploi ou du chercheur d'emploi)</Text>
-                {jobOffers.length > 0 ? (
-                    <JobSwiper
-                        jobs={jobOffers}
-                        onSwipeLeft={(jobId) => console.log(`Ignored job ID: ${jobId}`)}
-                        onSwipeRight={(jobId) => console.log(`Saved job ID: ${jobId}`)}
-                    />
-                ) : (
-                    <Text>No job offers available</Text>
-                )}
-            </View>
-
-        </ScrollView>
+            <Text style={styles.infoText}>INFO (offre emploi ou du chercheur d'emploi)</Text>
+            {jobOffers.length > 0 ? (
+                <JobSwiper
+                    jobs={jobOffers}
+                    onSwipeLeft={(jobId) => console.log(`Ignored job ID: ${jobId}`)}
+                    onSwipeRight={(jobId) => console.log(`Saved job ID: ${jobId}`)}
+                />
+            ) : (
+                <Text style={{ textAlign: 'center' }}>No job offers available</Text>
+            )}
+        </View>
     );
+
 };
 
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-    },
-    contentContainer: {
-        flexGrow: 1,
-        justifyContent: 'space-between',
+        backgroundColor: '#fff',
     },
     topButtons: {
         flexDirection: 'row',
@@ -120,28 +114,11 @@ const styles = StyleSheet.create({
         paddingHorizontal: 10,
         marginTop: 20,
     },
-    content: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    photo: {
-        width: 150,
-        height: 150,
-        marginBottom: 20,
-    },
     infoText: {
         textAlign: 'center',
-        marginBottom: 20,
-    },
-    jobCard: {
-        padding: 10,
-        marginVertical: 10,
-        backgroundColor: '#fff',
-        borderColor: '#ddd',
-        borderWidth: 1,
-        borderRadius: 5,
-        width: '100%',
+        marginTop: 20,
+        fontSize: 18,
+        fontWeight: 'bold',
     },
 });
 
