@@ -5,17 +5,12 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 @Document(collection = "companies")
 public class Company {
+
     @Id
     private String id;
     private String name;
-    private String email;
-    private String username;
-    private String password;
-    private String verificationCode;
-    private String uniqueNumber;
-    private boolean certified;
-    private String apiSource;  // Source de l'API ("Indeed", "Adzuna", etc.)
-    private String externalId; // ID externe de l'entreprise dans l'API
+    private String apiSource; // Source de l'API
+    private String externalId; // ID externe si nécessaire
 
     // Getters and Setters
     public String getId() {
@@ -24,54 +19,6 @@ public class Company {
 
     public void setId(String id) {
         this.id = id;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public String getVerificationCode() {
-        return verificationCode;
-    }
-
-    public void setVerificationCode(String verificationCode) {
-        this.verificationCode = verificationCode;
-    }
-
-    public String getUniqueNumber() {
-        return uniqueNumber;
-    }
-
-    public void setUniqueNumber(String uniqueNumber) {
-        this.uniqueNumber = uniqueNumber;
-    }
-
-    public boolean isCertified() {
-        return certified;
-    }
-
-    public void setCertified(boolean certified) {
-        this.certified = certified;
     }
 
     public String getName() {

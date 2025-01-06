@@ -41,4 +41,10 @@ public class JobOfferService {
     public JobOffer findByExternalId(String externalId) {
         return jobOfferRepository.findByExternalId(externalId);
     }
+
+    public List<JobOffer> fetchJobsFromAdzuna(String country, String what, int resultsPerPage) {
+        // Implémentez la logique pour appeler l'API Adzuna et convertir les données en JobOffer
+        // Exemple de structure possible
+        return List.of(); // Remplacez par la liste des offres d'emploi obtenues
+    }
 }

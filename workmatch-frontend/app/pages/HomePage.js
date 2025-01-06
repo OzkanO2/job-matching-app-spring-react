@@ -15,49 +15,16 @@ const HomePage = () => {
     const [userType, setUserType] = useState('');
 
     useEffect(() => {
-        const fetchUserType = async () => {
-            try {
-                const storedUserType = await AsyncStorage.getItem('userType');
-                console.log('Retrieved userType:', storedUserType);
-                setUserType(storedUserType);
-            } catch (error) {
-                console.error("Failed to fetch userType:", error);
-            }
-        };
-
-        fetchUserType();
-
-        navigation.setOptions({
-            headerLeft: null,
-        });
-
-        console.log("Fetching job offers from backend...");
-
-        // Fonction pour récupérer des offres pour un domaine spécifique
-        const fetchDomainJobs = async (domain, maxResults) => {
-            const response = await axios.get('http://localhost:8080/adzuna/fetch', {
-                params: {
-                    country: 'us',
-                    what: domain,
-                    results_per_page: maxResults
-                }
-            });
-            return response.data;
-        };
-
         const fetchAllJobs = async () => {
             try {
-                // Récupérer 200 jobs pour chaque domaine
-                const itJobs = await fetchDomainJobs('software developer', 200);
-                const marketingJobs = await fetchDomainJobs('marketing', 200);
-                const financeJobs = await fetchDomainJobs('finance', 200);
-                const healthcareJobs = await fetchDomainJobs('healthcare', 200);
-                const salesJobs = await fetchDomainJobs('sales', 200);
-
-                // Combiner les résultats
-                const allJobs = [...itJobs, ...marketingJobs, ...financeJobs, ...healthcareJobs, ...salesJobs];
-
-                setJobOffers(allJobs);
+                const response = await axios.get('http://localhost:8080/adzuna/fetch', {
+                    params: {
+                        country: 'us',
+                        what: 'all',
+                        results_per_page: 1000,
+                    },
+                });
+                setJobOffers(response.data);
                 setIsLoading(false);
             } catch (error) {
                 console.error("Error fetching job offers:", error);
@@ -68,6 +35,7 @@ const HomePage = () => {
 
         fetchAllJobs();
     }, [navigation]);
+
 
     const navigateToOffersPage = () => {
         console.log("Navigating to offers page, userType:", userType);

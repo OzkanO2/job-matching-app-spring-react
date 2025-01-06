@@ -3,28 +3,45 @@ package com.example.workmatchbackend.model;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.DBRef;
+
 import java.util.List;
 
 @Document(collection = "jobOffers")
 public class JobOffer {
 
     @Id
-    private String id;
-    private String info;
-    private List<String> competences;
-    private int tag;
-    @DBRef
-    private Company company; // Utiliser une référence à l'objet Company
+    private String id; // ID unique généré automatiquement par MongoDB
+    private String title; // Renommé "info" en "title" pour plus de clarté
+    private List<String> skills; // Renommé "competences" en "skills" pour uniformité
+    private String category; // Ajouté pour stocker la catégorie (ex : IT, Finance)
     private String location;
     private String description;
     private Double salaryMin;
     private Double salaryMax;
-    private String url;
-    private String apiSource;  // Source de l'API ("Indeed", "Adzuna", etc.)
+    private String url; // URL vers l'offre
+    private String apiSource; // Source de l'API (Adzuna, Indeed, etc.)
     private String externalId; // ID externe de l'offre dans l'API
-    private boolean companyCertified;  // Ajoutez ce champ
+    private String info;
+    private String competences; // Assurez-vous que le type correspond
+    private String tag;
 
-    // Getters and Setters
+    @DBRef
+    private Company company; // Référence à l'objet "Company" (relation MongoDB)
+
+    private boolean companyCertified; // Indique si l'entreprise est certifiée
+    private boolean isRemote; // Ajouté : Indique si l'offre est en télétravail
+    private String employmentType; // Ajouté : Temps plein, freelance, etc.
+    private String createdAt; // Ajouté : Date de création de l'offre (format ISO)
+
+    // Getters et Setters
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+    // Getters et Setters
     public String getInfo() {
         return info;
     }
@@ -33,28 +50,43 @@ public class JobOffer {
         this.info = info;
     }
 
-    public List<String> getCompetences() {
+    public String getCompetences() {
         return competences;
     }
 
-    public void setCompetences(List<String> competences) {
+    public void setCompetences(String competences) {
         this.competences = competences;
     }
-
-    public int getTag() {
+    public String getTag() {
         return tag;
     }
 
-    public void setTag(int tag) {
+    public void setTag(String tag) {
         this.tag = tag;
     }
 
-    public Company getCompany() {
-        return company;
+    public String getTitle() {
+        return title;
     }
 
-    public void setCompany(Company company) {
-        this.company = company;
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public List<String> getSkills() {
+        return skills;
+    }
+
+    public void setSkills(List<String> skills) {
+        this.skills = skills;
+    }
+
+    public String getCategory() {
+        return category;
+    }
+
+    public void setCategory(String category) {
+        this.category = category;
     }
 
     public String getLocation() {
@@ -113,11 +145,43 @@ public class JobOffer {
         this.externalId = externalId;
     }
 
+    public Company getCompany() {
+        return company;
+    }
+
+    public void setCompany(Company company) {
+        this.company = company;
+    }
+
     public boolean isCompanyCertified() {
         return companyCertified;
     }
 
     public void setCompanyCertified(boolean companyCertified) {
         this.companyCertified = companyCertified;
+    }
+
+    public boolean isRemote() {
+        return isRemote;
+    }
+
+    public void setRemote(boolean remote) {
+        isRemote = remote;
+    }
+
+    public String getEmploymentType() {
+        return employmentType;
+    }
+
+    public void setEmploymentType(String employmentType) {
+        this.employmentType = employmentType;
+    }
+
+    public String getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(String createdAt) {
+        this.createdAt = createdAt;
     }
 }

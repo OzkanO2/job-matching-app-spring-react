@@ -1,54 +1,114 @@
 package com.example.workmatchbackend.service;
 
 import com.example.workmatchbackend.model.JobOffer;
-import org.springframework.beans.factory.annotation.Qualifier;
+import com.example.workmatchbackend.repository.JobOfferRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
+import com.fasterxml.jackson.databind.JsonNode;
+import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.http.ResponseEntity;
+import com.example.workmatchbackend.model.Company;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-
 @Service
 public class AdzunaJobService {
 
-    private final RestTemplate restTemplate;
+    @Autowired
+    private JobOfferRepository jobOfferRepository;
+    private static final Logger logger = LoggerFactory.getLogger(AdzunaJobService.class);
 
-    public AdzunaJobService(@Qualifier("adzunaRestTemplate") RestTemplate restTemplate) {
-        this.restTemplate = restTemplate;
-    }
+    public List<JobOffer> fetchJobsFromAdzuna(String country, String what, int resultsPerPage) {
+        String apiUrl = "https://api.adzuna.com/v1/api/jobs/" + country + "/search/1";
+        apiUrl += "?app_id=b50d337a&app_key=7a9d8272a034e629a9f62ae0adb917ba";
+        apiUrl += "&what=" + what + "&results_per_page=" + resultsPerPage;
+        logger.info("Fetching jobs from Adzuna API for country: {} and domain: {}", country, what);
 
-    private static final String BASE_API_URL = "https://api.adzuna.com/v1/api/jobs/";
-
-    public List<JobOffer> fetchAndSaveJobOffers(String country, String what) {
         try {
-            String apiUrl = String.format("%s%s/search/1?app_id=b50d337a&app_key=7a9d8272a034e629a9f62ae0adb917ba&results_per_page=100&what=%s", BASE_API_URL, country, what);
-            Map<String, Object> response = restTemplate.getForObject(apiUrl, Map.class);
+            RestTemplate restTemplate = new RestTemplate();
+            ResponseEntity<JsonNode> response = restTemplate.getForEntity(apiUrl, JsonNode.class);
+            logger.info("Received response from Adzuna API");
+            JsonNode jobs = response.getBody().get("results");
 
-            if (response != null) {
-                System.out.println("API Response: " + response); // Log the response
+            List<JobOffer> jobOffers = new ArrayList<>();
+            for (JsonNode job : jobs) {
+                JobOffer jobOffer = new JobOffer();
 
-                List<Map<String, Object>> jobs = (List<Map<String, Object>>) response.get("results");
-                List<JobOffer> jobOffers = new ArrayList<>();
-                for (Map<String, Object> job : jobs) {
-                    JobOffer jobOffer = new JobOffer();
-                    jobOffer.setInfo((String) job.get("title"));
-                    jobOffers.add(jobOffer);
+                // Vérification des données pour chaque champ avant de les affecter
+
+                // Titre
+                if (job.hasNonNull("title")) {
+                    jobOffer.setTitle(job.get("title").asText());
+                } else {
+                    jobOffer.setTitle("Title not available");
                 }
-                return jobOffers;
-            } else {
-                System.out.println("API Response is null");
-                return new ArrayList<>();
+
+                // Description
+                if (job.hasNonNull("description")) {
+                    jobOffer.setDescription(job.get("description").asText());
+                } else {
+                    jobOffer.setDescription("Description not available");
+                }
+
+                // Localisation
+                if (job.has("location") && job.get("location").hasNonNull("display_name")) {
+                    jobOffer.setLocation(job.get("location").get("display_name").asText());
+                } else {
+                    jobOffer.setLocation("Location not available");
+                }
+
+                // Salaire minimum
+                if (job.hasNonNull("salary_min")) {
+                    jobOffer.setSalaryMin(job.get("salary_min").asDouble());
+                }
+
+                // Salaire maximum
+                if (job.hasNonNull("salary_max")) {
+                    jobOffer.setSalaryMax(job.get("salary_max").asDouble());
+                }
+
+                // Entreprise
+                if (job.has("company") && job.get("company").has("display_name")) {
+                    Company company = new Company();
+                    company.setName(job.get("company").get("display_name").asText());
+                    jobOffer.setCompany(company);
+                } else {
+                    // Si le nom de l'entreprise est manquant
+                    Company company = new Company();
+                    company.setName("Company not available");
+                    jobOffer.setCompany(company);
+                }
+
+                // URL de redirection
+                if (job.hasNonNull("redirect_url")) {
+                    jobOffer.setUrl(job.get("redirect_url").asText());
+                } else {
+                    jobOffer.setUrl("URL not available");
+                }
+
+                // Source et ID externe
+                jobOffer.setApiSource("Adzuna");
+                if (job.hasNonNull("id")) {
+                    jobOffer.setExternalId(job.get("id").asText());
+                } else {
+                    jobOffer.setExternalId("ID not available");
+                }
+
+                jobOffers.add(jobOffer);
             }
-        } catch (HttpClientErrorException e) {
-            System.out.println("HTTP Error: " + e.getStatusCode());
-            System.out.println("HTTP Response Body: " + e.getResponseBodyAsString());
-            return new ArrayList<>();
+
+            // Sauvegarder dans MongoDB
+            jobOfferRepository.saveAll(jobOffers);
+
+            return jobOffers;
         } catch (Exception e) {
-            e.printStackTrace();
-            return new ArrayList<>();
+            logger.error("Error while fetching jobs from Adzuna: {}", e.getMessage());
+            throw new RuntimeException("Failed to fetch jobs: " + e.getMessage());
         }
     }
+
 }

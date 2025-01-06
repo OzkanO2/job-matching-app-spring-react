@@ -1,11 +1,13 @@
 import axios from 'axios';
 
-export const fetchExternalJobOffers = async (location) => {
+const BASE_URL = 'http://localhost:8080';
+
+export const fetchJobsFromBackend = async () => {
     try {
-        const response = await axios.get('http://localhost:8080/joboffers/external', { params: { location } });
+        const response = await axios.get(`${BASE_URL}/adzuna/jobs`);
         return response.data;
     } catch (error) {
-        console.error('Error fetching job offers:', error);
+        console.error('Failed to fetch jobs from backend:', error);
         throw error;
     }
 };
