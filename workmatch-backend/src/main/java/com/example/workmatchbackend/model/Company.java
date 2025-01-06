@@ -5,29 +5,64 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 @Document(collection = "companies")
 public class Company {
+    private String uniqueNumber;
+    private String email;
+    private String username;
+    private String password;
+    private String verificationCode;
+    private boolean certified;
 
-    @Id
-    private String id;
-    private String name;
-    private String apiSource; // Source de l'API
-    private String externalId; // ID externe si nécessaire
-
-    // Getters and Setters
-    public String getId() {
-        return id;
+    // Getters et Setters
+    public String getUniqueNumber() {
+        return uniqueNumber;
     }
 
-    public void setId(String id) {
-        this.id = id;
+    public void setUniqueNumber(String uniqueNumber) {
+        this.uniqueNumber = uniqueNumber;
     }
 
-    public String getName() {
-        return name;
+    public String getEmail() {
+        return email;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setEmail(String email) {
+        this.email = email;
     }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public String getVerificationCode() {
+        return verificationCode;
+    }
+
+    public void setVerificationCode(String verificationCode) {
+        this.verificationCode = verificationCode;
+    }
+
+    public boolean isCertified() {
+        return certified;
+    }
+
+    public void setCertified(boolean certified) {
+        this.certified = certified;
+    }
+
+    private String apiSource;
+    private String externalId;
 
     public String getApiSource() {
         return apiSource;
@@ -44,4 +79,16 @@ public class Company {
     public void setExternalId(String externalId) {
         this.externalId = externalId;
     }
+    private String name;
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+
+
 }

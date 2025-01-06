@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import com.example.workmatchbackend.service.JobOfferService;
 import com.example.workmatchbackend.model.JobOffer;
+import com.example.workmatchbackend.service.AdzunaJobService;
 
 import java.util.List;
 

@@ -1,0 +1,22 @@
+# Ignorer les dépendances
+node_modules/
+
+# Ignorer les fichiers de configuration spécifiques à l'IDE
+.idea/
+
+# Ignorer les fichiers temporaires de l'OS
+.DS_Store
+Thumbs.db
+
+# Ignorer les fichiers de logs
+*.log
+
+# Ignorer les fichiers PDF et autres fichiers temporaires
+*.pdf
+
+# Ignorer les fichiers de build (si applicable)
+build/
+dist/
+
+# Ignorer les fichiers environnementaux
+.env
