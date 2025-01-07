@@ -2,24 +2,35 @@ import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import Swiper from 'react-native-deck-swiper';
 
-const JobSwiper = ({ jobs, onSwipeLeft, onSwipeRight }) => {
+const JobSwiper = ({ jobs = [], onSwipeLeft, onSwipeRight }) => {
+  // Verify if "jobs" is an array
+  if (!Array.isArray(jobs) || jobs.length === 0) {
+    return (
+      <View style={styles.container}>
+        <Text style={styles.noJobsText}>No job offers available</Text>
+      </View>
+    );
+  }
+
   return (
-    <View style={styles.container}>
-      <Swiper
-        cards={jobs}
-        renderCard={(job) => (
-          <View style={styles.card}>
-            <Text style={styles.title}>{job.title}</Text>
-            <Text style={styles.description}>{job.description}</Text>
-          </View>
-        )}
-        onSwipedLeft={(cardIndex) => onSwipeLeft(jobs[cardIndex].id)}
-        onSwipedRight={(cardIndex) => onSwipeRight(jobs[cardIndex].id)}
-        cardIndex={0}
-        backgroundColor="#f0f0f0"
-        stackSize={3}
-      />
-    </View>
+    <Swiper
+      cards={jobs} // Pass the jobs array to the "cards" prop
+      renderCard={(job) => (
+        <View style={styles.jobCard}>
+          <Text style={styles.title}>{job?.title || "No Title"}</Text>
+          <Text style={styles.company}>{job?.company || "No Company"}</Text>
+          <Text style={styles.description}>
+            {job?.description || "No Description"}
+          </Text>
+        </View>
+      )}
+      onSwipedLeft={(index) => onSwipeLeft && onSwipeLeft(jobs[index]?.id)}
+      onSwipedRight={(index) => onSwipeRight && onSwipeRight(jobs[index]?.id)}
+      stackSize={3} // Number of cards to show in the stack
+      backgroundColor="white"
+      disableTopSwipe
+      disableBottomSwipe
+    />
   );
 };
 
@@ -29,7 +40,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  card: {
+  jobCard: {
     flex: 1,
     borderRadius: 10,
     borderWidth: 2,
@@ -44,10 +55,20 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginBottom: 10,
   },
+  company: {
+    fontSize: 18,
+    fontWeight: '600',
+    marginBottom: 10,
+  },
   description: {
     fontSize: 16,
     textAlign: 'center',
     color: '#666',
+  },
+  noJobsText: {
+    fontSize: 18,
+    color: '#666',
+    textAlign: 'center',
   },
 });
 

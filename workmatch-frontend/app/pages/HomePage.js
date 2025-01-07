@@ -58,14 +58,15 @@ const HomePage = () => {
             </View>
             <Text style={styles.infoText}>INFO (offre emploi ou du chercheur d'emploi)</Text>
             {jobOffers.length > 0 ? (
-                <JobSwiper
-                    jobs={jobOffers}
-                    onSwipeLeft={(jobId) => console.log(`Ignored job ID: ${jobId}`)}
-                    onSwipeRight={(jobId) => console.log(`Saved job ID: ${jobId}`)}
-                />
+              <JobSwiper
+                jobs={jobOffers}
+                onSwipeLeft={(jobId) => console.log(`Ignored job ID: ${jobId}`)}
+                onSwipeRight={(jobId) => console.log(`Saved job ID: ${jobId}`)}
+              />
             ) : (
-                <Text style={{ textAlign: 'center' }}>No job offers available</Text>
+              <Text style={{ textAlign: 'center' }}>No job offers available</Text>
             )}
+
         </View>
     );
 
