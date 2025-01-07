@@ -15,6 +15,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.client.RestTemplate;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.List;
 import java.util.Optional;
 
@@ -22,6 +25,8 @@ import java.util.Optional;
 @RequestMapping("/joboffers")
 @CrossOrigin(origins = "*", allowedHeaders = "*")
 public class JobOfferController {
+
+    private static final Logger logger = LoggerFactory.getLogger(JobOfferController.class);
 
     @Autowired
     private JobOfferService jobOfferService;
@@ -44,31 +49,43 @@ public class JobOfferController {
     @Value("${ADZUNA_APP_KEY}")
     private String appKey;
 
+    /**
+     * Récupère toutes les offres d'emploi dans MongoDB.
+     */
     @GetMapping
     public List<JobOffer> getAllJobOffers() {
+        logger.info("Fetching all job offers from the database.");
         return jobOfferService.getAllJobOffers();
     }
 
+    /**
+     * Récupère une offre d'emploi spécifique par ID.
+     */
     @GetMapping("/{id}")
-    public Optional<JobOffer> getJobOfferById(@PathVariable String id) {
-        return jobOfferService.getJobOfferById(id);
+    public ResponseEntity<JobOffer> getJobOfferById(@PathVariable String id) {
+        logger.info("Fetching job offer with ID: {}", id);
+        Optional<JobOffer> jobOffer = jobOfferService.getJobOfferById(id);
+        return jobOffer.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     }
 
+    /**
+     * Crée une nouvelle offre d'emploi.
+     */
     @PostMapping
-    public JobOffer createJobOffer(@RequestBody JobOffer jobOffer) {
-        // Vérifiez si l'entreprise est certifiée
+    public ResponseEntity<JobOffer> createJobOffer(@RequestBody JobOffer jobOffer) {
+        logger.info("Creating a new job offer.");
         Company company = companyService.getCompanyByName(jobOffer.getCompany().getName());
-        if (company != null) {
-            jobOffer.setCompanyCertified(company.isCertified());
-        } else {
-            jobOffer.setCompanyCertified(false); // Si l'entreprise n'existe pas ou n'est pas trouvée
-        }
-
-        return jobOfferService.saveJobOffer(jobOffer);
+        jobOffer.setCompanyCertified(company != null && company.isCertified());
+        JobOffer savedJobOffer = jobOfferService.saveJobOffer(jobOffer);
+        return ResponseEntity.status(HttpStatus.CREATED).body(savedJobOffer);
     }
 
+    /**
+     * Met à jour une offre d'emploi existante.
+     */
     @PutMapping("/{id}")
-    public JobOffer updateJobOffer(@PathVariable String id, @RequestBody JobOffer jobOfferDetails) {
+    public ResponseEntity<JobOffer> updateJobOffer(@PathVariable String id, @RequestBody JobOffer jobOfferDetails) {
+        logger.info("Updating job offer with ID: {}", id);
         Optional<JobOffer> optionalJobOffer = jobOfferService.getJobOfferById(id);
         if (optionalJobOffer.isPresent()) {
             JobOffer jobOffer = optionalJobOffer.get();
@@ -83,41 +100,71 @@ public class JobOfferController {
             jobOffer.setUrl(jobOfferDetails.getUrl());
             jobOffer.setApiSource(jobOfferDetails.getApiSource());
             jobOffer.setExternalId(jobOfferDetails.getExternalId());
-            return jobOfferService.saveJobOffer(jobOffer);
+            return ResponseEntity.ok(jobOfferService.saveJobOffer(jobOffer));
         }
-        return null;
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
     }
 
+    /**
+     * Supprime une offre d'emploi par ID.
+     */
     @DeleteMapping("/{id}")
-    public void deleteJobOffer(@PathVariable String id) {
+    public ResponseEntity<?> deleteJobOffer(@PathVariable String id) {
+        logger.info("Deleting job offer with ID: {}", id);
         jobOfferService.deleteJobOffer(id);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
+    /**
+     * Récupère des offres d'emploi externes depuis l'API Adzuna.
+     */
     @GetMapping("/external")
-    public List<JobOffer> fetchJobOffers(@RequestParam String location) {
-        String url = String.format("https://api.adzuna.com/v1/api/jobs/us/search/1?app_id=%s&app_key=%s&location0=%s", appId, appKey, location);
-        AdzunaResponse response = restTemplate.getForObject(url, AdzunaResponse.class);
-        return response.getResults();
+    public ResponseEntity<List<JobOffer>> fetchJobOffers(@RequestParam String location) {
+        logger.info("Fetching job offers from Adzuna API for location: {}", location);
+        try {
+            String url = String.format("https://api.adzuna.com/v1/api/jobs/us/search/1?app_id=%s&app_key=%s&location0=%s", appId, appKey, location);
+            AdzunaResponse response = restTemplate.getForObject(url, AdzunaResponse.class);
+            return ResponseEntity.ok(response.getResults());
+        } catch (Exception e) {
+            logger.error("Error fetching job offers from Adzuna API: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
+    /**
+     * Ajoute un "like" à une offre d'emploi.
+     */
     @PostMapping("/like")
     public ResponseEntity<Like> likeOffer(@RequestBody Like like) {
+        logger.info("Liking a job offer.");
         Like savedLike = likeService.saveLike(like);
         return ResponseEntity.status(HttpStatus.CREATED).body(savedLike);
     }
 
+    /**
+     * Récupère les "matches" pour un utilisateur donné.
+     */
     @GetMapping("/matches/{userId}")
-    public List<Match> getMatchesForUser(@PathVariable String userId) {
-        return matchService.getMatchesForUser(userId);
+    public ResponseEntity<List<Match>> getMatchesForUser(@PathVariable String userId) {
+        logger.info("Fetching matches for user with ID: {}", userId);
+        List<Match> matches = matchService.getMatchesForUser(userId);
+        return ResponseEntity.ok(matches);
     }
 
+    /**
+     * Crée un nouveau "match".
+     */
     @PostMapping("/match")
     public ResponseEntity<?> createMatch(@RequestBody Match match) {
+        logger.info("Creating a new match.");
         matchService.saveMatch(match);
-        return new ResponseEntity<>(HttpStatus.CREATED);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 }
 
+/**
+ * Modèle pour la réponse de l'API Adzuna.
+ */
 class AdzunaResponse {
     private List<JobOffer> results;
 
