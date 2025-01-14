@@ -14,7 +14,6 @@ import java.time.LocalDate;
 
 import java.util.ArrayList;
 import java.util.List;
-
 @Service
 public class AdzunaJobService {
 
@@ -61,25 +60,40 @@ public class AdzunaJobService {
                 jobOffer.setCreatedAt(job.has("created_at") ? LocalDate.parse(job.get("created_at").asText()) : null);
 
                 // Gestion de la compagnie
+                Company company = null;
                 if (companyName != null) {
-                    Company company = companyService.getCompanyByName(companyName);
+                    company = companyService.getCompanyByName(companyName);
                     if (company == null) {
-                        company = new Company(); // Crée une compagnie générique si elle n'existe pas
+                        company = new Company();
                         company.setName(companyName);
-                        company.setCertified(false);
+                        company.setCertified(false); // Par défaut, non certifiée
+                        company = companyService.saveCompany(company); // Sauvegarde dans MongoDB
                     }
-                    jobOffer.setCompany(company);
                 } else {
-                    Company unknownCompany = new Company();
-                    unknownCompany.setName("Unknown Company");
-                    unknownCompany.setCertified(false);
-                    jobOffer.setCompany(unknownCompany);
+                    company = new Company();
+                    company.setName("Unknown Company");
+                    company.setCertified(false);
+                    company = companyService.saveCompany(company);// Sauvegarde dans MongoDB
+                    logger.info("Company saved: {}" +
+                            "" +
+                            "" +
+                            "" +
+                            "" +
+                            "", company);
                 }
-
+                jobOffer.setCompany(company); // Associe la compagnie
 
                 // Vérification et sauvegarde
-                if (!jobOfferRepository.existsByExternalId(job.get("id").asText())) {
+                if (!jobOfferRepository.existsByExternalId(jobOffer.getExternalId())) {
                     jobOfferRepository.save(jobOffer);
+                    logger.info("JobOffer saved: {}" +
+                            "" +
+                            "" +
+                            "" +
+                            "" +
+                            "" +
+                            "" +
+                            "", jobOffer);
                     logger.info("Saved job: {}", jobOffer.getTitle());
                 } else {
                     logger.info("Job already exists: {}", jobOffer.getTitle());
@@ -90,7 +104,6 @@ public class AdzunaJobService {
             logger.error("Error while fetching jobs from Adzuna: {}", e.getMessage());
             throw new RuntimeException("Failed to fetch jobs: " + e.getMessage());
         }
-        return null; // Retourne null ou adapte selon tes besoins
+        return null; // Retourne null ou adapte selon vos besoins
     }
-
 }

@@ -52,4 +52,16 @@ public class CompanyService {
     public Company findByExternalId(String externalId) {
         return companyRepository.findByExternalId(externalId);
     }
+
+    public Company getOrCreateCompany(String companyName) {
+        Company company = companyRepository.findByName(companyName);
+        if (company == null) {
+            company = new Company();
+            company.setName(companyName);
+            company.setCertified(false); // Par défaut, non certifiée
+            return companyRepository.save(company);
+        }
+        return company;
+    }
+
 }
