@@ -5,20 +5,58 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 @Document(collection = "companies")
 public class Company {
-    private String uniqueNumber;
+    @Id
+    private String id;
+    private String name;
     private String email;
     private String username;
+    private String uniqueNumber; // Ex: SIRET, EIN, etc.
+    private boolean certified;
+    private String externalId;
     private String password;
     private String verificationCode;
-    private boolean certified;
+    private String apiSource;
 
-    // Getters et Setters
-    public String getUniqueNumber() {
-        return uniqueNumber;
+    // Getters and Setters
+    public String getPassword() {
+        return password;
     }
 
-    public void setUniqueNumber(String uniqueNumber) {
-        this.uniqueNumber = uniqueNumber;
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public String getVerificationCode() {
+        return verificationCode;
+    }
+
+    public void setVerificationCode(String verificationCode) {
+        this.verificationCode = verificationCode;
+    }
+
+    public String getApiSource() {
+        return apiSource;
+    }
+
+    public void setApiSource(String apiSource) {
+        this.apiSource = apiSource;
+    }
+
+    // Getters and setters
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public String getEmail() {
@@ -37,20 +75,12 @@ public class Company {
         this.username = username;
     }
 
-    public String getPassword() {
-        return password;
+    public String getUniqueNumber() {
+        return uniqueNumber;
     }
 
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public String getVerificationCode() {
-        return verificationCode;
-    }
-
-    public void setVerificationCode(String verificationCode) {
-        this.verificationCode = verificationCode;
+    public void setUniqueNumber(String uniqueNumber) {
+        this.uniqueNumber = uniqueNumber;
     }
 
     public boolean isCertified() {
@@ -61,17 +91,6 @@ public class Company {
         this.certified = certified;
     }
 
-    private String apiSource;
-    private String externalId;
-
-    public String getApiSource() {
-        return apiSource;
-    }
-
-    public void setApiSource(String apiSource) {
-        this.apiSource = apiSource;
-    }
-
     public String getExternalId() {
         return externalId;
     }
@@ -79,16 +98,4 @@ public class Company {
     public void setExternalId(String externalId) {
         this.externalId = externalId;
     }
-    private String name;
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-
-
 }

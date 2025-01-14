@@ -2,99 +2,46 @@ package com.example.workmatchbackend.model;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
-import org.springframework.data.mongodb.core.mapping.DBRef;
 
-import java.util.List;
+import java.time.LocalDate;
+import org.springframework.data.mongodb.core.mapping.DBRef;
 
 @Document(collection = "jobOffers")
 public class JobOffer {
 
     @Id
-    private String id; // ID unique généré automatiquement par MongoDB
-    private String title; // Renommé "info" en "title" pour plus de clarté
-    private List<String> skills; // Renommé "competences" en "skills" pour uniformité
-    private String category; // Ajouté pour stocker la catégorie (ex : IT, Finance)
+    private String id; // Identifiant MongoDB
+
+    private String title; // Nouveau champ pour le titre
+    private String description; // Nouveau champ pour la description
     private String location;
-    private String description;
-    private Double salaryMin;
-    private Double salaryMax;
-    private String url; // URL vers l'offre
-    private String apiSource; // Source de l'API (Adzuna, Indeed, etc.)
-    private String externalId; // ID externe de l'offre dans l'API
-    private String info;
-    private String competences; // Assurez-vous que le type correspond
-    private String tag;
+    private double salaryMin;
+    private double salaryMax;
+    private String url;
+    private String apiSource;
+    private String externalId;
+    private String category;
+    private String employmentType;
+    private boolean remote;
+    private LocalDate createdAt;
+    private boolean companyCertified;
 
-    @DBRef
-    private Company company; // Référence à l'objet "Company" (relation MongoDB)
-
-    private boolean companyCertified; // Indique si l'entreprise est certifiée
-    private boolean isRemote; // Ajouté : Indique si l'offre est en télétravail
-    private String employmentType; // Ajouté : Temps plein, freelance, etc.
-    private String createdAt; // Ajouté : Date de création de l'offre (format ISO)
-
-    // Getters et Setters
-    public String getId() {
-        return id;
+    // Getter et Setter pour companyCertified
+    public boolean isCompanyCertified() {
+        return companyCertified;
     }
 
-    public void setId(String id) {
-        this.id = id;
-    }
-    // Getters et Setters
-    public String getInfo() {
-        return info;
+    public void setCompanyCertified(boolean companyCertified) {
+        this.companyCertified = companyCertified;
     }
 
-    public void setInfo(String info) {
-        this.info = info;
-    }
-
-    public String getCompetences() {
-        return competences;
-    }
-
-    public void setCompetences(String competences) {
-        this.competences = competences;
-    }
-    public String getTag() {
-        return tag;
-    }
-
-    public void setTag(String tag) {
-        this.tag = tag;
-    }
-
+    // Getters et setters pour les nouveaux attributs
     public String getTitle() {
         return title;
     }
 
     public void setTitle(String title) {
         this.title = title;
-    }
-
-    public List<String> getSkills() {
-        return skills;
-    }
-
-    public void setSkills(List<String> skills) {
-        this.skills = skills;
-    }
-
-    public String getCategory() {
-        return category;
-    }
-
-    public void setCategory(String category) {
-        this.category = category;
-    }
-
-    public String getLocation() {
-        return location;
-    }
-
-    public void setLocation(String location) {
-        this.location = location;
     }
 
     public String getDescription() {
@@ -105,20 +52,41 @@ public class JobOffer {
         this.description = description;
     }
 
-    public Double getSalaryMin() {
+    // Getters et setters existants
+    public String getLocation() {
+        return location;
+    }
+
+    public void setLocation(String location) {
+        this.location = location;
+    }
+
+    public double getSalaryMin() {
         return salaryMin;
     }
 
-    public void setSalaryMin(Double salaryMin) {
+    public void setSalaryMin(double salaryMin) {
         this.salaryMin = salaryMin;
     }
 
-    public Double getSalaryMax() {
+    public double getSalaryMax() {
         return salaryMax;
     }
 
-    public void setSalaryMax(Double salaryMax) {
+    public void setSalaryMax(double salaryMax) {
         this.salaryMax = salaryMax;
+    }
+
+    @DBRef // Utilisez cette annotation si vous voulez référencer une entité dans MongoDB
+    private Company company;
+
+    // Getter et Setter
+    public Company getCompany() {
+        return company;
+    }
+
+    public void setCompany(Company company) {
+        this.company = company;
     }
 
     public String getUrl() {
@@ -145,28 +113,12 @@ public class JobOffer {
         this.externalId = externalId;
     }
 
-    public Company getCompany() {
-        return company;
+    public String getCategory() {
+        return category;
     }
 
-    public void setCompany(Company company) {
-        this.company = company;
-    }
-
-    public boolean isCompanyCertified() {
-        return companyCertified;
-    }
-
-    public void setCompanyCertified(boolean companyCertified) {
-        this.companyCertified = companyCertified;
-    }
-
-    public boolean isRemote() {
-        return isRemote;
-    }
-
-    public void setRemote(boolean remote) {
-        isRemote = remote;
+    public void setCategory(String category) {
+        this.category = category;
     }
 
     public String getEmploymentType() {
@@ -177,11 +129,19 @@ public class JobOffer {
         this.employmentType = employmentType;
     }
 
-    public String getCreatedAt() {
+    public boolean isRemote() {
+        return remote;
+    }
+
+    public void setRemote(boolean remote) {
+        this.remote = remote;
+    }
+
+    public LocalDate getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(String createdAt) {
+    public void setCreatedAt(LocalDate createdAt) {
         this.createdAt = createdAt;
     }
 }

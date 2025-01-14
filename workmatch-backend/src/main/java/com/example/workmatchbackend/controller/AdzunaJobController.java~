@@ -12,10 +12,13 @@ import com.example.workmatchbackend.model.JobOffer;
 import com.example.workmatchbackend.service.AdzunaJobService;
 
 import java.util.List;
+
 @RestController
 @RequestMapping("/adzuna")
 public class AdzunaJobController {
 
+    @Autowired
+    private JobOfferService jobOfferService;
     @Autowired
     private AdzunaJobService adzunaJobService;
 
@@ -26,10 +29,17 @@ public class AdzunaJobController {
             @RequestParam int results_per_page
     ) {
         try {
-            List<JobOffer> jobOffers = adzunaJobService.fetchJobsFromAdzuna(country, what, results_per_page);
+            List<JobOffer> jobOffers = jobOfferService.fetchJobsFromAdzuna(country, what, results_per_page);
             return ResponseEntity.ok(jobOffers);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error fetching jobs: " + e.getMessage());
         }
+    }
+
+    @GetMapping("/adzuna/fetch")
+    public List<JobOffer> fetchJobs(@RequestParam String country,
+                                    @RequestParam String what,
+                                    @RequestParam int resultsPerPage) {
+        return adzunaJobService.fetchJobsFromAdzuna(country, what, resultsPerPage);
     }
 }

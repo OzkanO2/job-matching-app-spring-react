@@ -49,6 +49,36 @@ public class JobOfferController {
     @Value("${ADZUNA_APP_KEY}")
     private String appKey;
 
+    private boolean remote;
+    private String employmentType;
+
+    public boolean isRemote() {
+        return remote;
+    }
+
+    public void setRemote(boolean remote) {
+        this.remote = remote;
+    }
+
+    public String getEmploymentType() {
+        return employmentType;
+    }
+
+    public void setEmploymentType(String employmentType) {
+        this.employmentType = employmentType;
+    }
+
+
+    private String company;
+
+    public String getCompany() {
+        return company;
+    }
+
+    public void setCompany(String company) {
+        this.company = company;
+    }
+
     /**
      * Récupère toutes les offres d'emploi dans MongoDB.
      */
@@ -89,9 +119,6 @@ public class JobOfferController {
         Optional<JobOffer> optionalJobOffer = jobOfferService.getJobOfferById(id);
         if (optionalJobOffer.isPresent()) {
             JobOffer jobOffer = optionalJobOffer.get();
-            jobOffer.setInfo(jobOfferDetails.getInfo());
-            jobOffer.setCompetences(jobOfferDetails.getCompetences());
-            jobOffer.setTag(jobOfferDetails.getTag());
             jobOffer.setCompany(jobOfferDetails.getCompany());
             jobOffer.setLocation(jobOfferDetails.getLocation());
             jobOffer.setDescription(jobOfferDetails.getDescription());
