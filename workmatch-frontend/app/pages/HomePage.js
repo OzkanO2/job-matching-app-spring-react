@@ -17,13 +17,7 @@ const HomePage = () => {
     useEffect(() => {
         const fetchAllJobs = async () => {
             try {
-                const response = await axios.get('http://localhost:8080/adzuna/fetch', {
-                    params: {
-                        country: 'us',
-                        what: 'all',
-                        results_per_page: 1000,
-                    },
-                });
+                const response = await axios.get('http://localhost:8080/joboffers');
                 setJobOffers(response.data);
                 setIsLoading(false);
             } catch (error) {
@@ -32,6 +26,7 @@ const HomePage = () => {
                 setIsLoading(false);
             }
         };
+
 
         fetchAllJobs();
     }, [navigation]);
@@ -57,21 +52,24 @@ const HomePage = () => {
                 <Button title="My Offers" onPress={navigateToOffersPage} />
             </View>
             <Text style={styles.infoText}>INFO (offre emploi ou du chercheur d'emploi)</Text>
-            {jobOffers.length > 0 ? (
-              <JobSwiper
-                jobs={jobOffers}
-                onSwipeLeft={(jobId) => console.log(`Ignored job ID: ${jobId}`)}
-                onSwipeRight={(jobId) => console.log(`Saved job ID: ${jobId}`)}
-              />
-            ) : (
-              <Text style={{ textAlign: 'center' }}>No job offers available</Text>
-            )}
-
+            <View style={styles.swiperContainer}>
+                {isLoading ? (
+                    <Text style={{ textAlign: 'center' }}>Loading...</Text>
+                ) : jobOffers.length > 0 ? (
+                    <JobSwiper
+                        jobs={jobOffers}
+                        onSwipeLeft={(jobId) => console.log(`Ignored job ID: ${jobId}`)}
+                        onSwipeRight={(jobId) => console.log(`Saved job ID: ${jobId}`)}
+                    />
+                ) : (
+                    <Text style={{ textAlign: 'center' }}>No job offers available</Text>
+                )}
+            </View>
         </View>
     );
 
-};
 
+};
 const styles = StyleSheet.create({
     container: {
         flex: 1,
@@ -88,6 +86,11 @@ const styles = StyleSheet.create({
         marginTop: 20,
         fontSize: 18,
         fontWeight: 'bold',
+    },
+    swiperContainer: {
+        flex: 1,
+        marginTop: 20,
+        paddingHorizontal: 10,
     },
 });
 

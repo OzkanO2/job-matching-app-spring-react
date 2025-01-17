@@ -14,11 +14,11 @@ const JobSwiper = ({ jobs = [], onSwipeLeft, onSwipeRight }) => {
 
   return (
     <Swiper
-      cards={jobs} // Pass the jobs array to the "cards" prop
+      cards={jobs}
       renderCard={(job) => (
         <View style={styles.jobCard}>
           <Text style={styles.title}>{job?.title || "No Title"}</Text>
-          <Text style={styles.company}>{job?.company || "No Company"}</Text>
+          <Text style={styles.company}>{job?.company?.name || "No Company"}</Text>
           <Text style={styles.description}>
             {job?.description || "No Description"}
           </Text>
@@ -26,11 +26,12 @@ const JobSwiper = ({ jobs = [], onSwipeLeft, onSwipeRight }) => {
       )}
       onSwipedLeft={(index) => onSwipeLeft && onSwipeLeft(jobs[index]?.id)}
       onSwipedRight={(index) => onSwipeRight && onSwipeRight(jobs[index]?.id)}
-      stackSize={3} // Number of cards to show in the stack
+      stackSize={3}
       backgroundColor="white"
       disableTopSwipe
       disableBottomSwipe
     />
+
   );
 };
 

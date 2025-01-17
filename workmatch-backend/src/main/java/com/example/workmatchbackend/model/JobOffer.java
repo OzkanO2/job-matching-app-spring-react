@@ -5,15 +5,19 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDate;
 import org.springframework.data.mongodb.core.mapping.DBRef;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 
 @Document(collection = "jobOffers")
 public class JobOffer {
 
     @Id
     private String id; // Identifiant MongoDB
-
+    @NotNull(message = "Title is required")
     private String title; // Nouveau champ pour le titre
-    private String description; // Nouveau champ pour la description
+    @NotNull(message = "Description is required")
+    @Size(min = 10, message = "Description should have at least 10 characters")
+    private String description;
     private String location;
     private double salaryMin;
     private double salaryMax;

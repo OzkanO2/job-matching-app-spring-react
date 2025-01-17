@@ -1,17 +1,16 @@
 package com.example.workmatchbackend.controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import com.example.workmatchbackend.service.JobOfferService;
-import com.example.workmatchbackend.model.JobOffer;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
 import com.example.workmatchbackend.service.AdzunaJobService;
+import com.example.workmatchbackend.model.JobOffer;
 
 import java.util.List;
+
 @RestController
 @RequestMapping("/adzuna")
 public class AdzunaJobController {
@@ -19,17 +18,15 @@ public class AdzunaJobController {
     @Autowired
     private AdzunaJobService adzunaJobService;
 
-    @GetMapping("/fetch")
-    public ResponseEntity<?> fetchAndStoreJobs(
-            @RequestParam String country,
-            @RequestParam String what,
-            @RequestParam int results_per_page
-    ) {
+    // Nouvelle route pour /adzuna/jobs
+    @GetMapping("/jobs")
+    public ResponseEntity<?> getAllAdzunaJobs() {
         try {
-            List<JobOffer> jobOffers = adzunaJobService.fetchJobsFromAdzuna(country, what, results_per_page);
-            return ResponseEntity.ok(jobOffers);
+            // Exemple : retournez une liste vide si aucune logique n'est implémentée
+            return ResponseEntity.ok(List.of());
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error fetching jobs: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error fetching jobs: " + e.getMessage());
         }
     }
 }
