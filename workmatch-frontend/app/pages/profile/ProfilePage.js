@@ -65,7 +65,7 @@ const ProfilePage = () => {
                 <Button title="Profile" onPress={() => navigation.navigate('ProfilePage')} />
                 <Button title="Main Menu" onPress={() => navigation.navigate('Home')} />
                 <Button title="Chat" onPress={() => navigation.navigate('ChatPage')} />
-                <Button title="My Offers" onPress={navigateToOffersPage} />
+                <Button title="My Offers" onPress={() => navigation.navigate('MyOffersPage')} />
             </View>
             <View style={styles.content}>
                 <Image source={{ uri: 'https://example.com/photo.jpg' }} style={styles.photo} />

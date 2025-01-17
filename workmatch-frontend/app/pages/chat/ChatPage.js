@@ -34,7 +34,7 @@ const ChatPage = () => {
                 <Button title="Profile" onPress={() => navigation.navigate('ProfilePage')} />
                 <Button title="Main Menu" onPress={() => navigation.navigate('Home')} />
                 <Button title="Chat" onPress={() => navigation.navigate('ChatPage')} />
-                <Button title="My Offers" onPress={navigateToOffersPage} />
+                <Button title="My Offers" onPress={() => navigation.navigate('MyOffersPage')} />
             </View>
             <View style={styles.content}>
                 <Text style={styles.matches}>MATCHES LOGO 1 2 3 4</Text>
