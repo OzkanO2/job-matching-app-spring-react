@@ -25,13 +25,29 @@ function MainStackNavigator() {
     <Stack.Navigator initialRouteName="SignIn">
       <Stack.Screen name="SignIn" component={SignInPage} />
       <Stack.Screen name="SignUp" component={SignUpPage} />
-      <Stack.Screen name="Home" component={HomePage} />
+      <Stack.Screen
+        name="Home"
+        component={HomePage}
+        options={{ headerLeft: () => null, title: "Home" }} // Supprime la flèche pour HomePage
+      />
+      <Stack.Screen
+        name="ProfilePage"
+        component={ProfilePage}
+        options={{ headerLeft: () => null, title: "Profile" }} // Supprime la flèche pour ProfilePage
+      />
       <Stack.Screen name="Settings" component={SettingsPage} />
       <Stack.Screen name="JobSeekerOnboarding" component={JobSeekerOnboardingPage} />
       <Stack.Screen name="OnboardingPage" component={OnboardingPage} />
-      <Stack.Screen name="ChatPage" component={ChatPage} />
-      <Stack.Screen name="MyOffersPage" component={MyOffersPage} />
-      <Stack.Screen name="ProfilePage" component={ProfilePage} />
+      <Stack.Screen
+              name="ChatPage"
+              component={ChatPage}
+              options={{ headerLeft: () => null, title: "ChatPage" }} // Supprime la flèche pour ProfilePage
+            />
+      <Stack.Screen
+                    name="MyOffersPage"
+                    component={MyOffersPage}
+                    options={{ headerLeft: () => null, title: "MyOffersPage" }} // Supprime la flèche pour ProfilePage
+                  />
       <Stack.Screen name="EditProfilePage" component={EditProfilePage} />
       <Stack.Screen name="CompanyOnboarding" component={CompanyOnboardingPage} />
       <Stack.Screen name="Protected" component={ProtectedPage} />
