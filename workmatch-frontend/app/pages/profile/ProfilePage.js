@@ -63,7 +63,7 @@ const ProfilePage = () => {
         <View style={styles.container}>
             <View style={styles.topButtons}>
                 <Button title="Profile" onPress={() => navigation.navigate('ProfilePage')} />
-                <Button title="Main Menu" onPress={() => navigation.navigate('Home')} />
+                <Button title="Main Menu" onPress={() => navigation.navigate(userType === 'INDIVIDUAL' ? 'IndividualHome' : 'CompanyHome')} />
                 <Button title="Chat" onPress={() => navigation.navigate('ChatPage')} />
                 <Button title="My Offers" onPress={() => navigation.navigate('MyOffersPage')} />
             </View>

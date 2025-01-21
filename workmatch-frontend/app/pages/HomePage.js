@@ -1,75 +1,67 @@
 import React, { useEffect, useState } from 'react';
-import { Button, View, Text, StyleSheet, Image, ScrollView } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { View, Text, Button, StyleSheet, ScrollView } from 'react-native';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import JobSwiper from '../../components/JobSwiper';
-import 'react-native-gesture-handler';
-
 
 const HomePage = () => {
-    const navigation = useNavigation();
-    const [jobOffers, setJobOffers] = useState([]);
-    const [isLoading, setIsLoading] = useState(true);
-    const [error, setError] = useState(null);
     const [userType, setUserType] = useState('');
+    const [data, setData] = useState([]);
+    const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
-        const fetchAllJobs = async () => {
+        const fetchData = async () => {
             try {
-                const response = await axios.get('http://localhost:8080/joboffers');
-                setJobOffers(response.data);
-                setIsLoading(false);
+                const token = await AsyncStorage.getItem('userToken');
+                const userTypeFromStorage = await AsyncStorage.getItem('userType');
+                setUserType(userTypeFromStorage);
+
+                const endpoint = userTypeFromStorage === 'COMPANY' ? '/candidates' : '/joboffers';
+                const response = await axios.get(`http://localhost:8080${endpoint}`, {
+                    headers: { Authorization: `Bearer ${token}` },
+                });
+
+                setData(response.data);
             } catch (error) {
-                console.error("Error fetching job offers:", error);
-                setError(error);
+                console.error('Error fetching data:', error);
+            } finally {
                 setIsLoading(false);
             }
         };
 
-
-        fetchAllJobs();
-    }, [navigation]);
-
-
-    const navigateToOffersPage = () => {
-        console.log("Navigating to offers page, userType:", userType);
-        if (userType === 'INDIVIDUAL') {
-            console.log("Navigating to MyJobMatchesPage");
-            navigation.navigate('MyJobMatchesPage');
-        } else if (userType === 'COMPANY') {
-            console.log("Navigating to MyCompanyOffersPage");
-            navigation.navigate('MyCompanyOffersPage');
-        }
-    };
+        fetchData();
+    }, []);
 
     return (
         <View style={styles.container}>
+            {/* Boutons du haut */}
             <View style={styles.topButtons}>
-                <Button title="Profile" onPress={() => navigation.navigate('ProfilePage')} />
-                <Button title="Main Menu" onPress={() => navigation.navigate('Home')} />
-                <Button title="Chat" onPress={() => navigation.navigate('ChatPage')} />
-                <Button title="My Offers" onPress={() => navigation.navigate('MyOffersPage')} />
+                <Button title="PROFILE" onPress={() => console.log('Navigate to Profile')} />
+                <Button title="CHAT" onPress={() => console.log('Navigate to Chat')} />
+                <Button title="MY OFFERS" onPress={() => console.log('Navigate to My Offers')} />
             </View>
-            <Text style={styles.infoText}>INFO (offre emploi ou du chercheur d'emploi)</Text>
-            <View style={styles.swiperContainer}>
+
+            {/* En-tête */}
+            <Text style={styles.headerText}>{userType === 'COMPANY' ? 'Candidates' : 'Job Offers'}</Text>
+
+            {/* Contenu principal */}
+            <ScrollView contentContainerStyle={styles.content}>
                 {isLoading ? (
-                    <Text style={{ textAlign: 'center' }}>Loading...</Text>
-                ) : jobOffers.length > 0 ? (
-                    <JobSwiper
-                        jobs={jobOffers}
-                        onSwipeLeft={(jobId) => console.log(`Ignored job ID: ${jobId}`)}
-                        onSwipeRight={(jobId) => console.log(`Saved job ID: ${jobId}`)}
-                    />
+                    <Text>Loading...</Text>
                 ) : (
-                    <Text style={{ textAlign: 'center' }}>No job offers available</Text>
+                    data.map((item, index) => (
+                        <View key={index} style={styles.card}>
+                            <Text style={styles.cardTitle}>{item.title || item.name}</Text>
+                            <Text style={styles.cardDescription}>
+                                {item.description?.slice(0, 200) || 'No description available'}...
+                            </Text>
+                        </View>
+                    ))
                 )}
-            </View>
+            </ScrollView>
         </View>
     );
-
-
 };
+
 const styles = StyleSheet.create({
     container: {
         flex: 1,
@@ -78,19 +70,34 @@ const styles = StyleSheet.create({
     topButtons: {
         flexDirection: 'row',
         justifyContent: 'space-between',
-        paddingHorizontal: 10,
+        marginHorizontal: 10,
         marginTop: 20,
     },
-    infoText: {
-        textAlign: 'center',
-        marginTop: 20,
+    headerText: {
         fontSize: 18,
         fontWeight: 'bold',
+        textAlign: 'center',
+        marginVertical: 10,
     },
-    swiperContainer: {
-        flex: 1,
-        marginTop: 20,
+    content: {
         paddingHorizontal: 10,
+        paddingBottom: 20,
+    },
+    card: {
+        backgroundColor: '#f9f9f9',
+        padding: 10,
+        marginVertical: 5,
+        borderRadius: 8,
+        borderWidth: 1,
+        borderColor: '#ddd',
+    },
+    cardTitle: {
+        fontWeight: 'bold',
+        fontSize: 16,
+        marginBottom: 5,
+    },
+    cardDescription: {
+        color: '#555',
     },
 });
 

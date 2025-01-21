@@ -7,27 +7,34 @@ export default function SignInPage({ navigation }) {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
 
-   const handleSignIn = async () => {
-       try {
-           const response = await axios.post('http://localhost:8080/users/login', { username, password });
-           const token = response.data.token;
-           const userType = response.data.userType; // Assurez-vous que le serveur renvoie `userType`
+    const handleSignIn = async () => {
+        try {
+            const response = await axios.post('http://localhost:8080/users/login', { username, password });
+            const token = response.data.token;
+            const userType = response.data.userType; // Vérifie que `userType` est retourné
 
-           if (token) {
-               await AsyncStorage.setItem('userToken', `Bearer ${token}`);
-               await AsyncStorage.setItem('username', username);
-               await AsyncStorage.setItem('userType', userType); // Stockez `userType` ici
+            if (token) {
+                await AsyncStorage.setItem('userToken', `Bearer ${token}`);
+                await AsyncStorage.setItem('username', username);
+                await AsyncStorage.setItem('userType', userType);
 
-               navigation.navigate('Home');
-           } else {
-               Alert.alert('Invalid credentials');
-           }
-       } catch (error) {
-           console.error('An error occurred:', error);
-           Alert.alert('An error occurred. Please try again.');
-       }
-   };
-
+                // Redirige en fonction du userType
+                if (userType === 'INDIVIDUAL') {
+                    navigation.navigate('IndividualHome');
+                } else if (userType === 'COMPANY') {
+                    navigation.navigate('CompanyHome');
+                }
+                else {
+                    Alert.alert('Unknown user type');
+                }
+            } else {
+                Alert.alert('Invalid credentials');
+            }
+        } catch (error) {
+            console.error('An error occurred:', error);
+            Alert.alert('An error occurred. Please try again.');
+        }
+    };
 
     return (
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>

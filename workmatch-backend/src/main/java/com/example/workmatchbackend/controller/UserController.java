@@ -159,11 +159,13 @@ public class UserController {
             String token = jwtUtil.generateToken(username);
             Map<String, String> response = new HashMap<>();
             response.put("token", token);
+            response.put("userType", existingUser.getUserType().toString()); // Retourne `userType`
             return ResponseEntity.ok(response);
         } else {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");
         }
     }
+
 
     @PostMapping("/like")
     public ResponseEntity<Like> likeOffer(@RequestBody Like like) {

@@ -2,57 +2,138 @@ import 'react-native-gesture-handler';
 import * as React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
-import SignInPage from '../pages/auth/SignInPage'; // Page de connexion
-import SignUpPage from '../pages/auth/SignUpPage'; // Page d'inscription
-import HomePage from '../pages/HomePage'; // Page d'accueil
-import ProtectedPage from '../pages/ProtectedPage';
+import SignInPage from '../pages/auth/SignInPage';
+import SignUpPage from '../pages/auth/SignUpPage';
 import ProfilePage from '../pages/profile/ProfilePage';
 import EditProfilePage from '../pages/profile/EditProfilePage';
 import SettingsPage from '../pages/settings/SettingsPage';
 import ChatPage from '../pages/chat/ChatPage';
 import MyOffersPage from '../pages/offers/MyOffersPage';
-import OnboardingPage from '../pages/onboarding/OnboardingPage';
 import JobSeekerOnboardingPage from '../pages/onboarding/JobSeekerOnboardingPage';
 import CompanyOnboardingPage from '../pages/onboarding/CompanyOnboardingPage';
-import MyJobMatchesPage from '../pages/offers/MyJobMatchesPage'; // Nouvelle page pour les utilisateurs INDIVIDUAL
-import MyCompanyOffersPage from '../pages/offers/MyCompanyOffersPage'; // Nouvelle page pour les utilisateurs COMPANY
+import MyJobMatchesPage from '../pages/offers/MyJobMatchesPage';
+import MyCompanyOffersPage from '../pages/offers/MyCompanyOffersPage';
+import IndividualHomePage from '../pages/IndividualHomePage';
+import CompanyHomePage from '../pages/CompanyHomePage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const Stack = createStackNavigator();
 
 function MainStackNavigator() {
-  const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+  const [initialRoute, setInitialRoute] = React.useState('SignIn');
+
+  React.useEffect(() => {
+    const determineInitialRoute = async () => {
+      const userType = await AsyncStorage.getItem('userType');
+      const isLoggedIn = await AsyncStorage.getItem('userToken');
+      if (isLoggedIn) {
+        if (userType === 'INDIVIDUAL') {
+          setInitialRoute('IndividualHome');
+        } else if (userType === 'COMPANY') {
+          setInitialRoute('CompanyHome');
+        }
+      } else {
+        setInitialRoute('SignIn');
+      }
+    };
+
+    determineInitialRoute();
+  }, []);
+
   return (
-    <Stack.Navigator initialRouteName="SignIn">
-      <Stack.Screen name="SignIn" component={SignInPage} />
-      <Stack.Screen name="SignUp" component={SignUpPage} />
+    <Stack.Navigator initialRouteName={initialRoute}>
       <Stack.Screen
-        name="Home"
-        component={HomePage}
-        options={{ headerLeft: () => null, title: "Home" }} // Supprime la flèche pour HomePage
+        name="SignIn"
+        component={SignInPage}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="SignUp"
+        component={SignUpPage}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="IndividualHome"
+        component={IndividualHomePage}
+        options={{
+          title: 'Home',
+          headerLeft: () => null,
+        }}
+      />
+      <Stack.Screen
+        name="CompanyHome"
+        component={CompanyHomePage}
+        options={{
+          title: 'Home',
+          headerLeft: () => null,
+        }}
       />
       <Stack.Screen
         name="ProfilePage"
         component={ProfilePage}
-        options={{ headerLeft: () => null, title: "Profile" }} // Supprime la flèche pour ProfilePage
+        options={{
+          headerLeft: () => null,
+          title: 'Profile',
+        }}
       />
-      <Stack.Screen name="Settings" component={SettingsPage} />
-      <Stack.Screen name="JobSeekerOnboarding" component={JobSeekerOnboardingPage} />
-      <Stack.Screen name="OnboardingPage" component={OnboardingPage} />
       <Stack.Screen
-              name="ChatPage"
-              component={ChatPage}
-              options={{ headerLeft: () => null, title: "ChatPage" }} // Supprime la flèche pour ProfilePage
-            />
+        name="EditProfilePage"
+        component={EditProfilePage}
+        options={{
+          title: 'Edit Profile',
+        }}
+      />
       <Stack.Screen
-                    name="MyOffersPage"
-                    component={MyOffersPage}
-                    options={{ headerLeft: () => null, title: "MyOffersPage" }} // Supprime la flèche pour ProfilePage
-                  />
-      <Stack.Screen name="EditProfilePage" component={EditProfilePage} />
-      <Stack.Screen name="CompanyOnboarding" component={CompanyOnboardingPage} />
-      <Stack.Screen name="Protected" component={ProtectedPage} />
-      <Stack.Screen name="MyJobMatchesPage" component={MyJobMatchesPage} />
-      <Stack.Screen name="MyCompanyOffersPage" component={MyCompanyOffersPage} />
+        name="SettingsPage"
+        component={SettingsPage}
+        options={{
+          title: 'Settings',
+        }}
+      />
+      <Stack.Screen
+        name="ChatPage"
+        component={ChatPage}
+        options={{
+          headerLeft: () => null,
+          title: 'Chat',
+        }}
+      />
+      <Stack.Screen
+        name="MyOffersPage"
+        component={MyOffersPage}
+        options={{
+          headerLeft: () => null,
+          title: 'My Offers',
+        }}
+      />
+      <Stack.Screen
+        name="MyJobMatchesPage"
+        component={MyJobMatchesPage}
+        options={{
+          title: 'Job Matches',
+        }}
+      />
+      <Stack.Screen
+        name="MyCompanyOffersPage"
+        component={MyCompanyOffersPage}
+        options={{
+          title: 'Company Offers',
+        }}
+      />
+      <Stack.Screen
+        name="JobSeekerOnboardingPage"
+        component={JobSeekerOnboardingPage}
+        options={{
+          title: 'Job Seeker Onboarding',
+        }}
+      />
+      <Stack.Screen
+        name="CompanyOnboardingPage"
+        component={CompanyOnboardingPage}
+        options={{
+          title: 'Company Onboarding',
+        }}
+      />
     </Stack.Navigator>
   );
 }
