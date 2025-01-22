@@ -1,13 +1,41 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, Button, StyleSheet } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import axios from 'axios';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import Swiper from 'react-native-deck-swiper';
 
 const CompanyHomePage = () => {
     const navigation = useNavigation();
+    const [jobSearchers, setJobSearchers] = useState([]);
+    const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
-        // Logique future pour récupérer les candidats ou autres données
+        const fetchJobSearchers = async () => {
+            try {
+                const token = await AsyncStorage.getItem('userToken');
+                const response = await axios.get('http://localhost:8080/jobsearchers', {
+                    headers: { Authorization: `Bearer ${token}` },
+                });
+                setJobSearchers(response.data);
+            } catch (error) {
+                console.error('Error fetching job searchers:', error);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        fetchJobSearchers();
     }, []);
+
+    const handleSwipeRight = (index) => {
+        console.log(`Liked: ${jobSearchers[index]?.name}`);
+    };
+
+    const handleSwipeLeft = (index) => {
+        console.log(`Ignored: ${jobSearchers[index]?.name}`);
+    };
+
     return (
         <View style={styles.container}>
             {/* Boutons de navigation en haut */}
@@ -17,13 +45,36 @@ const CompanyHomePage = () => {
                 <Button title="Chat" onPress={() => navigation.navigate('ChatPage')} />
                 <Button title="My Offers" onPress={() => navigation.navigate('MyOffersPage')} />
             </View>
-            {/* Contenu temporaire */}
-            <View style={styles.content}>
-                <Text>Data will be displayed here once users are created.</Text>
+
+            {/* Swiping Cards */}
+            <View style={styles.swiperContainer}>
+                {isLoading ? (
+                    <Text>Loading...</Text>
+                ) : (
+                    <Swiper
+                        cards={jobSearchers}
+                        renderCard={(jobSearcher) => (
+                            <View style={styles.card}>
+                                <Text style={styles.cardTitle}>{jobSearcher.name || 'No name provided'}</Text>
+                                <Text style={styles.cardDescription}>
+                                    Skills: {jobSearcher.skills ? jobSearcher.skills.join(', ') : 'No skills listed'}
+                                </Text>
+                                <Text>Experience: {jobSearcher.experience || 'No experience provided'}</Text>
+                                <Text>Location: {jobSearcher.location || 'No location provided'}</Text>
+                            </View>
+                        )}
+
+                        onSwipedRight={(cardIndex) => handleSwipeRight(cardIndex)}
+                        onSwipedLeft={(cardIndex) => handleSwipeLeft(cardIndex)}
+                        cardIndex={0}
+                        stackSize={3}
+                    />
+                )}
             </View>
         </View>
     );
 };
+
 const styles = StyleSheet.create({
     container: {
         flex: 1,
@@ -36,10 +87,31 @@ const styles = StyleSheet.create({
         paddingHorizontal: 10,
         marginTop: 20,
     },
-    content: {
+    swiperContainer: {
+        flex: 1,
+        marginTop: 20,
+    },
+    card: {
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
+        backgroundColor: '#f9f9f9',
+        borderRadius: 10,
+        borderWidth: 1,
+        borderColor: '#ddd',
+        padding: 20,
+        marginHorizontal: 10,
+    },
+    cardTitle: {
+        fontWeight: 'bold',
+        fontSize: 18,
+        marginBottom: 10,
+    },
+    cardDescription: {
+        fontSize: 14,
+        color: '#555',
+        textAlign: 'center',
     },
 });
+
 export default CompanyHomePage;
