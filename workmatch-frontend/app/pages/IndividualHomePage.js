@@ -28,9 +28,35 @@ const IndividualHomePage = () => {
         fetchJobOffers();
     }, []);
 
-    const handleSwipeRight = (index) => {
-        console.log(`Liked job offer: ${jobOffers[index]?.title}`);
+    const handleSwipeRight = async (index) => {
+        const swipedJobOffer = jobOffers[index];
+
+        if (swipedJobOffer) {
+            console.log(`Liked job offer: ${swipedJobOffer.title}`);
+            try {
+                const token = await AsyncStorage.getItem('userToken');
+                const response = await axios.post(
+                    'http://localhost:8080/api/matches/swipe',
+                    null,
+                    {
+                        params: {
+                            swiperId: 'currentIndividualId', // Remplace par l'ID de l'utilisateur actuel
+                            swipedId: swipedJobOffer.id, // ID de l'offre swipée
+                        },
+                        headers: { Authorization: `Bearer ${token}` },
+                    }
+                );
+                if (response.data.includes("match")) {
+                    alert("You have a match! Start chatting now.");
+                }
+
+                console.log(response.data); // Message du backend
+            } catch (error) {
+                console.error('Error during swipe:', error);
+            }
+        }
     };
+
 
     const handleSwipeLeft = (index) => {
         console.log(`Ignored job offer: ${jobOffers[index]?.title}`);

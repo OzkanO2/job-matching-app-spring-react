@@ -31,6 +31,9 @@ public class UserController {
     @Autowired
     private MatchService matchService;
 
+    public UserController(MatchService matchService) {
+        this.matchService = matchService;
+    }
     @Autowired
     private UserService userService;
 
@@ -57,6 +60,13 @@ public class UserController {
     public Optional<User> getUserById(@PathVariable String id) {
         return userService.getUserById(id);
     }
+
+    @GetMapping("/matches")
+    public ResponseEntity<List<Match>> getUserMatches(@RequestParam String userId) {
+        List<Match> matches = matchService.getMatchesForUser(userId);
+        return ResponseEntity.ok(matches);
+    }
+
 
     @PutMapping("/id/{id}")
     public User updateUser(@PathVariable String id, @RequestBody User userDetails) {

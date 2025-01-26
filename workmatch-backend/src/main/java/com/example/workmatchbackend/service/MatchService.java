@@ -2,33 +2,40 @@ package com.example.workmatchbackend.service;
 
 import com.example.workmatchbackend.model.Match;
 import com.example.workmatchbackend.repository.MatchRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.Optional;
+import java.util.List;
 
 @Service
 public class MatchService {
-    @Autowired
-    private MatchRepository matchRepository;
 
+    private final MatchRepository matchRepository;
+
+    public MatchService(MatchRepository matchRepository) {
+        this.matchRepository = matchRepository;
+    }
     public List<Match> getMatchesForUser(String userId) {
-        return matchRepository.findByUserId(userId);
-    }
-    public List<Match> getAllMatches() {
-        return matchRepository.findAll();
+        return matchRepository.findAllByUserId1OrUserId2(userId, userId);
     }
 
-    public Optional<Match> getMatchById(String id) {
-        return matchRepository.findById(id);
+    // Méthode pour enregistrer un nouveau match
+    public void saveMatch(Match match) {
+        matchRepository.save(match);
     }
+    // Vérifie si un match existe déjà ou crée un nouveau match
+    public boolean checkAndCreateMatch(String userId1, String userId2) {
+        // Vérifie si un match existe dans les deux sens
+        Optional<Match> existingMatch1 = matchRepository.findByUserId1AndUserId2(userId1, userId2);
+        Optional<Match> existingMatch2 = matchRepository.findByUserId1AndUserId2(userId2, userId1);
 
-    public Match saveMatch(Match match) {
-        return matchRepository.save(match);
-    }
+        if (existingMatch1.isPresent() || existingMatch2.isPresent()) {
+            return false; // Match déjà existant
+        }
 
-    public void deleteMatch(String id) {
-        matchRepository.deleteById(id);
+        // Crée un nouveau match
+        Match newMatch = new Match(userId1, userId2);
+        matchRepository.save(newMatch);
+        return true; // Match créé
     }
 }

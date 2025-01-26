@@ -28,9 +28,36 @@ const CompanyHomePage = () => {
         fetchJobSearchers();
     }, []);
 
-    const handleSwipeRight = (index) => {
-        console.log(`Liked: ${jobSearchers[index]?.name}`);
+    const handleSwipeRight = async (index) => {
+        const swipedJobSearcher = jobSearchers[index];
+
+        if (swipedJobSearcher) {
+            console.log(`Liked job searcher: ${swipedJobSearcher.name}`);
+            try {
+                const token = await AsyncStorage.getItem('userToken');
+                const response = await axios.post(
+                    'http://localhost:8080/api/matches/swipe',
+                    null,
+                    {
+                        params: {
+                            swiperId: 'currentCompanyId', // Remplace par l'ID de la compagnie actuelle
+                            swipedId: swipedJobSearcher.id, // ID du chercheur d'emploi swipé
+                        },
+                        headers: { Authorization: `Bearer ${token}` },
+                    }
+                );
+                if (response.data.includes("match")) {
+                    alert("You have a match! Start chatting now.");
+                }
+
+
+                console.log(response.data); // Message du backend
+            } catch (error) {
+                console.error('Error during swipe:', error);
+            }
+        }
     };
+
 
     const handleSwipeLeft = (index) => {
         console.log(`Ignored: ${jobSearchers[index]?.name}`);

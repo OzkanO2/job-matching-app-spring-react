@@ -42,7 +42,9 @@ public class JobOfferController {
 
     @Autowired
     private JobOfferService jobOfferService;
-
+    public JobOfferController(MatchService matchService) {
+        this.matchService = matchService;
+    }
     @Autowired
     private CompanyService companyService;
 
@@ -184,17 +186,22 @@ public class JobOfferController {
     /**
      * Récupère les "matches" pour un utilisateur donné.
      */
-    @GetMapping("/matches/{userId}")
-    public ResponseEntity<List<Match>> getMatchesForUser(@PathVariable String userId) {
-        logger.info("Fetching matches for user with ID: {}", userId);
+    @GetMapping("/matches")
+    public ResponseEntity<List<Match>> getMatchesForUser(@RequestParam String userId) {
         List<Match> matches = matchService.getMatchesForUser(userId);
         return ResponseEntity.ok(matches);
+    }
+
+    @PostMapping("/joboffers/match/save")
+    public ResponseEntity<String> saveMatch(@RequestBody Match match) {
+        matchService.saveMatch(match);
+        return ResponseEntity.ok("Match saved successfully.");
     }
 
     /**
      * Crée un nouveau "match".
      */
-    @PostMapping("/match")
+    @PostMapping("/joboffers/match/create")
     public ResponseEntity<?> createMatch(@RequestBody Match match) {
         logger.info("Creating a new match.");
         matchService.saveMatch(match);
