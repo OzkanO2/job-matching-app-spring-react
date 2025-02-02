@@ -3,46 +3,43 @@ package com.example.workmatchbackend.model;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.util.List;
-
 @Document(collection = "likes")
-public class Like  {
+public class Like {
     @Id
     private String id;
-    private String userId;  // ID of the user who liked
-    private String offerId;  // ID of the job offer liked
-    private String companyId; // ID of the company if applicable
+    private String userId;  // L'utilisateur qui swipe
+    private String swipedUserId; // Si on swipe un autre utilisateur (job searcher)
+    private String offerId; // Si on swipe une offre d'emploi
+    private String companyId; // Si l'offre appartient à une company
 
-    // Getters and Setters
-    public String getId() {
-        return id;
-    }
+    public Like() {}
 
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public String getUserId() {
-        return userId;
-    }
-
-    public void setUserId(String userId) {
+    // 🔹 Constructeur pour un Company qui like un Individual
+    public Like(String userId, String swipedUserId) {
         this.userId = userId;
+        this.swipedUserId = swipedUserId;
     }
 
-    public String getOfferId() {
-        return offerId;
-    }
-
-    public void setOfferId(String offerId) {
+    // 🔹 Constructeur pour un Individual qui like une offre d'emploi
+    public Like(String userId, String offerId, String companyId) {
+        this.userId = userId;
         this.offerId = offerId;
-    }
-
-    public String getCompanyId() {
-        return companyId;
-    }
-
-    public void setCompanyId(String companyId) {
         this.companyId = companyId;
     }
+
+    // ✅ Getters et Setters
+    public String getId() { return id; }
+    public void setId(String id) { this.id = id; }
+
+    public String getUserId() { return userId; }
+    public void setUserId(String userId) { this.userId = userId; }
+
+    public String getSwipedUserId() { return swipedUserId; }
+    public void setSwipedUserId(String swipedUserId) { this.swipedUserId = swipedUserId; }
+
+    public String getOfferId() { return offerId; }
+    public void setOfferId(String offerId) { this.offerId = offerId; }
+
+    public String getCompanyId() { return companyId; }
+    public void setCompanyId(String companyId) { this.companyId = companyId; }
 }

@@ -38,4 +38,9 @@ public class MatchService {
         matchRepository.save(newMatch);
         return true; // Match créé
     }
+    public void createMatch(String userId1, String userId2) {
+        Match match = new Match(userId1, userId2);
+        matchRepository.save(match);
+    }
+
 }

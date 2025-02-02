@@ -9,5 +9,4 @@ import java.util.Optional;
 public interface JobOfferRepository extends MongoRepository<JobOffer, String> {
     JobOffer findByExternalId(String externalId); // Pour récupérer une offre
     boolean existsByExternalId(String externalId); // Pour vérifier si une offre existe
-
 }

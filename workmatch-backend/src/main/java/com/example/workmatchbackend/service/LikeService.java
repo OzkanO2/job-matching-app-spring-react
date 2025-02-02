@@ -4,16 +4,39 @@ import com.example.workmatchbackend.model.Like;
 import com.example.workmatchbackend.repository.LikeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import com.example.workmatchbackend.model.User;
+import com.example.workmatchbackend.repository.UserRepository;
+import com.example.workmatchbackend.model.JobOffer;
+import com.example.workmatchbackend.repository.JobOfferRepository;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.*;
 
 @Service
 public class LikeService {
 
     @Autowired
     private LikeRepository likeRepository;
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private JobOfferRepository jobOfferRepository;
 
     public Like saveLike(Like like) {
         return likeRepository.save(like);
     }
+    public boolean checkForMatch(String swiperId, String swipedId) {
+        User swiper = userRepository.findById(swiperId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
 
-    // Autres méthodes pour gérer les "likes"
+        if (swiper.getUserType().equals("COMPANY")) {
+            return likeRepository.existsByUserIdAndSwipedUserId(swipedId, swiperId);
+        } else if (swiper.getUserType().equals("INDIVIDUAL")) {
+            return likeRepository.existsByUserIdAndOfferId(swipedId, swiperId);
+        }
+        return false;
+    }
+
 }

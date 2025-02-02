@@ -33,30 +33,35 @@ const CompanyHomePage = () => {
 
         if (swipedJobSearcher) {
             console.log(`Liked job searcher: ${swipedJobSearcher.name}`);
+
             try {
                 const token = await AsyncStorage.getItem('userToken');
+                const userId = await AsyncStorage.getItem("userId"); // 🔥 Récupère l'ID du user connecté
+                console.log("🔍 swiperId envoyé :", userId);
+                console.log("🔍 swipedId envoyé :", swipedJobSearcher.userId);
+                console.log("🔑 JWT Token utilisé :", token);
+                console.log("🛠️ Données du job searcher :", swipedJobSearcher);
+
                 const response = await axios.post(
-                    'http://localhost:8080/api/matches/swipe',
-                    null,
+                    `http://localhost:8080/api/matches/swipe?swiperId=${userId}&swipedId=${swipedJobSearcher._id}`,
+                    {}, // Aucun body ici
                     {
-                        params: {
-                            swiperId: 'currentCompanyId', // Remplace par l'ID de la compagnie actuelle
-                            swipedId: swipedJobSearcher.id, // ID du chercheur d'emploi swipé
-                        },
-                        headers: { Authorization: `Bearer ${token}` },
+                        headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
                     }
                 );
+
+
                 if (response.data.includes("match")) {
                     alert("You have a match! Start chatting now.");
                 }
 
-
                 console.log(response.data); // Message du backend
             } catch (error) {
-                console.error('Error during swipe:', error);
+                console.error('❌ Error during swipe:', error);
             }
         }
     };
+
 
 
     const handleSwipeLeft = (index) => {

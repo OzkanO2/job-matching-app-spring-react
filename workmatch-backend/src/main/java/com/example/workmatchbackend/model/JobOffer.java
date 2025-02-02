@@ -29,8 +29,7 @@ public class JobOffer {
     private boolean remote;
     private LocalDate createdAt;
     private boolean companyCertified;
-
-    // Getter et Setter pour companyCertified
+    private String companyId; // Assurez-vous que cet attribut existe bien
     public boolean isCompanyCertified() {
         return companyCertified;
     }
@@ -143,6 +142,13 @@ public class JobOffer {
 
     public LocalDate getCreatedAt() {
         return createdAt;
+    }
+    public String getCompanyId() {
+        return companyId;
+    }
+
+    public void setCompanyId(String companyId) {
+        this.companyId = companyId;
     }
 
     public void setCreatedAt(LocalDate createdAt) {
