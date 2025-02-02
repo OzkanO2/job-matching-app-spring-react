@@ -178,8 +178,7 @@ public class JobOfferController {
      */
     @PostMapping("/like")
     public ResponseEntity<Like> likeOffer(@RequestBody Like like) {
-        logger.info("Liking a job offer.");
-        Like savedLike = likeService.saveLike(like);
+        Like savedLike = likeService.saveLike(like.getSwiperId(), like.getSwipedId());
         return ResponseEntity.status(HttpStatus.CREATED).body(savedLike);
     }
 

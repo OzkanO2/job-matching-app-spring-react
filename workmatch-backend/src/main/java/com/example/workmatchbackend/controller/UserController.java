@@ -179,9 +179,15 @@ public class UserController {
 
     @PostMapping("/like")
     public ResponseEntity<Like> likeOffer(@RequestBody Like like) {
-        Like savedLike = likeService.saveLike(like);
+        if (like.getSwiperId() == null || like.getSwipedId() == null) {
+            return ResponseEntity.badRequest().body(null);
+        }
+
+        Like savedLike = likeService.saveLike(like.getSwiperId(), like.getSwipedId());
+
         return ResponseEntity.status(HttpStatus.CREATED).body(savedLike);
     }
+
 
     @GetMapping("/matches/{userId}")
     public List<Match> getMatchesForUser(@PathVariable String userId) {

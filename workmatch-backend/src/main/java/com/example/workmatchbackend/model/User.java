@@ -16,6 +16,7 @@ public class User {
     private UserType userType;
 
     // Getters and setters
+    public User() {}
 
     public String getId() {
         return id;

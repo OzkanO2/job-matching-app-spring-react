@@ -14,6 +14,10 @@ const CompanyHomePage = () => {
         const fetchJobSearchers = async () => {
             try {
                 const token = await AsyncStorage.getItem('userToken');
+                if (!token) {
+                    console.error("❌ Aucun token trouvé !");
+                }
+                console.log("🔑 JWT Token récupéré :", token);
                 const response = await axios.get('http://localhost:8080/jobsearchers', {
                     headers: { Authorization: `Bearer ${token}` },
                 });
@@ -31,34 +35,45 @@ const CompanyHomePage = () => {
     const handleSwipeRight = async (index) => {
         const swipedJobSearcher = jobSearchers[index];
 
-        if (swipedJobSearcher) {
-            console.log(`Liked job searcher: ${swipedJobSearcher.name}`);
+        if (!swipedJobSearcher) {
+            console.error("❌ Aucun job searcher trouvé pour cet index.");
+            return;
+        }
 
-            try {
-                const token = await AsyncStorage.getItem('userToken');
-                const userId = await AsyncStorage.getItem("userId"); // 🔥 Récupère l'ID du user connecté
-                console.log("🔍 swiperId envoyé :", userId);
-                console.log("🔍 swipedId envoyé :", swipedJobSearcher.userId);
-                console.log("🔑 JWT Token utilisé :", token);
-                console.log("🛠️ Données du job searcher :", swipedJobSearcher);
+        console.log("🟢 Job Searcher sélectionné:", swipedJobSearcher);
 
-                const response = await axios.post(
-                    `http://localhost:8080/api/matches/swipe?swiperId=${userId}&swipedId=${swipedJobSearcher._id}`,
-                    {}, // Aucun body ici
-                    {
-                        headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
-                    }
-                );
+        const swipedId = swipedJobSearcher.id; // 🔥 Assure-toi que `_id` est bien récupéré
+        const swiperId = await AsyncStorage.getItem("userId");
 
+        if (!swiperId || !swipedId) {
+            console.error("❌ swiperId ou swipedId est manquant !");
+            console.log("🔍 swiperId:", swiperId);
+            console.log("🔍 swipedId:", swipedId);
+            return;
+        }
 
-                if (response.data.includes("match")) {
-                    alert("You have a match! Start chatting now.");
+        console.log("✅ swiperId envoyé :", swiperId);
+        console.log("✅ swipedId envoyé :", swipedId);
+        console.log("🟢 Données envoyées :", JSON.stringify({ swiperId, swipedId }));
+
+        try {
+            const token = await AsyncStorage.getItem('userToken');
+
+            const response = await axios.post(
+                'http://localhost:8080/api/matches/swipe',
+                { swiperId: swiperId, swipedId: swipedId },  // ✅ Correction
+                {
+                    headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
                 }
+            );
 
-                console.log(response.data); // Message du backend
-            } catch (error) {
-                console.error('❌ Error during swipe:', error);
+            if (response.data.includes("match")) {
+                alert("You have a match! Start chatting now.");
             }
+
+            console.log(response.data);
+        } catch (error) {
+            console.error('❌ Erreur lors du swipe:', error);
         }
     };
 

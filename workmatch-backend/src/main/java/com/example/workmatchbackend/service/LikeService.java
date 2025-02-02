@@ -4,39 +4,35 @@ import com.example.workmatchbackend.model.Like;
 import com.example.workmatchbackend.repository.LikeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import com.example.workmatchbackend.model.User;
-import com.example.workmatchbackend.repository.UserRepository;
-import com.example.workmatchbackend.model.JobOffer;
-import com.example.workmatchbackend.repository.JobOfferRepository;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.*;
+import com.example.workmatchbackend.model.User; // ✅ Import du modèle User
+import com.example.workmatchbackend.repository.UserRepository; // ✅ Import du UserRepository
+import com.example.workmatchbackend.model.JobSearcher;
+import com.example.workmatchbackend.repository.JobSearcherRepository;
 
 @Service
 public class LikeService {
+    @Autowired
+    private JobSearcherRepository jobSearcherRepository;
 
     @Autowired
     private LikeRepository likeRepository;
     @Autowired
-    private UserRepository userRepository;
+    private UserRepository userRepository; // ✅ Assure-toi que cette ligne est présente
 
-    @Autowired
-    private JobOfferRepository jobOfferRepository;
-
-    public Like saveLike(Like like) {
-        return likeRepository.save(like);
-    }
-    public boolean checkForMatch(String swiperId, String swipedId) {
+    public Like saveLike(String swiperId, String swipedId) {
         User swiper = userRepository.findById(swiperId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new RuntimeException("❌ Swiper User not found: " + swiperId));
 
-        if (swiper.getUserType().equals("COMPANY")) {
-            return likeRepository.existsByUserIdAndSwipedUserId(swipedId, swiperId);
-        } else if (swiper.getUserType().equals("INDIVIDUAL")) {
-            return likeRepository.existsByUserIdAndOfferId(swipedId, swiperId);
-        }
-        return false;
+        JobSearcher swiped = jobSearcherRepository.findById(swipedId)
+                .orElseThrow(() -> new RuntimeException("❌ Swiped JobSearcher not found: " + swipedId));
+
+        Like like = new Like(swiperId, swipedId);
+        likeRepository.save(like);
+        return like; // ✅ Retourne le Like sauvegardé
     }
 
+
+    public boolean checkForMatch(String swiperId, String swipedId) {
+        return likeRepository.existsBySwiperIdAndSwipedId(swipedId, swiperId);
+    }
 }

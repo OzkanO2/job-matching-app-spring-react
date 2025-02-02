@@ -11,10 +11,7 @@ import com.example.workmatchbackend.model.User;
 import com.example.workmatchbackend.repository.UserRepository;
 import com.example.workmatchbackend.model.JobOffer;
 import com.example.workmatchbackend.repository.JobOfferRepository;
-import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RestController;
-
-import org.springframework.stereotype.Controller;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/matches")
@@ -33,30 +30,20 @@ public class MatchController {
         this.jobOfferRepository = jobOfferRepository;
     }
     @PostMapping("/swipe")
-    public ResponseEntity<String> swipe(@RequestParam String swiperId, @RequestParam String swipedId, @RequestParam(required = false) String offerId) {
-        System.out.println("🔍 Searching for swiperId in database: " + swiperId);
+    public ResponseEntity<String> swipe(@RequestBody Map<String, String> payload) {
+        String swiperId = payload.get("swiperId");
+        String swipedId = payload.get("swipedId");
 
-        User swiper = userRepository.findById(swiperId).orElseThrow(() -> new RuntimeException("User not found"));
-
-        if (swiper.getUserType().equals("COMPANY")) {
-            // 🔹 COMPANY swiping an INDIVIDUAL (job searcher)
-            Like like = new Like(swiperId, swipedId);
-            likeService.saveLike(like);
-        } else if (swiper.getUserType().equals("INDIVIDUAL")) {
-            JobOffer jobOffer = jobOfferRepository.findById(offerId)
-                    .orElseThrow(() -> new RuntimeException("Job Offer not found"));
-            Like like = new Like(swiperId, offerId, jobOffer.getCompanyId()); // 🔹 Utilisation correcte de getCompanyId()
-            likeService.saveLike(like);
-
+        if (swiperId == null || swipedId == null) {
+            return ResponseEntity.badRequest().body("❌ swiperId et swipedId sont requis.");
         }
 
-        // Vérifier si un match existe
-        boolean isMatch = likeService.checkForMatch(swiperId, swipedId);
-        if (isMatch) {
-            matchService.createMatch(swiperId, swipedId);
-            return ResponseEntity.ok("It's a match! Start chatting.");
-        } else {
-            return ResponseEntity.ok("Like recorded.");
-        }
+        System.out.println("🟢 Swiper ID: " + swiperId);
+        System.out.println("🟢 Swiped ID: " + swipedId);
+
+        Like like = likeService.saveLike(swiperId, swipedId);
+
+        return ResponseEntity.ok("✅ Like enregistré : " + like);
     }
+
 }
