@@ -135,6 +135,16 @@
 			<artifactId>jakarta.servlet-api</artifactId>
 			<scope>provided</scope>
 		</dependency>
+		<dependency>
+			<groupId>org.mongodb</groupId>
+			<artifactId>mongodb-driver-core</artifactId>
+			<version>4.9.0</version>  <!-- Mets à jour si besoin -->
+		</dependency>
+		<dependency>
+			<groupId>org.mongodb</groupId>
+			<artifactId>mongodb-driver-sync</artifactId>
+			<version>4.9.0</version> <!-- Vérifie la version actuelle -->
+		</dependency>
 
 	</dependencies>
 

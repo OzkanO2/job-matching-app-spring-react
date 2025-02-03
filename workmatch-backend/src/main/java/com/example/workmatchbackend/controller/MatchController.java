@@ -53,6 +53,12 @@ public class MatchController {
         String swiperId = payload.get("swiperId");
         String swipedId = payload.get("swipedId");
         String companyId = payload.get("companyId");
+        System.out.println("📥 Données reçues :");
+        System.out.println("➡️ swiperId : " + swiperId);
+        System.out.println("➡️ swipedId : " + swipedId);
+        System.out.println("➡️ companyId : " + companyId);
+        System.out.println("📌 Type swiperId reçu : " + (swiperId instanceof String ? "String" : "Autre"));
+        System.out.println("📌 Longueur swiperId : " + (swiperId != null ? swiperId.length() : "null"));
 
         if (swiperId == null || swipedId == null || companyId == null) {
             return ResponseEntity.badRequest().body("❌ swiperId, swipedId et companyId sont requis.");
@@ -89,16 +95,16 @@ public class MatchController {
         String swipedId = payload.get("swipedId");
         String companyId = payload.get("companyId");
 
+        System.out.println("📥 Données reçues:");
+        System.out.println("➡️ swiperId: " + swiperId);
+        System.out.println("➡️ swipedId: " + swipedId);
+        System.out.println("➡️ companyId: " + companyId);
+
         // 🛑 Vérification des valeurs reçues
         if (swiperId == null || swipedId == null || companyId == null) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body("❌ swiperId, swipedId et companyId sont requis.");
         }
-
-        System.out.println("📥 Données reçues:");
-        System.out.println("➡️ swiperId: " + swiperId);
-        System.out.println("➡️ swipedId: " + swipedId);
-        System.out.println("➡️ companyId: " + companyId);
 
         // ✅ Sauvegarde du Like
         Like savedLike = likeService.saveLike(swiperId, swipedId, companyId);
