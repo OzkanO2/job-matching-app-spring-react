@@ -11,27 +11,22 @@ export default function SignInPage({ navigation }) {
         try {
             const response = await axios.post('http://localhost:8080/users/login', { username, password });
             const token = response.data.token;
-            const userType = response.data.userType; // Vérifie que `userType` est retourné
+            const userType = response.data.userType;
+            const userId = response.data.userId;
 
-            if (token) {
+            if (token && userId) {
                 await AsyncStorage.setItem('userToken', `Bearer ${token}`);
-                await AsyncStorage.setItem('username', username);
+                await AsyncStorage.setItem('userId', userId);
+                await AsyncStorage.setItem('username', username); // ✅ Ajout du stockage du nom d'utilisateur
                 await AsyncStorage.setItem('userType', userType);
 
-                // Redirige en fonction du userType
-                if (userType === 'INDIVIDUAL') {
-                    navigation.navigate('IndividualHome');
-                } else if (userType === 'COMPANY') {
-                    navigation.navigate('CompanyHome');
-                }
-                else {
-                    Alert.alert('Unknown user type');
-                }
+                console.log("✅ Identifiants stockés avec succès !");
+                navigation.navigate(userType === 'INDIVIDUAL' ? 'IndividualHome' : 'CompanyHome');
             } else {
                 Alert.alert('Invalid credentials');
             }
         } catch (error) {
-            console.error('An error occurred:', error);
+            console.error('❌ An error occurred:', error);
             Alert.alert('An error occurred. Please try again.');
         }
     };

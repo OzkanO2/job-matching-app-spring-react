@@ -9,8 +9,15 @@ const IndividualHomePage = () => {
     const navigation = useNavigation();
     const [jobOffers, setJobOffers] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
+    const [userId, setUserId] = useState(null);
 
     useEffect(() => {
+        const fetchUserData = async () => {
+            const storedUserId = await AsyncStorage.getItem('userId');
+            setUserId(storedUserId);
+            console.log("👤 ID utilisateur récupéré :", storedUserId);
+        };
+
         const fetchJobOffers = async () => {
             try {
                 const token = await AsyncStorage.getItem('userToken');
@@ -19,41 +26,59 @@ const IndividualHomePage = () => {
                 });
                 setJobOffers(response.data);
             } catch (error) {
-                console.error('Error fetching job offers:', error);
+                console.error('❌ Error fetching job offers:', error);
             } finally {
                 setIsLoading(false);
             }
         };
 
+        fetchUserData();
         fetchJobOffers();
     }, []);
+
 
     const handleSwipeRight = async (index) => {
         const swipedJobOffer = jobOffers[index];
 
-        if (swipedJobOffer) {
-            console.log(`Liked job offer: ${swipedJobOffer.title}`);
-            try {
-                const token = await AsyncStorage.getItem('userToken');
-                const response = await axios.post(
-                    'http://localhost:8080/api/matches/swipe',
-                    null,
-                    {
-                        params: {
-                            swiperId: 'currentIndividualId', // Remplace par l'ID de l'utilisateur actuel
-                            swipedId: swipedJobOffer.id, // ID de l'offre swipée
-                        },
-                        headers: { Authorization: `Bearer ${token}` },
-                    }
-                );
-                if (response.data.includes("match")) {
-                    alert("You have a match! Start chatting now.");
-                }
+        if (!swipedJobOffer) {
+            console.error("❌ Aucun job offer trouvé pour cet index.");
+            return;
+        }
 
-                console.log(response.data); // Message du backend
-            } catch (error) {
-                console.error('Error during swipe:', error);
-            }
+        console.log("🟢 Job Offer sélectionnée:", swipedJobOffer);
+
+        const swipedId = swipedJobOffer._id;  // ✅ Vérifie bien que "_id" est utilisé
+        const companyId = swipedJobOffer.companyId || swipedJobOffer.company?.id;  // ✅ Récupère bien le companyId
+        const swiperId = await AsyncStorage.getItem("userId");
+
+        if (!swiperId || !swipedId || !companyId) {
+            console.error("❌ swiperId, swipedId ou companyId est manquant !");
+            console.log("📌 swiperId:", swiperId);
+            console.log("📌 swipedId:", swipedId);
+            console.log("📌 companyId:", companyId);
+            return;
+        }
+
+        console.log("✅ swiperId envoyé :", swiperId);
+        console.log("✅ swipedId envoyé :", swipedId);
+        console.log("✅ companyId envoyé :", companyId);
+
+        try {
+            const token = await AsyncStorage.getItem('userToken');
+
+            console.log("🔑 Token utilisé pour la requête :", token);
+
+            const response = await axios.post(
+                "http://localhost:8080/api/matches/swipe/individual",
+                { swiperId, swipedId, companyId },
+                {
+                    headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+                }
+            );
+
+            console.log("✅ Réponse serveur :", response.data);
+        } catch (error) {
+            console.error('❌ Erreur lors du swipe:', error);
         }
     };
 
@@ -64,7 +89,6 @@ const IndividualHomePage = () => {
 
     return (
         <View style={styles.container}>
-            {/* Boutons de navigation en haut */}
             <View style={styles.topButtons}>
                 <Button title="Profile" onPress={() => navigation.navigate('ProfilePage')} />
                 <Button title="Main Menu" onPress={() => navigation.navigate('IndividualHome')} />
@@ -72,10 +96,6 @@ const IndividualHomePage = () => {
                 <Button title="My Offers" onPress={() => navigation.navigate('MyOffersPage')} />
             </View>
 
-            {/* Suppression de l'en-tête "Job Offers" */}
-            {/* <Text style={styles.title}>Job Offers</Text> */}
-
-            {/* Swiping Cards */}
             <View style={styles.swiperContainer}>
                 {isLoading ? (
                     <Text>Loading...</Text>
@@ -86,9 +106,7 @@ const IndividualHomePage = () => {
                             <View style={styles.card}>
                                 <Text style={styles.cardTitle}>{offer.title}</Text>
                                 <Text style={styles.cardDescription}>
-                                    {offer.description.length > 150
-                                        ? `${offer.description.slice(0, 150)}...`
-                                        : offer.description}
+                                    {offer.description.length > 150 ? `${offer.description.slice(0, 150)}...` : offer.description}
                                 </Text>
                             </View>
                         )}
@@ -103,7 +121,6 @@ const IndividualHomePage = () => {
             </View>
         </View>
     );
-
 };
 
 const styles = StyleSheet.create({
@@ -116,17 +133,11 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         paddingHorizontal: 10,
         marginTop: 20,
-        marginBottom: 10, // Ajout pour séparer les boutons des cartes
-        zIndex: 1, // S'assurer que les boutons restent visibles
-    },
-    title: {
-        fontSize: 24,
-        fontWeight: 'bold',
-        textAlign: 'center',
-        marginBottom: 15,
+        marginBottom: 10,
+        zIndex: 1,
     },
     swiperContainer: {
-        flex: 1, // S'assurer que le Swiper prend tout l'espace restant
+        flex: 1,
         marginTop: 10,
     },
     card: {

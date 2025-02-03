@@ -8,35 +8,47 @@ public class Like {
 
     @Id
     private String id;
+    private String swiperId;
+    private String swipedId;
+    private String companyId; // ✅ Ajout du champ manquant
+    // 🔥 Ajoutez ce champ s'il manque
+    private String offerId;
+    // ✅ Getters et Setters
+    public String getOfferId() {
+        return offerId;
+    }
 
-    private String swiperId;  // ✅ ID de celui qui like (Utilisateur ou Entreprise)
-    private String swipedId;  // ✅ ID de la cible (Utilisateur ou Offre d'emploi)
-    private String offerId;   // ✅ Ajoute cette ligne si elle manque
-
-    // 🔹 Constructeurs
-    public Like() {}
-
+    public void setOfferId(String offerId) {
+        this.offerId = offerId;
+    }
+    public Like(String swiperId, String swipedId, String companyId) {
+        this.swiperId = swiperId;
+        this.swipedId = swipedId;
+        this.companyId = companyId;
+    }
+    // ✅ Constructeur sans companyId
     public Like(String swiperId, String swipedId) {
         this.swiperId = swiperId;
         this.swipedId = swipedId;
+        this.companyId = ""; // ✅ Default à une chaîne vide pour éviter les erreurs
+    }
+    public String getId() {
+        return id;
     }
 
-    public Like(String swiperId, String offerId, String swipedId) {  // 🔹 Ajout du constructeur pour l'offre
-        this.swiperId = swiperId;
-        this.offerId = offerId;
-        this.swipedId = swipedId;
+    public String getSwiperId() {
+        return swiperId;
     }
 
-    // 🔹 Getters et Setters
-    public String getId() { return id; }
-    public void setId(String id) { this.id = id; }
+    public String getSwipedId() {
+        return swipedId;
+    }
 
-    public String getSwiperId() { return swiperId; }
-    public void setSwiperId(String swiperId) { this.swiperId = swiperId; }
+    public String getCompanyId() { // ✅ Ajout du getter
+        return companyId;
+    }
 
-    public String getSwipedId() { return swipedId; }
-    public void setSwipedId(String swipedId) { this.swipedId = swipedId; }
-
-    public String getOfferId() { return offerId; }
-    public void setOfferId(String offerId) { this.offerId = offerId; }
+    public void setCompanyId(String companyId) { // ✅ Ajout du setter
+        this.companyId = companyId;
+    }
 }

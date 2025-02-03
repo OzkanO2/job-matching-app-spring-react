@@ -32,6 +32,8 @@ import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Map;
+
 
 @RestController
 @RequestMapping("/joboffers")
@@ -42,9 +44,10 @@ public class JobOfferController {
 
     @Autowired
     private JobOfferService jobOfferService;
-    public JobOfferController(MatchService matchService) {
-        this.matchService = matchService;
+    public JobOfferController(LikeService likeService) {
+        this.likeService = likeService;
     }
+
     @Autowired
     private CompanyService companyService;
 
@@ -156,6 +159,28 @@ public class JobOfferController {
         jobOfferService.deleteJobOffer(id);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
+    @PostMapping("/like-job-offer")
+    public ResponseEntity<?> likeJobOffer(@RequestBody Map<String, String> payload) {
+        // 🔹 Extraction des données du JSON
+        String swiperId = payload.get("swiperId");
+        String swipedId = payload.get("swipedId");
+        String companyId = payload.get("companyId");
+
+        // 🔎 Vérification des valeurs
+        if (swiperId == null || swipedId == null || companyId == null) {
+            return ResponseEntity.badRequest().body("❌ swiperId, swipedId et companyId sont requis.");
+        }
+
+        System.out.println("📥 Données reçues:");
+        System.out.println("➡️ swiperId: " + swiperId);
+        System.out.println("➡️ swipedId: " + swipedId);
+        System.out.println("➡️ companyId: " + companyId);
+
+        // 🔥 Enregistrer le "Like"
+        Like like = likeService.saveLike(swiperId, swipedId, companyId);
+
+        return ResponseEntity.ok("✅ Like enregistré: " + like);
+    }
 
     /**
      * Récupère des offres d'emploi externes depuis l'API Adzuna.
@@ -176,9 +201,29 @@ public class JobOfferController {
     /**
      * Ajoute un "like" à une offre d'emploi.
      */
+    /**
+     * Ajoute un "like" à une offre d'emploi.
+     */
     @PostMapping("/like")
-    public ResponseEntity<Like> likeOffer(@RequestBody Like like) {
-        Like savedLike = likeService.saveLike(like.getSwiperId(), like.getSwipedId());
+    public ResponseEntity<?> likeOffer(@RequestBody Map<String, String> payload) {
+        // 🔹 Extraction des données JSON
+        String swiperId = payload.get("swiperId");
+        String swipedId = payload.get("swipedId");
+        String companyId = payload.get("companyId");
+
+        // 🔍 Vérification des valeurs reçues
+        if (swiperId == null || swipedId == null || companyId == null) {
+            return ResponseEntity.badRequest().body("❌ swiperId, swipedId et companyId sont requis.");
+        }
+
+        System.out.println("📥 Données reçues:");
+        System.out.println("➡️ swiperId: " + swiperId);
+        System.out.println("➡️ swipedId: " + swipedId);
+        System.out.println("➡️ companyId: " + companyId);
+
+        // 🔥 Enregistrer le "Like"
+        Like savedLike = likeService.saveLike(swiperId, swipedId, companyId);
+
         return ResponseEntity.status(HttpStatus.CREATED).body(savedLike);
     }
 

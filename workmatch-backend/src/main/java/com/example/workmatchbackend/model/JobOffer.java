@@ -7,12 +7,14 @@ import java.time.LocalDate;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 @Document(collection = "jobOffers")
 public class JobOffer {
-
     @Id
-    private String id; // Identifiant MongoDB
+    @JsonProperty("_id")
+    private String id;
+
     @NotNull(message = "Title is required")
     private String title; // Nouveau champ pour le titre
     @NotNull(message = "Description is required")

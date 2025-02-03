@@ -107,8 +107,28 @@ public class UserController {
 
 
 
+    @PostMapping("/like-job-offer")
+    public ResponseEntity<?> likeJobOffer(@RequestBody Map<String, String> payload) {
+        // 🔹 Récupération des valeurs envoyées par le frontend
+        String swiperId = payload.get("swiperId");
+        String swipedId = payload.get("swipedId");
+        String companyId = payload.get("companyId");
 
+        // 🔎 Vérification que toutes les valeurs sont bien présentes
+        if (swiperId == null || swipedId == null || companyId == null) {
+            return ResponseEntity.badRequest().body("❌ swiperId, swipedId et companyId sont requis.");
+        }
 
+        System.out.println("📥 Requête reçue avec:");
+        System.out.println("🔹 swiperId: " + swiperId);
+        System.out.println("🔹 swipedId: " + swipedId);
+        System.out.println("🔹 companyId: " + companyId);
+
+        // 🔥 Sauvegarde du "Like"
+        Like like = likeService.saveLike(swiperId, swipedId, companyId);
+
+        return ResponseEntity.ok("✅ Like enregistré: " + like);
+    }
 
     @DeleteMapping("/id/{id}")
     public void deleteUser(@PathVariable String id) {
@@ -136,6 +156,7 @@ public class UserController {
         System.out.println("User registered successfully: " + savedUser.getUsername() + ", UserType: " + savedUser.getUserType());
         return ResponseEntity.status(HttpStatus.CREATED).body(savedUser);
     }
+
     @PostMapping("/updateUserType")
     public ResponseEntity<?> updateUserType(@RequestBody User user) {
         System.out.println("Updating user type for user: " + user.getUsername() + " to " + user.getUserType());
@@ -169,22 +190,26 @@ public class UserController {
             String token = jwtUtil.generateToken(username);
             Map<String, String> response = new HashMap<>();
             response.put("token", token);
-            response.put("userType", existingUser.getUserType().toString()); // Retourne `userType`
+            response.put("userType", existingUser.getUserType().toString());
+            response.put("userId", existingUser.getId()); // ✅ Ajout de l'ID utilisateur
             return ResponseEntity.ok(response);
         } else {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");
         }
     }
 
-
     @PostMapping("/like")
-    public ResponseEntity<Like> likeOffer(@RequestBody Like like) {
-        if (like.getSwiperId() == null || like.getSwipedId() == null) {
-            return ResponseEntity.badRequest().body(null);
+    public ResponseEntity<?> likeOffer(@RequestBody Map<String, String> payload) {
+        String swiperId = payload.get("swiperId");
+        String swipedId = payload.get("swipedId");
+        String companyId = payload.get("companyId");
+
+        if (swiperId == null || swipedId == null || companyId == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("❌ swiperId, swipedId et companyId sont requis.");
         }
 
-        Like savedLike = likeService.saveLike(like.getSwiperId(), like.getSwipedId());
-
+        Like savedLike = likeService.saveLike(swiperId, swipedId, companyId);
         return ResponseEntity.status(HttpStatus.CREATED).body(savedLike);
     }
 
