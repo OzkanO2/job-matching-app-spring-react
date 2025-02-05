@@ -1,46 +1,77 @@
 package com.example.workmatchbackend.service;
 
+import com.example.workmatchbackend.model.Like;
 import com.example.workmatchbackend.model.Match;
+import com.example.workmatchbackend.model.JobSearcher;
+import com.example.workmatchbackend.repository.LikeRepository;
 import com.example.workmatchbackend.repository.MatchRepository;
+import com.example.workmatchbackend.repository.JobOfferRepository;
+import com.example.workmatchbackend.repository.JobSearcherRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.util.Optional;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class MatchService {
 
-    private final MatchRepository matchRepository;
+    @Autowired
+    private LikeRepository likeRepository;
 
-    public MatchService(MatchRepository matchRepository) {
-        this.matchRepository = matchRepository;
-    }
+    @Autowired
+    private MatchRepository matchRepository;
+
+    @Autowired
+    private JobOfferRepository jobOfferRepository;
+
+    @Autowired
+    private JobSearcherRepository jobSearcherRepository;
+
     public List<Match> getMatchesForUser(String userId) {
-        return matchRepository.findAllByUserId1OrUserId2(userId, userId);
+        return matchRepository.findBySwiperIdOrSwipedId(userId, userId);
     }
-
-    // Méthode pour enregistrer un nouveau match
-    public void saveMatch(Match match) {
+    public void saveMatch(String swiperId, String swipedId, String offerId) {
+        Match match = new Match(swiperId, swipedId, offerId);
         matchRepository.save(match);
+        System.out.println("✅ Match enregistré entre " + swiperId + " et " + swipedId + " pour l'offre " + offerId);
     }
-    // Vérifie si un match existe déjà ou crée un nouveau match
-    public boolean checkAndCreateMatch(String userId1, String userId2) {
-        // Vérifie si un match existe dans les deux sens
-        Optional<Match> existingMatch1 = matchRepository.findByUserId1AndUserId2(userId1, userId2);
-        Optional<Match> existingMatch2 = matchRepository.findByUserId1AndUserId2(userId2, userId1);
 
-        if (existingMatch1.isPresent() || existingMatch2.isPresent()) {
-            return false; // Match déjà existant
+    /**
+     * 🔍 Convertir `swipedId` en `userId` si c'est un `jobSearcher`.
+     */
+    private String resolveUserId(String swipedId) {
+        Optional<JobSearcher> jobSearcher = jobSearcherRepository.findById(swipedId);
+        return jobSearcher.map(JobSearcher::getUserId).orElse(swipedId);
+    }
+
+    /**
+     * 🔥 Vérification des matchs et création si nécessaire.
+     */
+    public void checkAndCreateMatch(String swiperId, String swipedId, String companyId) {
+        boolean isMutualLike = false;
+        String offerId = null;
+
+        if (companyId == null || companyId.isEmpty()) {
+            // 🔍 Cas 1 : Un COMPANY like un INDIVIDUAL
+            Optional<Like> mutualLike = likeRepository.findBySwiperIdAndCompanyId(swipedId, swiperId);
+            if (mutualLike.isPresent()) {
+                isMutualLike = true;
+            }
+        } else {
+            // 🔍 Cas 2 : Un INDIVIDUAL like une entreprise
+            Optional<Like> mutualLike = likeRepository.findBySwiperIdAndSwipedId(swipedId, companyId);
+            if (mutualLike.isPresent()) {
+                isMutualLike = true;
+            }
         }
 
-        // Crée un nouveau match
-        Match newMatch = new Match(userId1, userId2);
-        matchRepository.save(newMatch);
-        return true; // Match créé
+        if (isMutualLike) {
+            Match match = new Match(swiperId, swipedId, offerId);
+            matchRepository.save(match);
+            System.out.println("🔥 Match créé entre " + swiperId + " et " + swipedId);
+        }
     }
-    public void createMatch(String userId1, String userId2) {
-        Match match = new Match(userId1, userId2);
-        matchRepository.save(match);
-    }
+
+
 
 }

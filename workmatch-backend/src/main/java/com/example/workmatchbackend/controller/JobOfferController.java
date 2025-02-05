@@ -238,9 +238,10 @@ public class JobOfferController {
 
     @PostMapping("/joboffers/match/save")
     public ResponseEntity<String> saveMatch(@RequestBody Match match) {
-        matchService.saveMatch(match);
-        return ResponseEntity.ok("Match saved successfully.");
+        matchService.saveMatch(match.getSwiperId(), match.getSwipedId(), match.getOfferId());
+        return ResponseEntity.ok("✅ Match enregistré avec succès.");
     }
+
 
     /**
      * Crée un nouveau "match".
@@ -248,7 +249,7 @@ public class JobOfferController {
     @PostMapping("/joboffers/match/create")
     public ResponseEntity<?> createMatch(@RequestBody Match match) {
         logger.info("Creating a new match.");
-        matchService.saveMatch(match);
+        matchService.saveMatch(match.getSwiperId(), match.getSwipedId(), match.getOfferId());
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 }

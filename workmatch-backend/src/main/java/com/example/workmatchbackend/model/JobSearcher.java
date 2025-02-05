@@ -17,7 +17,16 @@ public class JobSearcher {
     private String photoUrl; // Note : CamelCase pour les noms des champs
     private String location;
     private String resumeUrl;
+    private String userId; // 🔹 Clé correspondant à un utilisateur dans la collection users
 
+    // ✅ Ajoute les getters et setters nécessaires
+    public String getUserId() {
+        return userId;
+    }
+
+    public void setUserId(String userId) {
+        this.userId = userId;
+    }
     // Getters et Setters
     public String getId() {
         return id;

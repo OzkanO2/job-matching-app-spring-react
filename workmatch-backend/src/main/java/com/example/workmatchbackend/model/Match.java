@@ -2,35 +2,52 @@ package com.example.workmatchbackend.model;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
-import java.time.LocalDateTime;
 
 @Document(collection = "matches")
 public class Match {
     @Id
     private String id;
-    private String userId1; // Premier utilisateur
-    private String userId2; // Deuxième utilisateur
-    private LocalDateTime matchDate;
+    private String swiperId;
+    private String swipedId;
+    private String offerId;
 
-    public Match(String userId1, String userId2) {
-        this.userId1 = userId1;
-        this.userId2 = userId2;
-    }
-    // Getters and setters
-    public String getUserId1() {
-        return userId1;
-    }
+    public Match() {}
 
-    public void setUserId1(String userId1) {
-        this.userId1 = userId1;
+    public Match(String swiperId, String swipedId, String offerId) {
+        this.swiperId = swiperId;
+        this.swipedId = swipedId;
+        this.offerId = offerId;
     }
 
-    public String getUserId2() {
-        return userId2;
+    public String getId() {
+        return id;
     }
 
-    public void setUserId2(String userId2) {
-        this.userId2 = userId2;
+    public void setId(String id) {
+        this.id = id;
     }
-    // Getters and Setters
+
+    public String getSwiperId() {
+        return swiperId;
+    }
+
+    public void setSwiperId(String swiperId) {
+        this.swiperId = swiperId;
+    }
+
+    public String getSwipedId() {
+        return swipedId;
+    }
+
+    public void setSwipedId(String swipedId) {
+        this.swipedId = swipedId;
+    }
+
+    public String getOfferId() {
+        return offerId;
+    }
+
+    public void setOfferId(String offerId) {
+        this.offerId = offerId;
+    }
 }

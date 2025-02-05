@@ -31,8 +31,8 @@ public class JobOfferService {
         return jobOfferRepository.findAll();
     }
 
-    public Optional<JobOffer> getJobOfferById(String id) {
-        return jobOfferRepository.findById(id);
+    public Optional<JobOffer> getJobOfferById(String jobOfferId) {
+        return jobOfferRepository.findById(jobOfferId);
     }
 
     public JobOffer saveJobOffer(JobOffer jobOffer) {
@@ -44,7 +44,7 @@ public class JobOfferService {
     }
 
     public JobOffer findByExternalId(String externalId) {
-        return jobOfferRepository.findByExternalId(externalId);
+        return jobOfferRepository.findByExternalId(externalId).orElse(null);
     }
 
     public List<JobOffer> fetchJobsFromAdzuna(String country, String what, int resultsPerPage) {

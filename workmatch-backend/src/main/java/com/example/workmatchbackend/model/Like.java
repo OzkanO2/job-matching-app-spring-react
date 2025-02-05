@@ -17,7 +17,7 @@ public class Like {
     public String getOfferId() {
         return offerId;
     }
-
+    public Like() {}
     public void setOfferId(String offerId) {
         this.offerId = offerId;
     }
