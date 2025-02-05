@@ -58,9 +58,10 @@ public class MatchService {
                 isMutualLike = true;
             }
         } else {
-            // 🔍 Cas 2 : Un INDIVIDUAL like une entreprise
-            Optional<Like> mutualLike = likeRepository.findBySwiperIdAndSwipedId(swipedId, companyId);
-            if (mutualLike.isPresent()) {
+            // 🔍 Cas 2 : Un INDIVIDUAL like une offre
+            Optional<Like> companyLike = likeRepository.findBySwiperIdAndSwipedId(companyId, swiperId);
+
+            if (companyLike.isPresent()) {
                 isMutualLike = true;
             }
         }
@@ -71,7 +72,5 @@ public class MatchService {
             System.out.println("🔥 Match créé entre " + swiperId + " et " + swipedId);
         }
     }
-
-
 
 }
