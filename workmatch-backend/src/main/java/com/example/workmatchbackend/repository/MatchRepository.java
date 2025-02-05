@@ -2,14 +2,12 @@ package com.example.workmatchbackend.repository;
 
 import com.example.workmatchbackend.model.Match;
 import org.springframework.data.mongodb.repository.MongoRepository;
-
+import org.springframework.stereotype.Repository;
 import java.util.List;
 import java.util.Optional;
 
+@Repository
 public interface MatchRepository extends MongoRepository<Match, String> {
-    // Trouve un match entre deux utilisateurs (ordre spécifique)
-    Optional<Match> findBySwiperIdAndSwipedId(String swiperId, String swipedId);
-
-    // Trouve tous les matchs impliquant un utilisateur
-    List<Match> findBySwiperIdOrSwipedId(String swiperId, String swipedId);
+    Optional<Match> findByIndividualUserIdAndCompanyUserId(String individualUserId, String companyUserId);
+    List<Match> findByIndividualUserIdOrCompanyUserId(String userId1, String userId2);
 }

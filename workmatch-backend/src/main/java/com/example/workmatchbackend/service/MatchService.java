@@ -28,8 +28,9 @@ public class MatchService {
     private JobSearcherRepository jobSearcherRepository;
 
     public List<Match> getMatchesForUser(String userId) {
-        return matchRepository.findBySwiperIdOrSwipedId(userId, userId);
+        return matchRepository.findByIndividualUserIdOrCompanyUserId(userId, userId);
     }
+
     public void saveMatch(String swiperId, String swipedId, String offerId) {
         Match match = new Match(swiperId, swipedId, offerId);
         matchRepository.save(match);
@@ -49,27 +50,34 @@ public class MatchService {
      */
     public void checkAndCreateMatch(String swiperId, String swipedId, String companyId) {
         boolean isMutualLike = false;
-        String offerId = null;
+        String individualUserId = null;
+        String companyUserId = null;
+        String jobOfferId = null;
 
         if (companyId == null || companyId.isEmpty()) {
-            // 🔍 Cas 1 : Un COMPANY like un INDIVIDUAL
+            // 🔍 Cas où un COMPANY like un INDIVIDUAL
             Optional<Like> mutualLike = likeRepository.findBySwiperIdAndCompanyId(swipedId, swiperId);
             if (mutualLike.isPresent()) {
                 isMutualLike = true;
+                individualUserId = swipedId;
+                companyUserId = swiperId;
+                jobOfferId = null; // Pas d'offre directement liée
             }
         } else {
-            // 🔍 Cas 2 : Un INDIVIDUAL like une offre
+            // 🔍 Cas où un INDIVIDUAL like une offre
             Optional<Like> companyLike = likeRepository.findBySwiperIdAndSwipedId(companyId, swiperId);
-
             if (companyLike.isPresent()) {
                 isMutualLike = true;
+                individualUserId = swiperId;
+                companyUserId = companyId;
+                jobOfferId = swipedId; // L'offre d'emploi devient l'élément central
             }
         }
 
         if (isMutualLike) {
-            Match match = new Match(swiperId, swipedId, offerId);
+            Match match = new Match(individualUserId, companyUserId, jobOfferId);
             matchRepository.save(match);
-            System.out.println("🔥 Match créé entre " + swiperId + " et " + swipedId);
+            System.out.println("🔥 Match créé : INDIVIDUAL=" + individualUserId + ", COMPANY=" + companyUserId + ", JOB_OFFER=" + jobOfferId);
         }
     }
 
