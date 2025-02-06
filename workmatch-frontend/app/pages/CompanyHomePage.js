@@ -58,12 +58,24 @@ const CompanyHomePage = () => {
         console.log("✅ swiperId envoyé :", swiperId);
         console.log("✅ swipedId envoyé :", swipedId);
 
+        const direction = "right"; // ✅ Ajout de la direction
+
         try {
             const token = await AsyncStorage.getItem('userToken');
 
+            // Enregistrer le like/match pour les swipes à droite (company)
             const response = await axios.post(
-                "http://localhost:8080/api/matches/swipe/company", // ✅ Nouvelle route
+                "http://localhost:8080/api/matches/swipe/company",
                 { swiperId, swipedId },
+                {
+                    headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+                }
+            );
+
+            // Enregistrer tous les swipes (droite et gauche) dans `swipedCard`
+            await axios.post(
+                "http://localhost:8080/api/swiped/save",
+                { swiperId, swipedId, direction }, // ✅ Envoie les IDs + la direction (right/left)
                 {
                     headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
                 }
@@ -73,6 +85,7 @@ const CompanyHomePage = () => {
         } catch (error) {
             console.error('❌ Erreur lors du swipe:', error);
         }
+
     };
 
 
