@@ -8,4 +8,5 @@ import java.util.List;
 @Repository
 public interface SwipedCardRepository extends MongoRepository<SwipedCard, String> {
     List<SwipedCard> findBySwiperId(String swiperId);
+    boolean existsBySwiperIdAndSwipedId(String swiperId, String swipedId);
 }

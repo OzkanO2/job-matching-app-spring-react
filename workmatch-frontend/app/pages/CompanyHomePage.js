@@ -21,20 +21,45 @@ const CompanyHomePage = () => {
         const fetchJobSearchers = async () => {
             try {
                 const token = await AsyncStorage.getItem('userToken');
-                if (!token) {
-                    console.error("❌ Aucun token trouvé !");
+                const swiperId = await AsyncStorage.getItem("userId");
+
+                if (!token || !swiperId) {
+                    console.error("❌ Token ou swiperId manquant !");
+                    return;
                 }
+
                 console.log("🔑 JWT Token récupéré :", token);
+
+                // 1️⃣ Récupération de tous les job searchers
                 const response = await axios.get('http://localhost:8080/jobsearchers', {
                     headers: { Authorization: `Bearer ${token}` },
                 });
-                setJobSearchers(response.data);
+
+                const allJobSearchers = response.data;
+
+                // 2️⃣ Récupération des swipes effectués par ce swiperId
+                const swipedResponse = await axios.get(`http://localhost:8080/api/swiped/${swiperId}`, {
+                    headers: { Authorization: `Bearer ${token}` },
+                });
+
+                const swipedData = swipedResponse.data; // Liste des swipes (right & left)
+                const swipedIds = new Set(swipedData.map(item => item.swipedId)); // Stocker les IDs swipés
+
+                // 3️⃣ Filtrer les job searchers en excluant ceux déjà swipés
+                const filteredJobSearchers = allJobSearchers.filter(jobSearcher => !swipedIds.has(jobSearcher.id));
+
+                // 4️⃣ Mettre à jour le state avec les job searchers restants
+                setJobSearchers(filteredJobSearchers);
+
+                console.log("✅ Liste des job searchers affichés après filtrage :", filteredJobSearchers);
+
             } catch (error) {
-                console.error('Error fetching job searchers:', error);
+                console.error('❌ Erreur lors de la récupération des job searchers:', error);
             } finally {
                 setIsLoading(false);
             }
         };
+
 
         fetchJobSearchers();
     }, []);
@@ -62,6 +87,16 @@ const CompanyHomePage = () => {
 
         try {
             const token = await AsyncStorage.getItem('userToken');
+
+            // 🔍 Vérifier si ce swiperId a déjà swipé ce swipedId
+            const checkSwipe = await axios.get(`http://localhost:8080/api/swiped/check?swiperId=${swiperId}&swipedId=${swipedId}`, {
+                headers: { Authorization: `Bearer ${token}` },
+            });
+
+            if (checkSwipe.data.exists) {
+                console.log("🟡 Swipe déjà enregistré, pas besoin d'ajouter.");
+                return;
+            }
 
             // Enregistrer le like/match pour les swipes à droite (company)
             const response = await axios.post(
@@ -154,16 +189,21 @@ const CompanyHomePage = () => {
                     <Swiper
                         cards={jobSearchers}
                         renderCard={(jobSearcher) => (
-                            <View style={styles.card}>
-                                <Text style={styles.cardTitle}>{jobSearcher.name || 'No name provided'}</Text>
-                                <Text style={styles.cardDescription}>
-                                    Skills: {jobSearcher.skills ? jobSearcher.skills.join(', ') : 'No skills listed'}
-                                </Text>
-                                <Text>Experience: {jobSearcher.experience || 'No experience provided'}</Text>
-                                <Text>Location: {jobSearcher.location || 'No location provided'}</Text>
-                            </View>
+                            jobSearcher ? ( // ✅ Vérifie si jobSearcher existe avant de l'afficher
+                                <View style={styles.card}>
+                                    <Text style={styles.cardTitle}>{jobSearcher.name || 'No name provided'}</Text>
+                                    <Text style={styles.cardDescription}>
+                                        Skills: {jobSearcher.skills ? jobSearcher.skills.join(', ') : 'No skills listed'}
+                                    </Text>
+                                    <Text>Experience: {jobSearcher.experience || 'No experience provided'}</Text>
+                                    <Text>Location: {jobSearcher.location || 'No location provided'}</Text>
+                                </View>
+                            ) : (
+                                <View style={styles.card}>
+                                    <Text style={styles.cardTitle}>Loading...</Text> {/* ✅ Affiche une carte de secours */}
+                                </View>
+                            )
                         )}
-
                         onSwipedRight={(cardIndex) => handleSwipeRight(cardIndex)}
                         onSwipedLeft={(cardIndex) => handleSwipeLeft(cardIndex)}
                         cardIndex={0}

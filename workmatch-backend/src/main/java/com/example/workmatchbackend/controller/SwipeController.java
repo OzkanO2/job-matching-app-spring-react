@@ -5,8 +5,13 @@ import com.example.workmatchbackend.repository.SwipedCardRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.HashMap;
+
+import com.example.workmatchbackend.model.JobSearcher;
+import com.example.workmatchbackend.repository.JobSearcherRepository;
 
 @RestController
 @RequestMapping("/api/swiped")
@@ -16,6 +21,51 @@ public class SwipeController {
     @Autowired
     private SwipedCardRepository swipedCardRepository;
 
+    @Autowired
+    private JobSearcherRepository jobSearcherRepository;
+
+    /**
+     * 📌 Récupérer les JobSearchers non encore swipés par un utilisateur
+     */
+    @GetMapping("/filteredJobSearchers/{swiperId}")
+    public ResponseEntity<List<JobSearcher>> getFilteredJobSearchers(@PathVariable String swiperId) {
+        List<SwipedCard> swipedCards = swipedCardRepository.findBySwiperId(swiperId);
+        List<String> swipedIds = swipedCards.stream().map(SwipedCard::getSwipedId).collect(Collectors.toList());
+
+        List<JobSearcher> jobSearchers = jobSearcherRepository.findAll();
+        List<JobSearcher> filteredJobSearchers = jobSearchers.stream()
+                .filter(jobSearcher -> !swipedIds.contains(jobSearcher.getId()))
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(filteredJobSearchers);
+    }
+
+    /**
+     * 📌 Récupérer tous les swipes effectués par un utilisateur (right et left)
+     */
+    @GetMapping("/{swiperId}")
+    public ResponseEntity<List<SwipedCard>> getSwipedCards(@PathVariable String swiperId) {
+        List<SwipedCard> swipedCards = swipedCardRepository.findBySwiperId(swiperId);
+        return ResponseEntity.ok(swipedCards);
+    }
+
+    /**
+     * 📌 Vérifier si une carte a déjà été swipée par un utilisateur
+     */
+    @GetMapping("/check")
+    public ResponseEntity<Map<String, Boolean>> checkIfSwiped(
+            @RequestParam String swiperId,
+            @RequestParam String swipedId) {
+
+        boolean exists = swipedCardRepository.existsBySwiperIdAndSwipedId(swiperId, swipedId);
+        Map<String, Boolean> response = new HashMap<>();
+        response.put("exists", exists);
+        return ResponseEntity.ok(response);
+    }
+
+    /**
+     * 📌 Enregistrer un swipe (right ou left)
+     */
     @PostMapping("/save")
     public ResponseEntity<String> saveSwipe(@RequestBody Map<String, String> payload) {
         String swiperId = payload.get("swiperId");
@@ -24,6 +74,11 @@ public class SwipeController {
 
         if (swiperId == null || swipedId == null || direction == null) {
             return ResponseEntity.badRequest().body("❌ swiperId, swipedId et direction sont requis.");
+        }
+
+        // Vérifier si le swipe existe déjà
+        if (swipedCardRepository.existsBySwiperIdAndSwipedId(swiperId, swipedId)) {
+            return ResponseEntity.ok("⚠️ Swipe déjà enregistré !");
         }
 
         SwipedCard swipe = new SwipedCard(swiperId, swipedId, direction);
