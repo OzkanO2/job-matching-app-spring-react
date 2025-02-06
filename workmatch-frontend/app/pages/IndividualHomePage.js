@@ -63,6 +63,8 @@ const IndividualHomePage = () => {
         console.log("✅ swipedId envoyé :", swipedId);
         console.log("✅ companyId envoyé :", companyId);
 
+        const direction = "right"; // ✅ Ajout de la direction
+
         try {
             const token = await AsyncStorage.getItem('userToken');
 
@@ -71,6 +73,14 @@ const IndividualHomePage = () => {
             const response = await axios.post(
                 "http://localhost:8080/api/matches/swipe/individual",
                 { swiperId, swipedId, companyId },
+                {
+                    headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+                }
+            );
+
+            await axios.post(
+                "http://localhost:8080/api/swiped/save",
+                { swiperId, swipedId, direction }, // ✅ Envoie les IDs + la direction (right/left)
                 {
                     headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
                 }
