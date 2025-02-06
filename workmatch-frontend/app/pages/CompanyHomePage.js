@@ -70,7 +70,7 @@ const CompanyHomePage = () => {
                         return;
                     }
 
-                    const response = await axios.get(`http://localhost:8080/api/swiped/conversations/${storedUserId}`, {
+                    const response = await axios.get(`http://localhost:8080/api/conversations/${storedUserId}`, {
                         headers: { Authorization: `Bearer ${token}` },
                     });
 

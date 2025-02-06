@@ -1,18 +1,21 @@
 import React, { useEffect, useState } from 'react';
-import { Button, View, Text, StyleSheet } from 'react-native';
+import { Button, View, Text, StyleSheet, FlatList } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import axios from 'axios';
 
 const ChatPage = () => {
     const navigation = useNavigation();
     const [userType, setUserType] = useState('');
+    const [userId, setUserId] = useState(null);
+    const [conversations, setConversations] = useState([]); // ✅ Ajoute le state des conversations
 
-    // ✅ Déclare `fetchUserType` AVANT de l'utiliser dans `useEffect`
-    const fetchUserType = async () => {
-        const type = await AsyncStorage.getItem('userType');
-        setUserType(type);
-    };
     useEffect(() => {
+        const fetchUserType = async () => {
+            const type = await AsyncStorage.getItem('userType');
+            setUserType(type);
+        };
+
         const fetchConversations = async () => {
             try {
                 const token = await AsyncStorage.getItem('userToken');
@@ -36,8 +39,8 @@ const ChatPage = () => {
             }
         };
 
-        fetchConversations();
         fetchUserType();
+        fetchConversations();
 
         navigation.setOptions({
             headerLeft: null,
@@ -51,13 +54,24 @@ const ChatPage = () => {
                 <Button title="Main Menu" onPress={() => navigation.navigate(userType === 'INDIVIDUAL' ? 'IndividualHome' : 'CompanyHome')} />
                 <Button title="Chat" onPress={() => navigation.navigate('ChatPage')} />
                 <Button title="My Offers" onPress={() => navigation.navigate('MyOffersPage')} />
-
-                {/* ✅ Bouton affiché uniquement pour COMPANY */}
                 {userType === 'COMPANY' && (
                     <Button title="Liked Candidates" onPress={() => navigation.navigate('LikedPage')} />
                 )}
             </View>
-            <Text>Bienvenue sur la page de chat</Text>
+            <Text style={styles.header}>Chat</Text>
+            {conversations && conversations.length > 0 ? (
+                <FlatList
+                    data={conversations}
+                    keyExtractor={(item) => item._id} // ✅ Ajoute une clé unique pour chaque conversation
+                    renderItem={({ item }) => (
+                        <View style={styles.chatItem}>
+                            <Text>{item.user1Id} ↔ {item.user2Id}</Text>
+                        </View>
+                    )}
+                />
+            ) : (
+                <Text>Aucune conversation trouvée.</Text>
+            )}
         </View>
     );
 };
@@ -72,6 +86,11 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         paddingHorizontal: 10,
         marginTop: 20,
+    },
+    chatItem: {
+        padding: 10,
+        borderBottomWidth: 1,
+        borderBottomColor: '#ccc',
     },
 });
 

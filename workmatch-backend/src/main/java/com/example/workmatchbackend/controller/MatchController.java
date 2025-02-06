@@ -18,6 +18,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import com.example.workmatchbackend.repository.ConversationRepository;
 import com.example.workmatchbackend.model.Conversation;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/matches")
@@ -51,6 +52,11 @@ public class MatchController {
         this.likeService = likeService;
         this.userRepository = userRepository;
         this.jobOfferRepository = jobOfferRepository;
+    }
+
+    @GetMapping("/conversations/{userId}")
+    public List<Conversation> getConversations(@PathVariable String userId) {
+        return conversationRepository.findByUser1IdOrUser2Id(userId, userId);
     }
 
     @PostMapping("/swipe/individual")
@@ -138,6 +144,9 @@ public class MatchController {
         Like savedLike = likeService.saveLike(swiperId, swipedId, companyId);
         return ResponseEntity.status(HttpStatus.CREATED).body(savedLike);
     }
+
+
+
     @PostMapping("/match")
     public ResponseEntity<String> checkAndCreateMatch(@RequestBody Map<String, String> payload) {
         String swiperId = payload.get("swiperId");
