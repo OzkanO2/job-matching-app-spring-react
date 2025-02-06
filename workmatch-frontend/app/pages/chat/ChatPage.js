@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Button, View, Text, StyleSheet } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -7,26 +7,19 @@ const ChatPage = () => {
     const navigation = useNavigation();
     const [userType, setUserType] = useState('');
 
-    useEffect(() => {
-        const fetchUserType = async () => {
-            const type = await AsyncStorage.getItem('userType');
-            setUserType(type);
-        };
+    // ✅ Déclare `fetchUserType` AVANT de l'utiliser dans `useEffect`
+    const fetchUserType = async () => {
+        const type = await AsyncStorage.getItem('userType');
+        setUserType(type);
+    };
 
+    useEffect(() => {
         fetchUserType();
 
         navigation.setOptions({
             headerLeft: null,
         });
     }, [navigation]);
-
-    const navigateToOffersPage = () => {
-        if (userType === 'INDIVIDUAL') {
-            navigation.navigate('MyJobMatchesPage');
-        } else if (userType === 'COMPANY') {
-            navigation.navigate('MyCompanyOffersPage');
-        }
-    };
 
     return (
         <View style={styles.container}>
@@ -35,16 +28,13 @@ const ChatPage = () => {
                 <Button title="Main Menu" onPress={() => navigation.navigate(userType === 'INDIVIDUAL' ? 'IndividualHome' : 'CompanyHome')} />
                 <Button title="Chat" onPress={() => navigation.navigate('ChatPage')} />
                 <Button title="My Offers" onPress={() => navigation.navigate('MyOffersPage')} />
+
+                {/* ✅ Bouton affiché uniquement pour COMPANY */}
+                {userType === 'COMPANY' && (
+                    <Button title="Liked Candidates" onPress={() => navigation.navigate('LikedPage')} />
+                )}
             </View>
-            <View style={styles.content}>
-                <Text style={styles.matches}>MATCHES LOGO 1 2 3 4</Text>
-                <Text style={styles.chatListTitle}>CHAT LIST</Text>
-                <View style={styles.chatList}>
-                    <Text>1</Text>
-                    <Text>2</Text>
-                    <Text>3</Text>
-                </View>
-            </View>
+            <Text>Bienvenue sur la page de chat</Text>
         </View>
     );
 };
@@ -59,25 +49,6 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         paddingHorizontal: 10,
         marginTop: 20,
-    },
-    content: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    matches: {
-        marginBottom: 20,
-    },
-    chatListTitle: {
-        marginBottom: 10,
-    },
-    chatList: {
-        fontSize: 14,
-    },
-    footer: {
-        justifyContent: 'flex-end',
-        marginBottom: 36,
-        alignItems: 'center',
     },
 });
 

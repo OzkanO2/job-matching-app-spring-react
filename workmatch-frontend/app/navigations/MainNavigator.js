@@ -16,6 +16,7 @@ import MyCompanyOffersPage from '../pages/offers/MyCompanyOffersPage';
 import IndividualHomePage from '../pages/IndividualHomePage';
 import CompanyHomePage from '../pages/CompanyHomePage';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import LikedPage from '../pages/liked/LikedPage'; // ✅ Ajout de LikedPage
 
 const Stack = createStackNavigator();
 
@@ -132,6 +133,14 @@ function MainStackNavigator() {
         component={CompanyOnboardingPage}
         options={{
           title: 'Company Onboarding',
+        }}
+      />
+      <Stack.Screen
+        name="LikedPage"
+        component={LikedPage}
+        options={{
+          headerLeft: () => null,
+          title: 'LikedPage',
         }}
       />
     </Stack.Navigator>

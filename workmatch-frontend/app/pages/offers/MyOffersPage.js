@@ -35,6 +35,10 @@ const MyOffersPage = () => {
                  <Button title="Main Menu" onPress={() => navigation.navigate(userType === 'INDIVIDUAL' ? 'IndividualHome' : 'CompanyHome')} />
                  <Button title="Chat" onPress={() => navigation.navigate('ChatPage')} />
                  <Button title="My Offers" onPress={navigateToOffersPage} />
+                 {/* ✅ Bouton affiché uniquement pour COMPANY */}
+                 {userType === 'COMPANY' && (
+                     <Button title="Liked Candidates" onPress={() => navigation.navigate('LikedPage')} />
+                 )}
              </View>
             <View style={styles.content}>
                 <Text style={styles.infoText}>LISTE OFFRE D'EMPLOIS</Text>

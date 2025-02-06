@@ -10,6 +10,12 @@ const ProfilePage = () => {
     const [userType, setUserType] = useState('');
 
     useEffect(() => {
+        const fetchUserType = async () => {
+            const type = await AsyncStorage.getItem('userType');
+            setUserType(type);
+        };
+
+        fetchUserType();
         const fetchUserInfo = async () => {
             const token = await AsyncStorage.getItem('userToken');
             const username = await AsyncStorage.getItem('username');
@@ -66,6 +72,10 @@ const ProfilePage = () => {
                 <Button title="Main Menu" onPress={() => navigation.navigate(userType === 'INDIVIDUAL' ? 'IndividualHome' : 'CompanyHome')} />
                 <Button title="Chat" onPress={() => navigation.navigate('ChatPage')} />
                 <Button title="My Offers" onPress={() => navigation.navigate('MyOffersPage')} />
+                {/* ✅ Bouton affiché uniquement pour COMPANY */}
+                {userType === 'COMPANY' && (
+                    <Button title="Liked Candidates" onPress={() => navigation.navigate('LikedPage')} />
+                )}
             </View>
             <View style={styles.content}>
                 <Image source={{ uri: 'https://example.com/photo.jpg' }} style={styles.photo} />

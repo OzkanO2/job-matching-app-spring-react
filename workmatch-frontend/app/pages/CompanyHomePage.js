@@ -9,8 +9,15 @@ const CompanyHomePage = () => {
     const navigation = useNavigation();
     const [jobSearchers, setJobSearchers] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
+    const [userType, setUserType] = useState('');
 
     useEffect(() => {
+        const fetchUserType = async () => {
+            const type = await AsyncStorage.getItem('userType');
+            setUserType(type);
+        };
+
+        fetchUserType();
         const fetchJobSearchers = async () => {
             try {
                 const token = await AsyncStorage.getItem('userToken');
@@ -81,6 +88,10 @@ const CompanyHomePage = () => {
                 <Button title="Main Menu" onPress={() => navigation.navigate('CompanyHome')} />
                 <Button title="Chat" onPress={() => navigation.navigate('ChatPage')} />
                 <Button title="My Offers" onPress={() => navigation.navigate('MyOffersPage')} />
+                {/* ✅ Bouton affiché uniquement pour COMPANY */}
+                {userType === 'COMPANY' && (
+                    <Button title="Liked Candidates" onPress={() => navigation.navigate('LikedPage')} />
+                )}
             </View>
 
             {/* Swiping Cards */}
