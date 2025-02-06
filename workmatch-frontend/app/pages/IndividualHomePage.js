@@ -21,10 +21,37 @@ const IndividualHomePage = () => {
         const fetchJobOffers = async () => {
             try {
                 const token = await AsyncStorage.getItem('userToken');
+                const swiperId = await AsyncStorage.getItem("userId"); // L'ID de l'utilisateur Individual
+
+                if (!token || !swiperId) {
+                    console.error("❌ Token ou swiperId manquant !");
+                    return;
+                }
+
+                console.log("🔑 JWT Token récupéré :", token);
+
+                // 📌 Récupération de toutes les offres d'emploi
                 const response = await axios.get('http://localhost:8080/joboffers', {
                     headers: { Authorization: `Bearer ${token}` },
                 });
-                setJobOffers(response.data);
+                const allJobOffers = response.data;
+
+                // 📌 Récupération des swipes déjà effectués par cet utilisateur
+                const swipedResponse = await axios.get(`http://localhost:8080/api/swiped/${swiperId}`, {
+                    headers: { Authorization: `Bearer ${token}` },
+                });
+
+                const swipedData = swipedResponse.data; // Liste des swipes (right & left)
+                const swipedIds = new Set(swipedData.map(item => item.swipedId)); // Stocker les IDs swipés
+
+                // 🔥 Filtrer les offres en excluant celles déjà swipées
+                const filteredJobOffers = allJobOffers.filter(offer => !swipedIds.has(offer._id));
+
+                setJobOffers(filteredJobOffers); // Met à jour l'état avec la liste filtrée
+
+                // 🖥️ Console.log : Affiche la liste après filtrage
+                console.log("✅ Liste des offres affichées après filtrage :", filteredJobOffers);
+
             } catch (error) {
                 console.error('❌ Error fetching job offers:', error);
             } finally {
