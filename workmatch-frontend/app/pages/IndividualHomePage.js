@@ -10,6 +10,7 @@ const IndividualHomePage = () => {
     const [jobOffers, setJobOffers] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const [userId, setUserId] = useState(null);
+    const [conversations, setConversations] = useState([]);
 
     useEffect(() => {
         const fetchUserData = async () => {
@@ -59,8 +60,33 @@ const IndividualHomePage = () => {
             }
         };
 
+        const fetchConversations = async () => {
+            try {
+                const token = await AsyncStorage.getItem('userToken');
+                const storedUserId = await AsyncStorage.getItem('userId');
+
+                if (!token || !storedUserId) {
+                    console.error("❌ Token ou UserId manquant !");
+                    return;
+                }
+
+                setUserId(storedUserId);
+
+                const response = await axios.get(`http://localhost:8080/api/swiped/conversations/${storedUserId}`, {
+                    headers: { Authorization: `Bearer ${token}` },
+                });
+
+                setConversations(response.data);
+                console.log("✅ Conversations chargées :", response.data);
+            } catch (error) {
+                console.error("❌ Erreur lors du chargement des conversations :", error);
+            }
+        };
+
         fetchUserData();
         fetchJobOffers();
+        fetchConversations(); // ✅ Ajoute cet appel pour éviter l'erreur
+
     }, []);
 
 
@@ -112,8 +138,16 @@ const IndividualHomePage = () => {
                     headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
                 }
             );
+            const matchResponse = await axios.post(
+                "http://localhost:8080/api/matches/match",
+                { swiperId, swipedId },
+                { headers: { Authorization: `Bearer ${token}` } }
+            );
+
+            console.log("🟢 Réponse match :", matchResponse.data);
 
             console.log("✅ Réponse serveur :", response.data);
+            fetchConversations();
         } catch (error) {
             console.error('❌ Erreur lors du swipe:', error);
         }
@@ -162,6 +196,13 @@ const IndividualHomePage = () => {
                 }
             );
 
+            // ✅ Vérifier si un match est confirmé
+            const matchResponse = await axios.post(
+                "http://localhost:8080/api/matches/match",
+                { swiperId, swipedId },
+                { headers: { Authorization: `Bearer ${token}` } }
+            );
+
             console.log("✅ Swipe à gauche enregistré avec succès !");
         } catch (error) {
             console.error('❌ Erreur lors du swipe gauche:', error);
@@ -174,7 +215,10 @@ const IndividualHomePage = () => {
             <View style={styles.topButtons}>
                 <Button title="Profile" onPress={() => navigation.navigate('ProfilePage')} />
                 <Button title="Main Menu" onPress={() => navigation.navigate('IndividualHome')} />
-                <Button title="Chat" onPress={() => navigation.navigate('ChatPage')} />
+                <Button
+                    title={`Chat ${conversations.length > 0 ? `(${conversations.length})` : ''}`}
+                    onPress={() => navigation.navigate('ChatPage')}
+                />
                 <Button title="My Offers" onPress={() => navigation.navigate('MyOffersPage')} />
             </View>
 

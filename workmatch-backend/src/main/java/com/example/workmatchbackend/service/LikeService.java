@@ -33,6 +33,13 @@ public class LikeService {
         return saveLike(swiperId, swipedId, null);
     }
 
+    public boolean checkMatch(String user1Id, String user2Id) {
+        boolean user1LikedUser2 = likeRepository.existsBySwiperIdAndSwipedId(user1Id, user2Id);
+        boolean user2LikedUser1 = likeRepository.existsBySwiperIdAndSwipedId(user2Id, user1Id);
+
+        return user1LikedUser2 && user2LikedUser1;
+    }
+
     // ✅ Swipe sur une offre d’emploi
     public Like saveLike(String swiperId, String swipedId, String companyId) {
         System.out.println("📌 [saveLike] swiperId reçu: " + swiperId);

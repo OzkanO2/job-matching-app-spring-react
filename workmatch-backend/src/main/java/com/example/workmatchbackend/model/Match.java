@@ -5,29 +5,40 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 @Document(collection = "matches")
 public class Match {
+
     @Id
     private String id;
-    private String individualUserId; // ✅ Utilisateur individuel
-    private String companyUserId;    // ✅ Entreprise
-    private String jobOfferId;       // ✅ Offre d'emploi associée
+    private String individualUserId;
+    private String companyUserId;
+    private String jobOfferId; // Peut être null
 
-    // ✅ Constructeur
+    // ✅ Constructeur avec 3 arguments
     public Match(String individualUserId, String companyUserId, String jobOfferId) {
         this.individualUserId = individualUserId;
         this.companyUserId = companyUserId;
         this.jobOfferId = jobOfferId;
     }
 
-    // ✅ Getters et Setters
-    public String getId() { return id; }
-    public void setId(String id) { this.id = id; }
+    // ✅ Constructeur sans jobOfferId (solution pour ton erreur)
+    public Match(String individualUserId, String companyUserId) {
+        this.individualUserId = individualUserId;
+        this.companyUserId = companyUserId;
+        this.jobOfferId = null; // Défaut à null si non fourni
+    }
 
-    public String getIndividualUserId() { return individualUserId; }
-    public void setIndividualUserId(String individualUserId) { this.individualUserId = individualUserId; }
+    public String getId() {
+        return id;
+    }
 
-    public String getCompanyUserId() { return companyUserId; }
-    public void setCompanyUserId(String companyUserId) { this.companyUserId = companyUserId; }
+    public String getIndividualUserId() {
+        return individualUserId;
+    }
 
-    public String getJobOfferId() { return jobOfferId; }
-    public void setJobOfferId(String jobOfferId) { this.jobOfferId = jobOfferId; }
+    public String getCompanyUserId() {
+        return companyUserId;
+    }
+
+    public String getJobOfferId() {
+        return jobOfferId;
+    }
 }

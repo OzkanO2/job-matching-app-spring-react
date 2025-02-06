@@ -16,7 +16,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-
+import com.example.workmatchbackend.repository.ConversationRepository;
+import com.example.workmatchbackend.model.Conversation;
 
 @RestController
 @RequestMapping("/api/matches")
@@ -31,7 +32,11 @@ public class MatchController {
     @Autowired
     private JobOfferRepository jobOfferRepository;
 
+    @Autowired
+    private ConversationRepository conversationRepository;
+
     private static final Logger logger = LoggerFactory.getLogger(MatchController.class);
+
     public MatchController(LikeService likeService) {
         this.likeService = likeService;
     }
@@ -132,6 +137,42 @@ public class MatchController {
         // ✅ Sauvegarde du like
         Like savedLike = likeService.saveLike(swiperId, swipedId, companyId);
         return ResponseEntity.status(HttpStatus.CREATED).body(savedLike);
+    }
+    @PostMapping("/match")
+    public ResponseEntity<String> checkAndCreateMatch(@RequestBody Map<String, String> payload) {
+        String swiperId = payload.get("swiperId");
+        String swipedId = payload.get("swipedId");
+
+        System.out.println("📌 checkAndCreateMatch() appelé !");
+        System.out.println("➡️ swiperId: " + swiperId);
+        System.out.println("➡️ swipedId: " + swipedId);
+
+        if (swiperId == null || swipedId == null) {
+            return ResponseEntity.badRequest().body("❌ swiperId et swipedId sont requis.");
+        }
+
+        // ✅ Vérifier si un match existe déjà
+        boolean isMatch = matchService.checkIfMatchExists(swiperId, swipedId);
+        System.out.println("📌 Match détecté ? " + isMatch);
+
+        if (isMatch) {
+            // ✅ Vérifier si la conversation existe déjà
+            boolean conversationExists = conversationRepository.existsByUser1IdAndUser2Id(swiperId, swipedId) ||
+                    conversationRepository.existsByUser1IdAndUser2Id(swipedId, swiperId);
+
+            System.out.println("📌 Conversation existe déjà ? " + conversationExists);
+
+            if (!conversationExists) {
+                // ✅ Créer une nouvelle conversation après un match confirmé
+                Conversation conversation = new Conversation(swiperId, swipedId);
+                conversationRepository.save(conversation);
+                System.out.println("✅ Conversation créée entre " + swiperId + " et " + swipedId);
+            }
+
+            return ResponseEntity.ok("✅ Match confirmé et conversation créée !");
+        }
+
+        return ResponseEntity.ok("⚠️ Pas encore de match, conversation non créée.");
     }
 
 }

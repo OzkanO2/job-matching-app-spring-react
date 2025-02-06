@@ -10,6 +10,7 @@ const CompanyHomePage = () => {
     const [jobSearchers, setJobSearchers] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const [userType, setUserType] = useState('');
+    const [conversations, setConversations] = useState([]);
 
     useEffect(() => {
         const fetchUserType = async () => {
@@ -59,9 +60,30 @@ const CompanyHomePage = () => {
                 setIsLoading(false);
             }
         };
+        const fetchConversations = async () => {
+                try {
+                    const token = await AsyncStorage.getItem('userToken');
+                    const storedUserId = await AsyncStorage.getItem('userId');
 
+                    if (!token || !storedUserId) {
+                        console.error("❌ Token ou UserId manquant !");
+                        return;
+                    }
+
+                    const response = await axios.get(`http://localhost:8080/api/swiped/conversations/${storedUserId}`, {
+                        headers: { Authorization: `Bearer ${token}` },
+                    });
+
+                    setConversations(response.data); // ✅ Met à jour les conversations
+                    console.log("✅ Conversations chargées :", response.data);
+                } catch (error) {
+                    console.error("❌ Erreur lors du chargement des conversations :", error);
+                }
+            };
 
         fetchJobSearchers();
+        fetchConversations(); // ✅ Charge les conversations au lancement
+
     }, []);
 
     const handleSwipeRight = async (index) => {
@@ -115,6 +137,13 @@ const CompanyHomePage = () => {
                     headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
                 }
             );
+            const matchResponse = await axios.post(
+                "http://localhost:8080/api/matches/match",
+                { swiperId, swipedId },
+                { headers: { Authorization: `Bearer ${token}` } }
+            );
+
+            console.log("🟢 Réponse match :", matchResponse.data);
 
             console.log("✅ Réponse serveur :", response.data);
         } catch (error) {
@@ -173,7 +202,10 @@ const CompanyHomePage = () => {
             <View style={styles.topButtons}>
                 <Button title="Profile" onPress={() => navigation.navigate('ProfilePage')} />
                 <Button title="Main Menu" onPress={() => navigation.navigate('CompanyHome')} />
-                <Button title="Chat" onPress={() => navigation.navigate('ChatPage')} />
+                <Button
+                    title={`Chat ${conversations.length > 0 ? `(${conversations.length})` : ''}`}
+                    onPress={() => navigation.navigate('ChatPage')}
+                />
                 <Button title="My Offers" onPress={() => navigation.navigate('MyOffersPage')} />
                 {/* ✅ Bouton affiché uniquement pour COMPANY */}
                 {userType === 'COMPANY' && (

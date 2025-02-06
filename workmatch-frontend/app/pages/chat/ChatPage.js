@@ -12,8 +12,31 @@ const ChatPage = () => {
         const type = await AsyncStorage.getItem('userType');
         setUserType(type);
     };
-
     useEffect(() => {
+        const fetchConversations = async () => {
+            try {
+                const token = await AsyncStorage.getItem('userToken');
+                const storedUserId = await AsyncStorage.getItem('userId');
+
+                if (!token || !storedUserId) {
+                    console.error("❌ Token ou UserId manquant !");
+                    return;
+                }
+
+                setUserId(storedUserId);
+
+                const response = await axios.get(`http://localhost:8080/api/conversations/${storedUserId}`, {
+                    headers: { Authorization: `Bearer ${token}` },
+                });
+
+                setConversations(response.data);
+                console.log("✅ Conversations chargées :", response.data);
+            } catch (error) {
+                console.error("❌ Erreur lors du chargement des conversations :", error);
+            }
+        };
+
+        fetchConversations();
         fetchUserType();
 
         navigation.setOptions({

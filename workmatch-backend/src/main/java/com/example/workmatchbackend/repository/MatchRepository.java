@@ -10,4 +10,7 @@ import java.util.Optional;
 public interface MatchRepository extends MongoRepository<Match, String> {
     Optional<Match> findByIndividualUserIdAndCompanyUserId(String individualUserId, String companyUserId);
     List<Match> findByIndividualUserIdOrCompanyUserId(String userId1, String userId2);
+    boolean existsByIndividualUserIdAndCompanyUserId(String individualUserId, String companyUserId);
+
+    boolean existsByCompanyUserIdAndIndividualUserId(String companyUserId, String individualUserId);
 }
