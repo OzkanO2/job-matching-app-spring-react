@@ -93,9 +93,54 @@ const IndividualHomePage = () => {
     };
 
 
-    const handleSwipeLeft = (index) => {
-        console.log(`Ignored job offer: ${jobOffers[index]?.title}`);
+    const handleSwipeLeft = async (index) => {
+        const swipedJobOffer = jobOffers[index];
+
+        if (!swipedJobOffer) {
+            console.error("❌ Aucun job offer trouvé pour cet index.");
+            return;
+        }
+
+        console.log("🔴 Job Offer ignorée:", swipedJobOffer);
+
+        const swipedId = swipedJobOffer._id;  // ✅ Vérifie bien que "_id" est utilisé
+        const companyId = swipedJobOffer.companyId || swipedJobOffer.company?.id;  // ✅ Récupère bien le companyId
+        const swiperId = await AsyncStorage.getItem("userId");
+
+        if (!swiperId || !swipedId || !companyId) {
+            console.error("❌ swiperId, swipedId ou companyId est manquant !");
+            console.log("📌 swiperId:", swiperId);
+            console.log("📌 swipedId:", swipedId);
+            console.log("📌 companyId:", companyId);
+            return;
+        }
+
+        console.log("✅ swiperId envoyé :", swiperId);
+        console.log("✅ swipedId envoyé :", swipedId);
+        console.log("✅ companyId envoyé :", companyId);
+
+        const direction = "left"; // ✅ Indique que c'est un swipe à gauche
+
+        try {
+            const token = await AsyncStorage.getItem('userToken');
+
+            console.log("🔑 Token utilisé pour la requête :", token);
+
+            // Enregistrer tous les swipes (droite et gauche) dans `swipedCard`
+            await axios.post(
+                "http://localhost:8080/api/swiped/save",
+                { swiperId, swipedId, direction }, // ✅ Envoie les IDs + la direction "left"
+                {
+                    headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+                }
+            );
+
+            console.log("✅ Swipe à gauche enregistré avec succès !");
+        } catch (error) {
+            console.error('❌ Erreur lors du swipe gauche:', error);
+        }
     };
+
 
     return (
         <View style={styles.container}>
