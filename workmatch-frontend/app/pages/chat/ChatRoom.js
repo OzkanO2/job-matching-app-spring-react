@@ -9,7 +9,7 @@ import Stomp from "stompjs";
 const ChatRoom = () => {
     const route = useRoute();
     const navigation = useNavigation();
-    const { conversationId, username } = route.params; // 🔹 Récupère le match sélectionné
+    const { conversationId, username } = route.params;
 
     const [newMessage, setNewMessage] = useState("");
     const [stompClient, setStompClient] = useState(null);
@@ -91,7 +91,6 @@ const ChatRoom = () => {
         </View>
     );
 };
-
 const styles = StyleSheet.create({
     container: {
         flex: 1,
@@ -102,6 +101,10 @@ const styles = StyleSheet.create({
         fontSize: 18,
         fontWeight: "bold",
         padding: 10,
+        textAlign: "center",
+        backgroundColor: "#007AFF",
+        color: "#fff",
+        borderRadius: 8,
     },
     input: {
         borderWidth: 1,
@@ -109,6 +112,7 @@ const styles = StyleSheet.create({
         padding: 10,
         borderRadius: 10,
         marginBottom: 10,
+        backgroundColor: "#fff",
     },
     sentMessage: {
         alignSelf: "flex-end",

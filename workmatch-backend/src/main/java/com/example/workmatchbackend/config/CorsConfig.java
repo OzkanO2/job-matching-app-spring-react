@@ -1,10 +1,11 @@
 package com.example.workmatchbackend.config;
-
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
+
+import java.util.List;
 
 @Configuration
 public class CorsConfig {
@@ -13,12 +14,16 @@ public class CorsConfig {
     public CorsFilter corsFilter() {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         CorsConfiguration config = new CorsConfiguration();
+
+        // ✅ Autoriser le frontend (change l'URL selon ton frontend)
+        config.setAllowedOrigins(List.of("http://localhost:8081"));
         config.setAllowCredentials(true);
-        config.addAllowedOrigin("http://localhost:8081"); // Remplace par l'URL de ton frontend
-        config.addAllowedHeader("*");
+
+        // ✅ Autoriser les méthodes HTTP
         config.addAllowedMethod("*");
+        config.addAllowedHeader("*");
+
         source.registerCorsConfiguration("/**", config);
-        System.out.println("CORS configuration applied for http://localhost:8081");
         return new CorsFilter(source);
     }
 }

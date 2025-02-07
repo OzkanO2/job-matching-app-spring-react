@@ -17,6 +17,7 @@ import IndividualHomePage from '../pages/IndividualHomePage';
 import CompanyHomePage from '../pages/CompanyHomePage';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import LikedPage from '../pages/liked/LikedPage'; // ✅ Ajout de LikedPage
+import ChatRoom from '../pages/chat/ChatRoom';
 
 const Stack = createStackNavigator();
 
@@ -141,6 +142,13 @@ function MainStackNavigator() {
         options={{
           headerLeft: () => null,
           title: 'LikedPage',
+        }}
+      />
+      <Stack.Screen
+        name="ChatRoom"
+        component={ChatRoom}
+        options={{
+          title: 'Chat Room',
         }}
       />
     </Stack.Navigator>

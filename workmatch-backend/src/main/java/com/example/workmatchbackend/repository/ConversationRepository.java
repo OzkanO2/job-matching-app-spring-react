@@ -10,7 +10,5 @@ import java.util.List;
 public interface ConversationRepository extends MongoRepository<Conversation, String> {
     Optional<Conversation> findByUser1IdAndUser2Id(String user1Id, String user2Id);
     boolean existsByUser1IdAndUser2Id(String user1Id, String user2Id);
-    List<Conversation> findByUser1IdOrUser2Id(String userId1, String userId2);
-    List<Conversation> findByUserIdOrUser2Id(String userId, String user2Id);
-
+    List<Conversation> findByUser1IdOrUser2Id(String user1Id, String user2Id); // ✅ Garder une seule fois cette méthode
 }
