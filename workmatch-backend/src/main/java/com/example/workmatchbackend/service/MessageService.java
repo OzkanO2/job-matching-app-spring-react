@@ -21,11 +21,15 @@ public class MessageService {
         return messageRepository.findById(id);
     }
 
-    public Message saveMessage(Message message) {
-        return messageRepository.save(message);
-    }
-
     public void deleteMessage(String id) {
         messageRepository.deleteById(id);
+    }
+
+    public List<Message> getMessagesByConversationId(String conversationId) {
+        return messageRepository.findByConversationId(conversationId);
+    }
+
+    public Message saveMessage(Message message) {
+        return messageRepository.save(message);
     }
 }
