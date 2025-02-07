@@ -61,7 +61,7 @@ const MyOffersPage = () => {
                 renderItem={({ item }) => (
                     <TouchableOpacity
                         style={styles.jobOfferItem}
-                        onPress={() => navigation.navigate("JobOfferDetails", { jobOffer: item })}
+                        onPress={() => navigation.navigate("JobOfferDetails", { offer: item })}
                     >
                         <Text style={styles.jobTitle}>{item.title}</Text>
                         <Text style={styles.jobLocation}>{item.location}</Text>

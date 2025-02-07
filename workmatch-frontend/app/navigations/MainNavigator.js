@@ -16,6 +16,7 @@ import CompanyHomePage from '../pages/CompanyHomePage';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import LikedPage from '../pages/liked/LikedPage'; // ✅ Ajout de LikedPage
 import ChatRoom from '../pages/chat/ChatRoom';
+import JobOfferDetails from '../pages/offers/JobOfferDetails';
 
 const Stack = createStackNavigator();
 
@@ -136,6 +137,14 @@ function MainStackNavigator() {
           title: 'Chat Room',
         }}
       />
+      <Stack.Screen
+          name="JobOfferDetails"
+          component={JobOfferDetails}
+          options={{
+            headerLeft: () => null,
+            title: 'Job Offer Details',
+          }}
+        />
     </Stack.Navigator>
   );
 }
