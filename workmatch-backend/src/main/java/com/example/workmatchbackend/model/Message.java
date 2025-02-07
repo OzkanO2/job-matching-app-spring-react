@@ -1,53 +1,72 @@
 package com.example.workmatchbackend.model;
 
-import lombok.Data;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
+@Document(collection = "messages")
 public class Message {
-    private String sender;
-    private String content;
-    private LocalDateTime timestamp;
-    private String conversationId;  // Ce champ est obligatoire pour éviter l'erreur
 
-    // Constructeur
-    public Message(String sender, String content, LocalDateTime timestamp) {
-        this.sender = sender;
+    @Id
+    private String id;
+    private String conversationId;
+    private String senderId;
+    private String receiverId;
+    private String content;
+    private Instant timestamp;
+
+    public Message() {}
+
+    public Message(String conversationId, String senderId, String receiverId, String content, Instant timestamp) {
+        this.conversationId = conversationId;
+        this.senderId = senderId;
+        this.receiverId = receiverId;
         this.content = content;
         this.timestamp = timestamp;
     }
+
+    public String getId() {
+        return id;
+    }
+
     public String getConversationId() {
         return conversationId;
     }
 
-    public void setConversationId(String conversationId) {
-        this.conversationId = conversationId;
+    public String getSenderId() {
+        return senderId;
     }
-    // Getters
-    public String getSender() {
-        return sender;
+
+    public String getReceiverId() {
+        return receiverId;
     }
 
     public String getContent() {
         return content;
     }
 
-    public LocalDateTime getTimestamp() {
+    public Instant getTimestamp() {
         return timestamp;
     }
 
-    // Setters (si nécessaire)
-    public void setSender(String sender) {
-        this.sender = sender;
+    public void setConversationId(String conversationId) {
+        this.conversationId = conversationId;
+    }
+
+    public void setSenderId(String senderId) {
+        this.senderId = senderId;
+    }
+
+    public void setReceiverId(String receiverId) {
+        this.receiverId = receiverId;
     }
 
     public void setContent(String content) {
         this.content = content;
     }
 
-    public void setTimestamp(LocalDateTime timestamp) {
+    public void setTimestamp(Instant timestamp) {
         this.timestamp = timestamp;
     }
 }

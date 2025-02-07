@@ -1,50 +1,63 @@
 package com.example.workmatchbackend.controller;
 
 import com.example.workmatchbackend.model.Message;
-import com.example.workmatchbackend.service.MessageService;
+import com.example.workmatchbackend.repository.MessageRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.web.bind.annotation.*;
-
+import java.time.Instant;
 import java.util.List;
-import java.util.Optional;
+import com.example.workmatchbackend.model.Message;
 
 @RestController
-@RequestMapping("/messages")
-@CrossOrigin(origins = "*", allowedHeaders = "*")
+@RequestMapping("/api/chat")
 public class MessageController {
+
     @Autowired
-    private MessageService messageService;
+    private MessageRepository messageRepository;
 
-    @GetMapping
-    public List<Message> getAllMessages() {
-        return messageService.getAllMessages();
-    }
+    @PostMapping("/send")
+    public ResponseEntity<Message> sendMessage(@RequestBody Message messageDetails) {
+        System.out.println("📩 Message reçu : " + messageDetails); // 🔥 Ajoute ceci
 
-    @GetMapping("/{id}")
-    public Optional<Message> getMessageById(@PathVariable String id) {
-        return messageService.getMessageById(id);
-    }
-
-    @PostMapping
-    public Message createMessage(@RequestBody Message message) {
-        return messageService.saveMessage(message);
-    }
-
-    @PutMapping("/{id}")
-    public Message updateMessage(@PathVariable String id, @RequestBody Message messageDetails) {
-        Optional<Message> optionalMessage = messageService.getMessageById(id);
-        if (optionalMessage.isPresent()) {
-            Message message = optionalMessage.get();
-            message.setSender(messageDetails.getSender());
-            message.setContent(messageDetails.getContent());
-            message.setTimestamp(messageDetails.getTimestamp());
-            return messageService.saveMessage(message);
+        if (messageDetails.getSenderId() == null || messageDetails.getReceiverId() == null) {
+            System.out.println("❌ Erreur : senderId ou receiverId est null"); // 🔥 Ajoute ceci
+            return ResponseEntity.badRequest().build();
         }
-        return null;
+
+        Message message = new Message(
+                messageDetails.getConversationId(),
+                messageDetails.getSenderId(),
+                messageDetails.getReceiverId(),
+                messageDetails.getContent(),
+                Instant.now()
+        );
+
+        Message savedMessage = messageRepository.save(message);
+        System.out.println("✅ Message sauvegardé : " + savedMessage); // 🔥 Ajoute ceci
+        return ResponseEntity.ok(savedMessage);
     }
 
-    @DeleteMapping("/{id}")
-    public void deleteMessage(@PathVariable String id) {
-        messageService.deleteMessage(id);
+    @GetMapping("/{conversationId}/messages")
+    public ResponseEntity<List<Message>> getMessages(@PathVariable String conversationId) {
+        return ResponseEntity.ok(messageRepository.findByConversationId(conversationId));
     }
+
+    // WebSocket Handler : ✅ Correction du conflit en changeant le chemin
+    @PostMapping("/sendMessage/{conversationId}")
+    public ResponseEntity<Message> handleMessage(@RequestBody Message messageDetails, @PathVariable String conversationId) {
+        Message message = new Message();
+        message.setConversationId(conversationId);
+        message.setSenderId(messageDetails.getSenderId());
+        message.setContent(messageDetails.getContent());
+
+        // ✅ Correction ici aussi
+        message.setTimestamp(Instant.ofEpochMilli(System.currentTimeMillis()));
+
+        Message savedMessage = messageRepository.save(message);
+        return ResponseEntity.ok(savedMessage);
+    }
+
 }

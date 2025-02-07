@@ -14,6 +14,29 @@ const ChatRoom = () => {
     const [newMessage, setNewMessage] = useState("");
     const [stompClient, setStompClient] = useState(null);
     const [messages, setMessages] = useState([]);
+    const [userId, setUserId] = useState(null);
+    const [receiverId, setReceiverId] = useState(null);
+
+    useEffect(() => {
+        const fetchUserData = async () => {
+            try {
+                const storedUserId = await AsyncStorage.getItem("userId");
+                const storedReceiverId = route.params.username; // Utiliser l'ID du destinataire affiché
+
+                console.log("userId:", storedUserId);
+                console.log("receiverId:", storedReceiverId);
+
+                setUserId(storedUserId);
+                setReceiverId(storedReceiverId);
+            } catch (error) {
+                console.error("❌ Erreur lors de la récupération des identifiants :", error);
+            }
+        };
+
+        fetchUserData();
+    }, [route.params]);
+
+
 
     useEffect(() => {
         const fetchMessages = async () => {
@@ -34,15 +57,19 @@ const ChatRoom = () => {
     useEffect(() => {
         const socket = new SockJS("http://localhost:8080/ws");
         const stomp = Stomp.over(socket);
+        stomp.debug = null; // Désactive les logs bruyants
 
         stomp.connect({}, () => {
             console.log("✅ Connecté au WebSocket");
             stomp.subscribe(`/topic/messages/${conversationId}`, (message) => {
                 const receivedMessage = JSON.parse(message.body);
+                console.log("📩 Nouveau message reçu :", receivedMessage);
                 setMessages((prev) => [...prev, receivedMessage]);
             });
 
             setStompClient(stomp);
+        }, (error) => {
+            console.error("❌ Échec connexion WebSocket :", error);
         });
 
         return () => {
@@ -51,15 +78,33 @@ const ChatRoom = () => {
     }, [conversationId]);
 
     const sendMessage = async () => {
-        if (!newMessage.trim()) return;
+        if (!newMessage.trim() || !userId || !receiverId) {
+            console.error("❌ Impossible d'envoyer le message : userId ou receiverId manquant.");
+            return;
+        }
 
         const message = {
             conversationId,
+            senderId: userId,
+            receiverId: receiverId,
             content: newMessage,
         };
 
-        if (stompClient) {
-            stompClient.send(`/app/sendMessage/${conversationId}`, {}, JSON.stringify(message));
+        console.log("📩 Message envoyé :", message); // Debug
+
+        try {
+            const response = await fetch("http://localhost:8080/api/chat/sendMessage", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(message),
+            });
+
+            const data = await response.json();
+            console.log("✅ Message enregistré :", data);
+        } catch (error) {
+            console.error("❌ Erreur lors de l'envoi du message :", error);
         }
 
         setNewMessage("");
@@ -75,7 +120,7 @@ const ChatRoom = () => {
                 data={messages}
                 keyExtractor={(item, index) => index.toString()}
                 renderItem={({ item }) => (
-                    <Text style={item.senderId === username ? styles.sentMessage : styles.receivedMessage}>
+                    <Text style={item.senderId === userId ? styles.sentMessage : styles.receivedMessage}>
                         {item.content}
                     </Text>
                 )}
@@ -87,10 +132,12 @@ const ChatRoom = () => {
                 onChangeText={setNewMessage}
                 placeholder="Écrire un message..."
             />
+
             <Button title="Envoyer" onPress={sendMessage} />
         </View>
     );
 };
+
 const styles = StyleSheet.create({
     container: {
         flex: 1,

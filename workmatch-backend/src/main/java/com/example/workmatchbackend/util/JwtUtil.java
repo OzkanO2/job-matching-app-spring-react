@@ -11,7 +11,9 @@ import java.util.Map;
 import java.util.function.Function;
 
 @Component
-public class JWTUtil {
+public class JwtUtil {  // ✅ Correction du nom de la classe
+
+    private final String secret = "mysecretkey";  // ✅ Vérifie que cette clé est la même partout
 
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
@@ -27,21 +29,17 @@ public class JWTUtil {
     }
 
     private Claims extractAllClaims(String token) {
-        String secret = "mysecretkey"; // La même clé doit être utilisée ici
         return Jwts.parser()
                 .setSigningKey(secret)
                 .parseClaimsJws(token)
                 .getBody();
     }
 
-
-
     private Boolean isTokenExpired(String token) {
         return extractExpiration(token).before(new Date());
     }
 
     public String generateToken(String username) {
-        String secret = "mysecretkey"; // Assurez-vous que cette clé est correcte
         Map<String, Object> claims = new HashMap<>();
         return Jwts.builder()
                 .setClaims(claims)
@@ -51,20 +49,6 @@ public class JWTUtil {
                 .signWith(SignatureAlgorithm.HS256, secret)
                 .compact();
     }
-
-
-
-    private String createToken(Map<String, Object> claims, String subject) {
-        String secret = "mysecretkey";
-        return Jwts.builder()
-                .setClaims(claims)
-                .setSubject(subject)
-                .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 10)) // 10 heures
-                .signWith(SignatureAlgorithm.HS256, secret)
-                .compact();
-    }
-
 
     public Boolean validateToken(String token, String username) {
         final String extractedUsername = extractUsername(token);

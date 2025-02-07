@@ -3,7 +3,9 @@ package com.example.workmatchbackend.controller;
 import com.example.workmatchbackend.model.User;
 import com.example.workmatchbackend.repository.UserRepository;
 import com.example.workmatchbackend.service.UserService;
-import com.example.workmatchbackend.util.JWTUtil;
+import com.example.workmatchbackend.util.JwtUtil;
+
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,7 +40,7 @@ public class UserController {
     private UserService userService;
 
     @Autowired
-    private JWTUtil jwtUtil;
+    private JwtUtil jwtUtil;
 
     @Autowired
     private UserRepository userRepository;
