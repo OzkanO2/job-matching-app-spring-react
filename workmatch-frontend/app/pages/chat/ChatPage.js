@@ -1,41 +1,64 @@
 import React, { useEffect, useState } from 'react';
-import { Button, View, Text, TextInput, StyleSheet, FlatList, ScrollView } from 'react-native';
+import { Button, View, Text, TextInput, StyleSheet, FlatList, ScrollView, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import SockJS from "sockjs-client";
 import Stomp from "stompjs";
-import { useRoute } from '@react-navigation/native';
 
 const ChatPage = () => {
-    const route = useRoute();
-    const { conversationId, userId } = route.params || {};
     const navigation = useNavigation();
+    const [userId, setUserId] = useState(null);
     const [userType, setUserType] = useState('');
-
     const [newMessage, setNewMessage] = useState("");
     const [stompClient, setStompClient] = useState(null);
     const [messages, setMessages] = useState([]);
+    const [conversations, setConversations] = useState([]);
 
+    // ✅ Récupération des infos utilisateur
     useEffect(() => {
-        const fetchUserType = async () => {
-            const type = await AsyncStorage.getItem('userType');
-            setUserType(type);
+        const fetchUserData = async () => {
+            const storedUserId = await AsyncStorage.getItem('userId');
+            const storedUserType = await AsyncStorage.getItem('userType');
+            setUserId(storedUserId);
+            setUserType(storedUserType);
         };
-        fetchUserType();
+        fetchUserData();
+    }, []);
+
+    // ✅ Récupération des conversations
+    useEffect(() => {
+        if (!userId) return;
+
+        const fetchConversations = async () => {
+            try {
+                const token = await AsyncStorage.getItem("userToken");
+                const response = await axios.get(`http://localhost:8080/api/matches/conversations/${userId}`, {
+                    headers: { Authorization: `Bearer ${token}` },
+                });
+                console.log("✅ Conversations récupérées :", response.data);
+                setConversations(response.data);
+            } catch (error) {
+                console.error("❌ Erreur chargement des conversations :", error);
+            }
+        };
+
+        fetchConversations();
+    }, [userId]);
+
+    // ✅ WebSocket pour la réception des messages
+    useEffect(() => {
+        if (!userId) return;
 
         const socket = new SockJS("http://localhost:8080/ws");
         const stomp = Stomp.over(socket);
 
         stomp.connect({}, () => {
             console.log("✅ Connecté au WebSocket");
-            console.log("Conversation ID:", conversationId);
-            console.log("User ID:", userId);
+
             stomp.subscribe("/topic/messages", (message) => {
                 const receivedMessage = JSON.parse(message.body);
-                if (receivedMessage.conversationId === conversationId) {
-                    setMessages((prev) => [...prev, receivedMessage]);
-                }
+                setMessages((prev) => [...prev, receivedMessage]);
             });
 
             setStompClient(stomp);
@@ -44,29 +67,13 @@ const ChatPage = () => {
         return () => {
             if (stomp) stomp.disconnect();
         };
-    }, []);
+    }, [userId]);
 
-    useEffect(() => {
-        const fetchMessages = async () => {
-            try {
-                const token = await AsyncStorage.getItem("userToken");
-                const response = await axios.get(`http://localhost:8080/api/chat/${conversationId}/messages`, {
-                    headers: { Authorization: `Bearer ${token}` },
-                });
-                setMessages(response.data);
-            } catch (error) {
-                console.error("❌ Erreur chargement messages :", error);
-            }
-        };
-
-        fetchMessages();
-    }, [conversationId]);
-
+    // ✅ Fonction d'envoi des messages
     const sendMessage = async () => {
         if (!newMessage.trim()) return;
 
         const message = {
-            conversationId,
             senderId: userId,
             content: newMessage,
         };
@@ -85,12 +92,33 @@ const ChatPage = () => {
                 <Button title="Main Menu" onPress={() => navigation.navigate(userType === 'INDIVIDUAL' ? 'IndividualHome' : 'CompanyHome')} />
                 <Button title="Chat" onPress={() => navigation.navigate('ChatPage')} />
                 <Button title="My Offers" onPress={() => navigation.navigate('MyOffersPage')} />
-                {/* ✅ Bouton affiché uniquement pour COMPANY */}
                 {userType === 'COMPANY' && (
                     <Button title="Liked Candidates" onPress={() => navigation.navigate('LikedPage')} />
                 )}
             </View>
-            {/* ✅ Contenu du Chat dans un ScrollView */}
+
+            {/* ✅ Liste des conversations */}
+            <Text style={styles.title}>💬 Conversations</Text>
+            <FlatList
+                data={conversations}
+                keyExtractor={(item, index) => (item._id ? item._id.toString() : index.toString())}
+                renderItem={({ item }) => {
+                    const otherUser = item.user1Id === userId ? item.user2Id : item.user1Id;
+                    return (
+                        <TouchableOpacity
+                            style={styles.conversationItem}
+                            onPress={() => navigation.navigate("ChatRoom", {
+                                conversationId: item._id,
+                                username: otherUser
+                            })}
+                        >
+                            <Text style={styles.username}>{otherUser}</Text>
+                        </TouchableOpacity>
+                    );
+                }}
+            />
+
+            {/* ✅ Contenu du chat */}
             <ScrollView contentContainerStyle={styles.chatContainer}>
                 <FlatList
                     data={messages}
@@ -123,6 +151,20 @@ const styles = StyleSheet.create({
         flexDirection: "row",
         justifyContent: "space-around",
         marginBottom: 10,
+    },
+    title: {
+        fontSize: 18,
+        fontWeight: "bold",
+        padding: 10,
+    },
+    conversationItem: {
+        padding: 15,
+        borderBottomWidth: 1,
+        borderBottomColor: "#ccc",
+        backgroundColor: "#fff",
+    },
+    username: {
+        fontSize: 16,
     },
     chatContainer: {
         flexGrow: 1,
