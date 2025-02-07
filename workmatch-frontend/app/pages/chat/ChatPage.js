@@ -30,10 +30,22 @@ const ChatPage = () => {
                     headers: { Authorization: `Bearer ${token}` },
                 });
 
-                // 🔹 Vérifier et récupérer le username du match
-                const formattedConversations = response.data.map((conv, index) => ({
-                    conversationId: conv._id || `temp_${index}`, // 🔥 Evite les erreurs undefined
-                    username: conv.user1Id === id ? conv.user2Id : conv.user1Id, // 🔥 Récupérer l'autre utilisateur
+                let formattedConversations = response.data.map(conv => ({
+                    conversationId: conv.id,
+                    receiverId: conv.user1Id === id ? conv.user2Id : conv.user1Id, // Trouver l'autre utilisateur
+                    username: null // Sera remplacé après récupération des usernames
+                }));
+
+                // 🔥 Récupérer les usernames correspondants
+                const receiverIds = formattedConversations.map(conv => conv.receiverId);
+                const usersResponse = await axios.post("http://localhost:8080/users/getUsernames", { userIds: receiverIds });
+
+                const userMap = usersResponse.data; // { "67a0cb49dce20987f4326745": "juju", ... }
+
+                // Associer les usernames aux conversations
+                formattedConversations = formattedConversations.map(conv => ({
+                    ...conv,
+                    username: userMap[conv.receiverId] || "Utilisateur inconnu"
                 }));
 
                 setConversations(formattedConversations);
@@ -61,7 +73,7 @@ const ChatPage = () => {
             {/* ✅ Liste des conversations */}
             <FlatList
                 data={conversations}
-                keyExtractor={(item, index) => item.conversationId.toString()} // 🔥 Correction ici
+                keyExtractor={(item) => item.conversationId}
                 renderItem={({ item }) => (
                     <TouchableOpacity
                         style={styles.conversationItem}

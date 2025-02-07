@@ -21,9 +21,10 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/users")
+@RequestMapping("/users")  // ✅ Utilisation de /users sans /api
 @CrossOrigin(origins = "*", allowedHeaders = "*")
 public class UserController {
 
@@ -69,6 +70,16 @@ public class UserController {
         return ResponseEntity.ok(matches);
     }
 
+    @PostMapping("/getUsernames")
+    public ResponseEntity<Map<String, String>> getUsernames(@RequestBody Map<String, List<String>> request) {
+        List<String> userIds = request.get("userIds");
+
+        Map<String, String> userMap = userRepository.findAllById(userIds)
+                .stream()
+                .collect(Collectors.toMap(User::getId, User::getUsername));
+
+        return ResponseEntity.ok(userMap);
+    }
 
     @PutMapping("/id/{id}")
     public User updateUser(@PathVariable String id, @RequestBody User userDetails) {
