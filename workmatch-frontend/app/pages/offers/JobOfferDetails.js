@@ -1,11 +1,14 @@
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, Button } from 'react-native';
 
-const JobOfferDetails = ({ route }) => {
+const JobOfferDetails = ({ route, navigation }) => {
     const { offer } = route.params;
 
     return (
         <View style={styles.container}>
+            {/* 🔙 Bouton Retour */}
+            <Button title="⬅ Retour" onPress={() => navigation.navigate('MyOffersPage')} />
+
             <Text style={styles.title}>{offer.title}</Text>
             <Text style={styles.description}>{offer.description}</Text>
             <Text style={styles.detail}>📍 Lieu : {offer.location}</Text>
