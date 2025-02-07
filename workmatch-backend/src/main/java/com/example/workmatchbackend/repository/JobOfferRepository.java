@@ -6,6 +6,7 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 import java.util.List;
 import org.springframework.data.mongodb.repository.Query;
+import org.bson.types.ObjectId;
 
 @Repository
 public interface JobOfferRepository extends MongoRepository<JobOffer, String> {
@@ -18,6 +19,6 @@ public interface JobOfferRepository extends MongoRepository<JobOffer, String> {
     Optional<JobOffer> findById(String id);  // 🔹 Assure-toi que cette méthode retourne bien un `JobOffer`
 
     Optional<JobOffer> findByExternalId(String externalId);  // Pour chercher via externalId
+    List<JobOffer> findByCompanyId(ObjectId companyId);
 
-    List<JobOffer> findByCompanyId(String companyId);  // Récupérer les offres d'une entreprise
 }

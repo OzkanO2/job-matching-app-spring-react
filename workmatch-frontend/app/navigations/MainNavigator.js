@@ -11,8 +11,6 @@ import ChatPage from '../pages/chat/ChatPage';
 import MyOffersPage from '../pages/offers/MyOffersPage';
 import JobSeekerOnboardingPage from '../pages/onboarding/JobSeekerOnboardingPage';
 import CompanyOnboardingPage from '../pages/onboarding/CompanyOnboardingPage';
-import MyJobMatchesPage from '../pages/offers/MyJobMatchesPage';
-import MyCompanyOffersPage from '../pages/offers/MyCompanyOffersPage';
 import IndividualHomePage from '../pages/IndividualHomePage';
 import CompanyHomePage from '../pages/CompanyHomePage';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -106,20 +104,6 @@ function MainStackNavigator() {
         options={{
           headerLeft: () => null,
           title: 'My Offers',
-        }}
-      />
-      <Stack.Screen
-        name="MyJobMatchesPage"
-        component={MyJobMatchesPage}
-        options={{
-          title: 'Job Matches',
-        }}
-      />
-      <Stack.Screen
-        name="MyCompanyOffersPage"
-        component={MyCompanyOffersPage}
-        options={{
-          title: 'Company Offers',
         }}
       />
       <Stack.Screen

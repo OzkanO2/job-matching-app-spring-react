@@ -13,6 +13,7 @@ public class Like {
     private String companyId; // ✅ Ajout du champ manquant
     // 🔥 Ajoutez ce champ s'il manque
     private String offerId;
+
     // ✅ Getters et Setters
     public String getOfferId() {
         return offerId;

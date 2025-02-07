@@ -91,6 +91,20 @@ public class JobOfferController {
         matchService.saveMatch(match.getIndividualUserId(), match.getCompanyUserId(), match.getJobOfferId());
         return ResponseEntity.ok("✅ Match enregistré avec succès.");
     }
+    @GetMapping("/company/{companyId}")
+    public ResponseEntity<List<JobOffer>> getJobOffersByCompany(@PathVariable String companyId) {
+        logger.info("📌 Requête reçue pour récupérer les offres de l'entreprise avec companyId: {}", companyId);
+
+        List<JobOffer> jobOffers = jobOfferService.getJobOffersByCompanyId(companyId);
+
+        if (jobOffers.isEmpty()) {
+            logger.warn("⚠️ Aucune offre trouvée pour companyId: {}", companyId);
+        } else {
+            logger.info("✅ {} offres trouvées pour companyId: {}", jobOffers.size(), companyId);
+        }
+
+        return ResponseEntity.ok(jobOffers);
+    }
 
     @PostMapping("/match/create")
     public ResponseEntity<?> createMatch(@RequestBody Match match) {

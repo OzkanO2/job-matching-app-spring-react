@@ -35,6 +35,9 @@ public class JobOffer {
     public boolean isCompanyCertified() {
         return companyCertified;
     }
+    public String getId() {
+        return id;
+    }
 
     public void setCompanyCertified(boolean companyCertified) {
         this.companyCertified = companyCertified;

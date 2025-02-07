@@ -2,11 +2,9 @@ package com.example.workmatchbackend.repository;
 
 import com.example.workmatchbackend.model.Like;
 import org.springframework.data.mongodb.repository.MongoRepository;
-import org.springframework.data.mongodb.repository.Query;
 import org.springframework.stereotype.Repository;
-
+import java.util.List;
 import java.util.Optional;
-
 @Repository
 public interface LikeRepository extends MongoRepository<Like, String> {
 
@@ -16,6 +14,10 @@ public interface LikeRepository extends MongoRepository<Like, String> {
 
     Optional<Like> findBySwiperIdAndSwipedId(String swiperId, String swipedId);
 
-    @Query("{ 'swiperId': ?0, 'companyId': ?1 }")
     Optional<Like> findBySwiperIdAndCompanyId(String swiperId, String companyId);
+
+    // ✅ La méthode correcte pour récupérer les likes d'un utilisateur
+    List<Like> findAllBySwiperId(String swiperId);
+
+    void deleteBySwiperIdAndSwipedId(String swiperId, String swipedId);
 }
