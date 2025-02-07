@@ -55,21 +55,27 @@ const ChatRoom = () => {
     }, [conversationId]);
 
     useEffect(() => {
-        const socket = new SockJS("http://localhost:8080/ws");
+        const socket = new SockJS("http://localhost:8080/ws", null, {
+            transports: ["websocket", "xhr-streaming", "xhr-polling"],
+            withCredentials: false, // 🔥 Désactive credentials pour éviter CORS
+        });
+
         const stomp = Stomp.over(socket);
-        stomp.debug = null; // Désactive les logs bruyants
+        stomp.debug = null; // Désactive les logs WebSocket
 
         stomp.connect({}, () => {
             console.log("✅ Connecté au WebSocket");
+
+            // 🔥 Corrige l'abonnement en ajoutant "/topic/"
             stomp.subscribe(`/topic/messages/${conversationId}`, (message) => {
                 const receivedMessage = JSON.parse(message.body);
-                console.log("📩 Nouveau message reçu :", receivedMessage);
+                console.log("📩 Message reçu en WebSocket :", receivedMessage);
                 setMessages((prev) => [...prev, receivedMessage]);
             });
 
             setStompClient(stomp);
         }, (error) => {
-            console.error("❌ Échec connexion WebSocket :", error);
+            console.error("❌ Erreur connexion WebSocket :", error);
         });
 
         return () => {
@@ -90,25 +96,18 @@ const ChatRoom = () => {
             content: newMessage,
         };
 
-        console.log("📩 Message envoyé :", message); // Debug
+        console.log("📩 Message envoyé via WebSocket :", message);
 
-        try {
-            const response = await fetch("http://localhost:8080/api/chat/sendMessage", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify(message),
-            });
-
-            const data = await response.json();
-            console.log("✅ Message enregistré :", data);
-        } catch (error) {
-            console.error("❌ Erreur lors de l'envoi du message :", error);
+        if (stompClient && stompClient.connected) {
+            stompClient.send(`/app/send/${conversationId}`, {}, JSON.stringify(message));
+            console.log("✅ Message envoyé via WebSocket");
+        } else {
+            console.error("❌ WebSocket non connecté !");
         }
 
         setNewMessage("");
     };
+
 
     return (
         <View style={styles.container}>

@@ -148,6 +148,7 @@ function MainStackNavigator() {
         name="ChatRoom"
         component={ChatRoom}
         options={{
+          headerLeft: () => null,
           title: 'Chat Room',
         }}
       />

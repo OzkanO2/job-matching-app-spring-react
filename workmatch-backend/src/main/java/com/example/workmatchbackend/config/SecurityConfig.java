@@ -35,35 +35,16 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
-//    @Bean
-//    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-//        http.csrf().disable()
-//                .authorizeRequests()
-//                .requestMatchers("/users/login", "/users/register", "/users/updateUserType", "/adzuna/fetch", "/users/{username}", "/users/id/{id}").permitAll()
-//                .antMatchers("/users/**").authenticated()
-//                .anyRequest().authenticated()
-//                .and()
-//                .cors();
-//
-//
-//        http.addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
-//
-//        return http.build();
-//    }
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http.csrf(csrf -> csrf.disable())
+        http
+                .csrf(csrf -> csrf.disable())  // ❌ Désactiver la protection CSRF
                 .authorizeHttpRequests(auth -> auth
-                        .anyRequest().permitAll()
+                        .anyRequest().permitAll()  // ✅ Autoriser TOUTES les requêtes
                 )
-                .cors().configurationSource(request -> new CorsConfiguration().applyPermitDefaultValues());
-
-
-        http.addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
+                .headers(headers -> headers.frameOptions(frameOptions -> frameOptions.disable())); // Pour H2 console si nécessaire
 
         return http.build();
     }
-
-
 
 }
