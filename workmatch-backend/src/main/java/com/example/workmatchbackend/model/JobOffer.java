@@ -2,48 +2,58 @@ package com.example.workmatchbackend.model;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.bson.types.ObjectId;
 
-import java.time.LocalDate;
-import org.springframework.data.mongodb.core.mapping.DBRef;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import java.util.List;
+import java.time.LocalDate;
 
 @Document(collection = "jobOffers")
 public class JobOffer {
+
     @Id
     @JsonProperty("_id")
     private String id;
 
     @NotNull(message = "Title is required")
-    private String title; // Nouveau champ pour le titre
+    private String title;
+
     @NotNull(message = "Description is required")
     @Size(min = 10, message = "Description should have at least 10 characters")
     private String description;
+
     private String location;
     private double salaryMin;
     private double salaryMax;
-    private String url;
-    private String apiSource;
-    private String externalId;
     private String category;
-    private String employmentType;
     private boolean remote;
-    private LocalDate createdAt;
-    private boolean companyCertified;
-    private String companyId; // Assurez-vous que cet attribut existe bien
-    public boolean isCompanyCertified() {
-        return companyCertified;
-    }
+
+    private String url;  // 🔹 Ajouté
+    private String apiSource;  // 🔹 Ajouté
+    private String externalId;  // 🔹 Ajouté
+    private LocalDate createdAt;  // 🔹 Ajouté
+    private boolean companyCertified;  // 🔹 Ajouté
+    private ObjectId companyId; // 🔹 Assurez-vous que c'est bien un ObjectId
+
+    @NotNull(message = "Employment Type is required")
+    private String employmentType; // ✅ Ajout du type d'emploi (Full-time, Part-time, Internship...)
+
+    private List<SkillRequirement> skillsRequired; // ✅ Liste d'objets contenant le skill + expérience requise
+
+    // Constructeur par défaut
+    public JobOffer() {}
+
+    // Getters et Setters
     public String getId() {
         return id;
     }
 
-    public void setCompanyCertified(boolean companyCertified) {
-        this.companyCertified = companyCertified;
+    public void setId(String id) {
+        this.id = id;
     }
 
-    // Getters et setters pour les nouveaux attributs
     public String getTitle() {
         return title;
     }
@@ -60,7 +70,6 @@ public class JobOffer {
         this.description = description;
     }
 
-    // Getters et setters existants
     public String getLocation() {
         return location;
     }
@@ -85,16 +94,51 @@ public class JobOffer {
         this.salaryMax = salaryMax;
     }
 
-    @DBRef // Utilisez cette annotation si vous voulez référencer une entité dans MongoDB
-    private Company company;
-
-    // Getter et Setter
-    public Company getCompany() {
-        return company;
+    public String getCategory() {
+        return category;
     }
 
-    public void setCompany(Company company) {
-        this.company = company;
+    public void setCategory(String category) {
+        this.category = category;
+    }
+
+    public boolean isRemote() {
+        return remote;
+    }
+
+    public void setRemote(boolean remote) {
+        this.remote = remote;
+    }
+
+    public String getEmploymentType() {
+        return employmentType;
+    }
+
+    public void setEmploymentType(String employmentType) {
+        this.employmentType = employmentType;
+    }
+
+    public List<SkillRequirement> getSkillsRequired() {
+        return skillsRequired;
+    }
+
+    public void setSkillsRequired(List<SkillRequirement> skillsRequired) {
+        this.skillsRequired = skillsRequired;
+    }
+
+    public ObjectId getCompanyId() {
+        return companyId;
+    }
+    public void setCompanyId(ObjectId companyId) {
+        this.companyId = companyId;
+    }
+
+    public String getExternalId() {
+        return externalId;
+    }
+
+    public void setExternalId(String externalId) {
+        this.externalId = externalId;
     }
 
     public String getUrl() {
@@ -113,50 +157,21 @@ public class JobOffer {
         this.apiSource = apiSource;
     }
 
-    public String getExternalId() {
-        return externalId;
-    }
-
-    public void setExternalId(String externalId) {
-        this.externalId = externalId;
-    }
-
-    public String getCategory() {
-        return category;
-    }
-
-    public void setCategory(String category) {
-        this.category = category;
-    }
-
-    public String getEmploymentType() {
-        return employmentType;
-    }
-
-    public void setEmploymentType(String employmentType) {
-        this.employmentType = employmentType;
-    }
-
-    public boolean isRemote() {
-        return remote;
-    }
-
-    public void setRemote(boolean remote) {
-        this.remote = remote;
-    }
-
     public LocalDate getCreatedAt() {
         return createdAt;
-    }
-    public String getCompanyId() {
-        return companyId;
-    }
-
-    public void setCompanyId(String companyId) {
-        this.companyId = companyId;
     }
 
     public void setCreatedAt(LocalDate createdAt) {
         this.createdAt = createdAt;
     }
+
+    public boolean isCompanyCertified() {
+        return companyCertified;
+    }
+
+    public void setCompanyCertified(boolean companyCertified) {
+        this.companyCertified = companyCertified;
+    }
+
+
 }

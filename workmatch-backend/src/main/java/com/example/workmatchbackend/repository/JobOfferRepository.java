@@ -12,8 +12,10 @@ import org.bson.types.ObjectId;
 public interface JobOfferRepository extends MongoRepository<JobOffer, String> {
     boolean existsByExternalId(String externalId);
 
+    //@Query(value = "{ 'companyId': ?0 }", fields = "{ '_id': 1 }")
+    //List<String> findOfferIdsByCompanyId(String companyId);
     @Query(value = "{ 'companyId': ?0 }", fields = "{ '_id': 1 }")
-    List<String> findOfferIdsByCompanyId(String companyId);
+    List<ObjectId> findOfferIdsByCompanyId(ObjectId companyId);
 
 
     Optional<JobOffer> findById(String id);  // 🔹 Assure-toi que cette méthode retourne bien un `JobOffer`

@@ -53,8 +53,6 @@ public class JobOfferController {
     @PostMapping
     public ResponseEntity<JobOffer> createJobOffer(@RequestBody JobOffer jobOffer) {
         logger.info("Creating a new job offer.");
-        Company company = companyService.getCompanyByName(jobOffer.getCompany().getName());
-        jobOffer.setCompanyCertified(company != null && company.isCertified());
         JobOffer savedJobOffer = jobOfferService.saveJobOffer(jobOffer);
         return ResponseEntity.status(HttpStatus.CREATED).body(savedJobOffer);
     }

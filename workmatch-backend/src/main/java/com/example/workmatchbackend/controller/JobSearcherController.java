@@ -19,7 +19,11 @@ public class JobSearcherController {
         List<JobSearcher> jobSearchers = jobSearcherService.getAllJobSearchers();
         return ResponseEntity.ok(jobSearchers);
     }
-
+    @GetMapping("/matching")
+    public ResponseEntity<List<JobSearcher>> getMatchingCandidates(@RequestParam String jobOfferId) {
+        List<JobSearcher> matchingCandidates = jobSearcherService.findMatchingCandidates(jobOfferId);
+        return ResponseEntity.ok(matchingCandidates);
+    }
     @PostMapping
     public ResponseEntity<JobSearcher> createJobSearcher(@RequestBody JobSearcher jobSearcher) {
         JobSearcher savedJobSearcher = jobSearcherService.saveJobSearcher(jobSearcher);

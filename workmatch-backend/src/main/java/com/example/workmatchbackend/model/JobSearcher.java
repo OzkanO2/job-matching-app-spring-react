@@ -12,7 +12,7 @@ public class JobSearcher {
     private String name;
     private String email;
     private String username;
-    private List<String> skills;
+    private List<SkillRequirement> skills; // ✅ Stocke bien les compétences sous forme d'objets SkillRequirement
     private String experience;
     private String photoUrl; // Note : CamelCase pour les noms des champs
     private String location;
@@ -60,14 +60,13 @@ public class JobSearcher {
         this.username = username;
     }
 
-    public List<String> getSkills() {
+    public List<SkillRequirement> getSkills() {
         return skills;
     }
 
-    public void setSkills(List<String> skills) {
+    public void setSkills(List<SkillRequirement> skills) {
         this.skills = skills;
     }
-
     public String getExperience() {
         return experience;
     }

@@ -81,8 +81,6 @@ public class AdzunaJobService {
                             "" +
                             "", company);
                 }
-                jobOffer.setCompany(company); // Associe la compagnie
-
                 // Vérification et sauvegarde
                 if (!jobOfferRepository.existsByExternalId(jobOffer.getExternalId())) {
                     jobOfferRepository.save(jobOffer);

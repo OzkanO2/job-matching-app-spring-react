@@ -51,6 +51,9 @@ const MyOffersPage = () => {
                 <Button title="Main Menu" onPress={() => navigation.navigate(userType === 'INDIVIDUAL' ? 'IndividualHome' : 'CompanyHome')} />
                 <Button title="Chat" onPress={() => navigation.navigate('ChatPage')} />
                 <Button title="My Offers" onPress={() => navigation.navigate('MyOffersPage')} />
+                {userType === 'COMPANY' && (
+                    <Button title="Liked Candidates" onPress={() => navigation.navigate('LikedPage')} />
+                )}
             </View>
 
             <Text style={styles.title}>📌 Mes Offres d'Emploi</Text>
@@ -59,16 +62,27 @@ const MyOffersPage = () => {
                 data={jobOffers}
                 keyExtractor={(item) => item._id}
                 renderItem={({ item }) => (
-                    <TouchableOpacity
-                        style={styles.jobOfferItem}
-                        onPress={() => navigation.navigate("JobOfferDetails", { offer: item })}
-                    >
-                        <Text style={styles.jobTitle}>{item.title}</Text>
-                        <Text style={styles.jobLocation}>{item.location}</Text>
-                    </TouchableOpacity>
+                    <View style={styles.jobOfferContainer}>
+                        <TouchableOpacity
+                            style={styles.jobOfferItem}
+                            onPress={() => navigation.navigate("JobOfferDetails", { offer: item })}
+                        >
+                            <Text style={styles.jobTitle}>{item.title}</Text>
+                            <Text style={styles.jobLocation}>{item.location}</Text>
+                        </TouchableOpacity>
+
+                        {/* ✅ Séparation du bouton */}
+                        <TouchableOpacity
+                            style={styles.viewCandidatesButton}
+                            onPress={() => navigation.navigate("CompanyHomePage", { selectedOffer: item })}
+                        >
+                            <Text style={styles.buttonText}>Voir les candidats</Text>
+                        </TouchableOpacity>
+                    </View>
                 )}
                 ListEmptyComponent={() => <Text style={styles.noDataText}>⚠️ Aucune offre disponible</Text>}
             />
+
         </View>
     );
 };

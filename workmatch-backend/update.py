@@ -1,73 +1,23 @@
 from pymongo import MongoClient
-from bson.objectid import ObjectId
 
 # Connexion à MongoDB
 client = MongoClient("mongodb://localhost:27017/")
-db = client["workmatchdb"]
+db = client["workmatchdb"]  # Assure-toi que c'est le bon nom de la DB
+collection = db["jobSearchers"]  # Table des chercheurs d'emploi
 
-# Collections
-users_collection = db["users"]
-jobsearchers_collection = db["jobSearchers"]
-likes_collection = db["likes"]
-matches_collection = db["matches"]
-joboffers_collection = db["jobOffers"]
+# Mettre à jour toutes les expériences
+for jobseeker in collection.find():
+    updated_skills = []
+    for skill in jobseeker["skills"]:
+        if "experience" in skill:
+            try:
+                skill["experience"] = int(skill["experience"].split(" ")[0])  # Extraire uniquement le nombre
+            except ValueError:
+                skill["experience"] = 0  # Valeur par défaut en cas d'erreur
 
-# 1️⃣ Mise à jour des `userId` dans `jobSearchers`
-def update_jobsearchers_user_ids():
-    jobsearchers = jobsearchers_collection.find()
-    for jobsearcher in jobsearchers:
-        user = users_collection.find_one({"email": jobsearcher["email"]})
-        if user:
-            jobsearchers_collection.update_one(
-                {"_id": jobsearcher["_id"]},
-                {"$set": {"userId": user["_id"]}}
-            )
-            print(f"✅ userId mis à jour pour {jobsearcher['email']}")
+        updated_skills.append(skill)
 
-# 2️⃣ Vérification des likes mutuels et création des matchs
-def check_and_create_matches():
-    likes = likes_collection.find()
-    
-    for like in likes:
-        swiper_id = like["swiperId"]
-        swiped_id = like["swipedId"]
-        company_id = like["companyId"]
+    # Mise à jour dans la DB
+    collection.update_one({"_id": jobseeker["_id"]}, {"$set": {"skills": updated_skills}})
 
-        # Cas 1: Un individu like une offre d'emploi
-        if company_id == "":
-            mutual_like = likes_collection.find_one({
-                "swiperId": swiped_id,
-                "swipedId": swiper_id,
-                "companyId": {"$ne": ""}
-            })
-        else:
-            # Cas 2: Une entreprise like un jobseeker
-            mutual_like = likes_collection.find_one({
-                "swiperId": swiped_id,
-                "swipedId": swiper_id,
-                "companyId": ""
-            })
-
-        if mutual_like:
-            # Vérifier si le match existe déjà
-            existing_match = matches_collection.find_one({
-                "$or": [
-                    {"swiperId": swiper_id, "swipedId": swiped_id},
-                    {"swiperId": swiped_id, "swipedId": swiper_id}
-                ]
-            })
-            
-            if not existing_match:
-                match_data = {
-                    "swiperId": swiper_id,
-                    "swipedId": swiped_id,
-                    "offerId": company_id if company_id else mutual_like["companyId"]
-                }
-                matches_collection.insert_one(match_data)
-                print(f"🔥 Match créé entre {swiper_id} et {swiped_id} pour l'offre {match_data['offerId']}")
-
-# Exécuter les mises à jour
-update_jobsearchers_user_ids()
-check_and_create_matches()
-
-print("✅ Mise à jour terminée.")
+print("✅ Mise à jour terminée avec succès !")
