@@ -4,6 +4,7 @@ import { useNavigation } from '@react-navigation/native';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Swiper from 'react-native-deck-swiper';
+import { useRoute } from '@react-navigation/native';
 
 const CompanyHomePage = () => {
     const navigation = useNavigation();
@@ -11,6 +12,8 @@ const CompanyHomePage = () => {
     const [isLoading, setIsLoading] = useState(true);
     const [userType, setUserType] = useState('');
     const [conversations, setConversations] = useState([]);
+    const route = useRoute();
+    const { selectedOffer } = route.params || {};  // ✅ Récupère l'offre sélectionnée
 
     useEffect(() => {
         const fetchUserType = async () => {
@@ -207,11 +210,15 @@ const CompanyHomePage = () => {
                     onPress={() => navigation.navigate('ChatPage')}
                 />
                 <Button title="My Offers" onPress={() => navigation.navigate('MyOffersPage')} />
-                {/* ✅ Bouton affiché uniquement pour COMPANY */}
                 {userType === 'COMPANY' && (
                     <Button title="Liked Candidates" onPress={() => navigation.navigate('LikedPage')} />
                 )}
             </View>
+
+            {/* ✅ Afficher le titre uniquement si `selectedOffer` existe */}
+            {selectedOffer && selectedOffer.title && (
+                <Text style={styles.offerTitle}>🔍 Candidats pour : {selectedOffer.title}</Text>
+            )}
 
             {/* Swiping Cards */}
             <View style={styles.swiperContainer}>
@@ -221,7 +228,7 @@ const CompanyHomePage = () => {
                     <Swiper
                         cards={jobSearchers}
                         renderCard={(jobSearcher) => (
-                            jobSearcher ? ( // ✅ Vérifie si jobSearcher existe avant de l'afficher
+                            jobSearcher ? (
                                 <View style={styles.card}>
                                     <Text style={styles.cardTitle}>{jobSearcher.name || 'No name provided'}</Text>
                                     <Text style={styles.cardDescription}>
@@ -232,7 +239,7 @@ const CompanyHomePage = () => {
                                 </View>
                             ) : (
                                 <View style={styles.card}>
-                                    <Text style={styles.cardTitle}>Loading...</Text> {/* ✅ Affiche une carte de secours */}
+                                    <Text style={styles.cardTitle}>Loading...</Text>
                                 </View>
                             )
                         )}
@@ -245,6 +252,7 @@ const CompanyHomePage = () => {
             </View>
         </View>
     );
+
 };
 
 const styles = StyleSheet.create({
