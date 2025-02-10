@@ -152,7 +152,6 @@ const IndividualHomePage = () => {
             console.log("🟢 Réponse match :", matchResponse.data);
 
             console.log("✅ Réponse serveur :", response.data);
-            fetchConversations();
         } catch (error) {
             console.error('❌ Erreur lors du swipe:', error);
         }
@@ -220,8 +219,7 @@ const IndividualHomePage = () => {
             <View style={styles.topButtons}>
                 <Button title="Profile" onPress={() => navigation.navigate('ProfilePage')} />
                 <Button title="Main Menu" onPress={() => navigation.navigate('IndividualHome')} />
-                <Button
-                    title={`Chat ${conversations.length > 0 ? `(${conversations.length})` : ''}`}
+                <Button title="Chat"
                     onPress={() => navigation.navigate('ChatPage')}
                 />
                 <Button title="My Offers" onPress={() => navigation.navigate('MyOffersPage')} />

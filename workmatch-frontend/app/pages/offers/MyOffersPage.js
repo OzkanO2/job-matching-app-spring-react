@@ -76,6 +76,7 @@ const MyOffersPage = () => {
                             style={styles.viewCandidatesButton}
                             onPress={() => navigation.navigate("CompanyHome", { selectedOffer: item })}
                         >
+
                             <Text style={styles.buttonText}>Voir les candidats</Text>
                         </TouchableOpacity>
                     </View>
