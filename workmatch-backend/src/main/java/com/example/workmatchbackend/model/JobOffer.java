@@ -9,6 +9,7 @@ import jakarta.validation.constraints.Size;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.List;
 import java.time.LocalDate;
+import java.util.ArrayList;
 
 @Document(collection = "jobOffers")
 public class JobOffer {
@@ -25,7 +26,6 @@ public class JobOffer {
     private String description;
     private List<String> locations; // ✅ Maintenant une liste
 
-    private String location;
     private double salaryMin;
     private double salaryMax;
     private String category;
@@ -41,18 +41,10 @@ public class JobOffer {
     @NotNull(message = "Employment Type is required")
     private String employmentType; // ✅ Ajout du type d'emploi (Full-time, Part-time, Internship...)
 
-    private List<SkillRequirement> skillsRequired; // ✅ Liste d'objets contenant le skill + expérience requise
+    private List<Skill> skills; // ✅ Remplace SkillRequirement par Skill
 
     // Constructeur par défaut
     public JobOffer() {}
-
-    public List<String> getLocations() {
-        return locations;
-    }
-
-    public void setLocations(List<String> locations) {
-        this.locations = locations;
-    }
 
     // Getters et Setters
     public String getId() {
@@ -78,14 +70,9 @@ public class JobOffer {
     public void setDescription(String description) {
         this.description = description;
     }
+    public List<String> getLocations() { return locations; } // ✅ Correction ici
+    public void setLocations(List<String> locations) { this.locations = locations; } // ✅ Correction ici
 
-    public String getLocation() {
-        return location;
-    }
-
-    public void setLocation(String location) {
-        this.location = location;
-    }
 
     public double getSalaryMin() {
         return salaryMin;
@@ -127,13 +114,17 @@ public class JobOffer {
         this.employmentType = employmentType;
     }
 
-    public List<SkillRequirement> getSkillsRequired() {
-        return skillsRequired;
+    public List<Skill> getSkills() {
+        if (skills == null) {
+            skills = new ArrayList<>(); // ✅ Initialise la liste si elle est `null`
+        }
+        return skills;
     }
 
-    public void setSkillsRequired(List<SkillRequirement> skillsRequired) {
-        this.skillsRequired = skillsRequired;
+    public void setSkills(List<Skill> skills) {
+        this.skills = skills;
     }
+
 
     public ObjectId getCompanyId() {
         return companyId;

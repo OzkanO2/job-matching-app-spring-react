@@ -14,6 +14,44 @@ const CompanyHomePage = () => {
     const [conversations, setConversations] = useState([]);
     const route = useRoute();
     const { selectedOffer } = route.params || {};  // ✅ Récupère l'offre sélectionnée
+    const [matchingJobSearchers, setMatchingJobSearchers] = useState([]);
+
+    useEffect(() => {
+        if (selectedOffer) {
+            fetchMatchingCandidates(selectedOffer);
+        }
+    }, [selectedOffer]);
+
+    useEffect(() => {
+        if (selectedOffer) {
+            fetchMatchingCandidates(selectedOffer._id);
+        }
+    }, [selectedOffer]);
+
+    const fetchMatchingCandidates = async (jobOffer) => {
+        if (!jobOffer || !jobOffer._id) {
+            console.error("❌ Erreur : jobOffer ou son ID est invalide !");
+            return;
+        }
+
+        try {
+            const token = await AsyncStorage.getItem("userToken");
+            console.log("📡 Chargement des candidats pour :", jobOffer.title);
+
+            const response = await axios.get(`http://localhost:8080/jobsearchers/matching?jobOfferId=${jobOffer._id}`, {
+                headers: { Authorization: `Bearer ${token}` },
+            });
+
+            setMatchingJobSearchers(response.data);
+            console.log("✅ Candidats correspondants :", response.data);
+        } catch (error) {
+            console.error("❌ Erreur lors du chargement des candidats :", error);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+
 
     useEffect(() => {
         const fetchUserType = async () => {
@@ -41,21 +79,34 @@ const CompanyHomePage = () => {
 
                 const allJobSearchers = response.data;
 
-                // 2️⃣ Récupération des swipes effectués par ce swiperId
-                const swipedResponse = await axios.get(`http://localhost:8080/api/swiped/${swiperId}`, {
-                    headers: { Authorization: `Bearer ${token}` },
-                });
+                // ✅ Vérifie si `selectedOffer` est bien défini avant de filtrer
+                if (!selectedOffer) {
+                    console.warn("⚠️ Aucune offre sélectionnée, affichage de tous les job searchers.");
+                    setJobSearchers(allJobSearchers);
+                    return;
+                }
 
-                const swipedData = swipedResponse.data; // Liste des swipes (right & left)
-                const swipedIds = new Set(swipedData.map(item => item.swipedId)); // Stocker les IDs swipés
+                console.log("🔍 Filtrage des candidats pour :", selectedOffer.title);
 
-                // 3️⃣ Filtrer les job searchers en excluant ceux déjà swipés
-                const filteredJobSearchers = allJobSearchers.filter(jobSearcher => !swipedIds.has(jobSearcher.id));
+                // ✅ Vérifie si `skillsRequired` est défini
+                if (!Array.isArray(selectedOffer.skillsRequired)) {
+                    console.warn("⚠️ Aucune compétence requise pour cette offre.");
+                    setJobSearchers(allJobSearchers);
+                    return;
+                }
 
-                // 4️⃣ Mettre à jour le state avec les job searchers restants
+                // 2️⃣ Filtrer les job searchers en fonction des compétences requises
+                const filteredJobSearchers = allJobSearchers.filter(jobSearcher =>
+                    jobSearcher.skills &&
+                    jobSearcher.skills.some(skill =>
+                        selectedOffer.skillsRequired.some(reqSkill =>
+                            skill.name === reqSkill.name && skill.experience >= reqSkill.experience
+                        )
+                    )
+                );
+
                 setJobSearchers(filteredJobSearchers);
-
-                console.log("✅ Liste des job searchers affichés après filtrage :", filteredJobSearchers);
+                console.log("✅ Liste des job searchers après filtrage :", filteredJobSearchers);
 
             } catch (error) {
                 console.error('❌ Erreur lors de la récupération des job searchers:', error);
@@ -63,6 +114,7 @@ const CompanyHomePage = () => {
                 setIsLoading(false);
             }
         };
+
         const fetchConversations = async () => {
                 try {
                     const token = await AsyncStorage.getItem('userToken');
@@ -220,36 +272,34 @@ const CompanyHomePage = () => {
                 <Text style={styles.offerTitle}>🔍 Candidats pour : {selectedOffer.title}</Text>
             )}
 
-            {/* Swiping Cards */}
             <View style={styles.swiperContainer}>
                 {isLoading ? (
-                    <Text>Loading...</Text>
+                    <Text>No cards, wanna see more ? </Text>
                 ) : (
                     <Swiper
-                        cards={jobSearchers}
+                        cards={selectedOffer ? matchingJobSearchers : jobSearchers} // ✅ Sélectionne la bonne liste
                         renderCard={(jobSearcher) => (
                             jobSearcher ? (
                                 <View style={styles.card}>
                                     <Text style={styles.cardTitle}>{jobSearcher.name || 'No name provided'}</Text>
-                                    <Text style={styles.cardDescription}>
-                                        Skills: {jobSearcher.skills ? jobSearcher.skills.join(', ') : 'No skills listed'}
+                                    <Text>📍 Localisation : {jobSearcher.locations.join(", ")}</Text>
+                                    <Text>💻 Compétences :
+                                        {jobSearcher.skills.map(skill => `${skill.name} (${skill.experience} ans)`).join(", ")}
                                     </Text>
-                                    <Text>Experience: {jobSearcher.experience || 'No experience provided'}</Text>
-                                    <Text>Location: {jobSearcher.location || 'No location provided'}</Text>
                                 </View>
                             ) : (
                                 <View style={styles.card}>
-                                    <Text style={styles.cardTitle}>Loading...</Text>
+                                    <Text style={styles.cardTitle}>No cards, wanna see more ?</Text>
                                 </View>
                             )
                         )}
-                        onSwipedRight={(cardIndex) => handleSwipeRight(cardIndex)}
-                        onSwipedLeft={(cardIndex) => handleSwipeLeft(cardIndex)}
                         cardIndex={0}
                         stackSize={3}
                     />
                 )}
             </View>
+
+
         </View>
     );
 

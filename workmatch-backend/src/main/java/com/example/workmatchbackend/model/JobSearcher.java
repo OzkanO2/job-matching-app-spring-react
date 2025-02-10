@@ -15,12 +15,11 @@ public class JobSearcher {
     private List<Skill> skills; // ✅ Stocke bien les compétences sous forme d'objets SkillRequirement
     private double experience;
     private String photoUrl; // Note : CamelCase pour les noms des champs
-    private String location;
     private String resumeUrl;
     private String userId; // 🔹 Clé correspondant à un utilisateur dans la collection users
     private boolean remote;
-    private double salaryMin;
-    private double salaryMax;
+    private int salaryMin;   // ✅ On garde salaryMin et salaryMax
+    private int salaryMax;
     private List<String> locations; // ✅ Maintenant une liste
 
     // ✅ Ajoute les getters et setters nécessaires
@@ -31,6 +30,9 @@ public class JobSearcher {
     public void setUserId(String userId) {
         this.userId = userId;
     }
+    public List<Skill> getSkills() { return skills; } // ✅ Correct
+    public void setSkills(List<Skill> skills) { this.skills = skills; }
+
     public List<String> getLocations() {
         return locations;
     }
@@ -71,18 +73,11 @@ public class JobSearcher {
         this.username = username;
     }
 
-    public List<SkillRequirement> getSkills() {
-        return skills;
-    }
-
-    public void setSkills(List<SkillRequirement> skills) {
-        this.skills = skills;
-    }
-    public String getExperience() {
+    public double getExperience() {
         return experience;
     }
 
-    public void setExperience(String experience) {
+    public void setExperience(double experience) {
         this.experience = experience;
     }
 
@@ -94,14 +89,6 @@ public class JobSearcher {
         this.photoUrl = photoUrl;
     }
 
-    public String getLocation() {
-        return location;
-    }
-
-    public void setLocation(String location) {
-        this.location = location;
-    }
-
     public String getResumeUrl() {
         return resumeUrl;
     }
@@ -109,19 +96,4 @@ public class JobSearcher {
     public void setResumeUrl(String resumeUrl) {
         this.resumeUrl = resumeUrl;
     }
-}
-
-// ✅ Modèle Skill corrigé
-public class Skill {
-    private String name;
-    private double experience; // ✅ Maintenant en double
-
-    public Skill(String name, double experience) {
-        this.name = name;
-        this.experience = experience;
-    }
-
-    public String getName() { return name; }
-    public double getExperience() { return experience; }
-    public void setExperience(double experience) { this.experience = experience; }
 }

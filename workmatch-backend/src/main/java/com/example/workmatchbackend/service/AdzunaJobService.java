@@ -46,9 +46,10 @@ public class AdzunaJobService {
 
                 jobOffer.setTitle(job.hasNonNull("title") ? job.get("title").asText() : "Title not available");
                 jobOffer.setDescription(job.hasNonNull("description") ? job.get("description").asText() : "Description not available");
-                jobOffer.setLocation(job.has("location") && job.get("location").hasNonNull("display_name")
-                        ? job.get("location").get("display_name").asText()
-                        : "Location not available");
+                jobOffer.setLocations(job.has("location") && job.get("location").hasNonNull("display_name")
+                        ? List.of(job.get("location").get("display_name").asText())  // ✅ Convertir en List<String>
+                        : List.of("Location not available"));  // ✅ Retourner une liste même si indisponible
+
                 jobOffer.setSalaryMin(job.hasNonNull("salary_min") ? job.get("salary_min").asDouble() : 0.0);
                 jobOffer.setSalaryMax(job.hasNonNull("salary_max") ? job.get("salary_max").asDouble() : 0.0);
                 jobOffer.setUrl(job.hasNonNull("redirect_url") ? job.get("redirect_url").asText() : "URL not available");
