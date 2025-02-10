@@ -71,10 +71,10 @@ const MyOffersPage = () => {
                             <Text style={styles.jobLocation}>{item.location}</Text>
                         </TouchableOpacity>
 
-                        {/* ✅ Séparation du bouton */}
+                        {/* ✅ Encapsuler le texte du bouton dans un <Text> */}
                         <TouchableOpacity
                             style={styles.viewCandidatesButton}
-                            onPress={() => navigation.navigate("CompanyHomePage", { selectedOffer: item })}
+                            onPress={() => navigation.navigate("CompanyHome", { selectedOffer: item })}
                         >
                             <Text style={styles.buttonText}>Voir les candidats</Text>
                         </TouchableOpacity>
