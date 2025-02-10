@@ -37,10 +37,12 @@ const CompanyHomePage = () => {
         try {
             const token = await AsyncStorage.getItem("userToken");
             console.log("📡 Chargement des candidats pour :", jobOffer.title);
+            console.log("📩 Requête envoyée à : ", `http://localhost:8080/jobsearchers/matching?jobOfferId=${jobOffer._id}`);
 
             const response = await axios.get(`http://localhost:8080/jobsearchers/matching?jobOfferId=${jobOffer._id}`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
+            console.log("✅ Réponse du backend :", response.data);
 
             setMatchingJobSearchers(response.data);
             console.log("✅ Candidats correspondants :", response.data);
@@ -107,6 +109,7 @@ const CompanyHomePage = () => {
 
                 setJobSearchers(filteredJobSearchers);
                 console.log("✅ Liste des job searchers après filtrage :", filteredJobSearchers);
+                console.log("📜 Liste finale des candidats affichés :", matchingJobSearchers);
 
             } catch (error) {
                 console.error('❌ Erreur lors de la récupération des job searchers:', error);

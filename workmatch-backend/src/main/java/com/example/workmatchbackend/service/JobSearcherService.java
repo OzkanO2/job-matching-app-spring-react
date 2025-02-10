@@ -26,34 +26,46 @@ public class JobSearcherService {
 
     public List<JobSearcher> findMatchingCandidates(String jobOfferId) {
         Optional<JobOffer> jobOfferOpt = jobOfferRepository.findById(jobOfferId);
-        if (jobOfferOpt.isEmpty()) return List.of(); // ✅ Retourne une liste vide si l'offre n'existe pas
-
+        if (jobOfferOpt.isEmpty()) {
+            System.out.println("❌ Aucune offre trouvée pour l'ID : " + jobOfferId);
+            return List.of();
+        }
         JobOffer jobOffer = jobOfferOpt.get();
+        System.out.println("🔍 Offre trouvée : " + jobOffer.getTitle());
 
         if (jobOffer.getSkills() == null || jobOffer.getSkills().isEmpty()) {
-            return List.of(); // ✅ Si l'offre ne demande aucune compétence, on retourne une liste vide
+            System.out.println("⚠️ Aucune compétence requise pour cette offre.");
+            return List.of();
         }
 
+        System.out.println("📜 Compétences requises pour l'offre : " + jobOffer.getSkills());
 
         // ✅ Liste des compétences requises
-        List<String> requiredSkills = jobOffer.getSkills()
+        List<JobSearcher> matchingCandidates =
+                jobSearcherRepository.findAll()
                 .stream()
-                .map(Skill::getName) // 🔹 Assurez-vous que `Skill` est bien utilisé
-                .collect(Collectors.toList());
-
-        return jobSearcherRepository.findAll()
-                .stream()
-                .filter(js -> js.getSkills() != null) // ✅ Vérifie que le jobSearcher a bien des skills
+                .filter(js -> js.getSkills() != null)
                 .filter(js -> js.getSkills()
                         .stream()
-                        .map(Skill::getName)
-                        .anyMatch(requiredSkills::contains)) // ✅ Vérifie la correspondance
+                        .anyMatch(skill -> jobOffer.getSkills()
+                                .stream()
+                                .anyMatch(reqSkill ->
+                                        skill.getName().equalsIgnoreCase(reqSkill.getName()) &&
+                                                skill.getExperience() >= reqSkill.getExperience()
+                                )
+                        )
+                )
                 .collect(Collectors.toList());
+        System.out.println("🔍 Vérification des compétences pour l'offre : " + jobOffer.getTitle());
+        System.out.println("Compétences requises : " + jobOffer.getSkills());
+
+        System.out.println("✅ Nombre de candidats correspondants : " + matchingCandidates.size());
+        return matchingCandidates;
     }
 
 
     private boolean matchesSkills(JobSearcher jobSearcher, List<Skill> requiredSkills) {
-        return jobSearcher.getSkills().stream().anyMatch(jsSkill ->
+        return jobSearcher.getSkills().stream().allMatch(jsSkill ->
                 requiredSkills.stream().anyMatch(reqSkill ->
                         jsSkill.getName().equalsIgnoreCase(reqSkill.getName()) &&
                                 jsSkill.getExperience() >= reqSkill.getExperience()
