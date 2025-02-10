@@ -10,6 +10,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.List;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import org.springframework.data.mongodb.core.mapping.Field;
 
 @Document(collection = "jobOffers")
 public class JobOffer {
@@ -36,7 +37,7 @@ public class JobOffer {
     private String externalId;  // 🔹 Ajouté
     private LocalDate createdAt;  // 🔹 Ajouté
     private boolean companyCertified;  // 🔹 Ajouté
-    private ObjectId companyId; // 🔹 Assurez-vous que c'est bien un ObjectId
+    private String companyId;  // 🔥 S'assurer que c'est bien String et pas ObjectId
 
     @NotNull(message = "Employment Type is required")
     private String employmentType; // ✅ Ajout du type d'emploi (Full-time, Part-time, Internship...)
@@ -124,15 +125,13 @@ public class JobOffer {
     public void setSkills(List<Skill> skills) {
         this.skills = skills;
     }
-
-
-    public ObjectId getCompanyId() {
+    public String getCompanyId() {
         return companyId;
     }
-    public void setCompanyId(ObjectId companyId) {
+
+    public void setCompanyId(String companyId) {
         this.companyId = companyId;
     }
-
     public String getExternalId() {
         return externalId;
     }

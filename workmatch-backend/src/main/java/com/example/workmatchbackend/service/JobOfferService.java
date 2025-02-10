@@ -32,8 +32,9 @@ public class JobOfferService {
         this.jobOfferRepository = jobOfferRepository;
     }
     public List<JobOffer> getAllJobOffers() {
-        return jobOfferRepository.findAll();
+        return jobOfferRepository.findAll();  // ✅ Aucune conversion nécessaire
     }
+
 
     public Optional<JobOffer> getJobOfferById(String jobOfferId) {
         return jobOfferRepository.findById(jobOfferId);

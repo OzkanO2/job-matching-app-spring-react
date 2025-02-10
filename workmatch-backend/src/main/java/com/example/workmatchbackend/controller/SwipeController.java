@@ -46,8 +46,10 @@ public class SwipeController {
     @GetMapping("/{swiperId}")
     public ResponseEntity<List<SwipedCard>> getSwipedCards(@PathVariable String swiperId) {
         List<SwipedCard> swipedCards = swipedCardRepository.findBySwiperId(swiperId);
+        System.out.println("📌 Swipes trouvés pour " + swiperId + " : " + swipedCards);
         return ResponseEntity.ok(swipedCards);
     }
+
 
     /**
      * 📌 Vérifier si une carte a déjà été swipée par un utilisateur

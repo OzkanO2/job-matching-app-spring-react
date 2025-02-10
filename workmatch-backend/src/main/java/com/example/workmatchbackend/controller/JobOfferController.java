@@ -66,6 +66,8 @@ public class JobOfferController {
 
     @PostMapping("/like")
     public ResponseEntity<?> likeOffer(@RequestBody Map<String, String> payload) {
+        System.out.println("📩 Requête reçue : " + payload);
+
         String swiperId = payload.get("swiperId");
         String swipedId = payload.get("swipedId");
         String companyId = payload.get("companyId");

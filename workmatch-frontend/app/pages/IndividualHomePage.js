@@ -122,6 +122,11 @@ const IndividualHomePage = () => {
             const token = await AsyncStorage.getItem('userToken');
 
             console.log("🔑 Token utilisé pour la requête :", token);
+            console.log("📡 Données envoyées à /api/matches/swipe/individual :", {
+                swiperId,
+                swipedId,
+                companyId
+            });
 
             const response = await axios.post(
                 "http://localhost:8080/api/matches/swipe/individual",
@@ -165,7 +170,7 @@ const IndividualHomePage = () => {
         console.log("🔴 Job Offer ignorée:", swipedJobOffer);
 
         const swipedId = swipedJobOffer._id;  // ✅ Vérifie bien que "_id" est utilisé
-        const companyId = swipedJobOffer.companyId || swipedJobOffer.company?.id;  // ✅ Récupère bien le companyId
+        const companyId = swipedJobOffer.companyId?.toString();
         const swiperId = await AsyncStorage.getItem("userId");
 
         if (!swiperId || !swipedId || !companyId) {
