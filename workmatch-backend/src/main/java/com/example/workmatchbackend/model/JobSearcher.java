@@ -12,12 +12,16 @@ public class JobSearcher {
     private String name;
     private String email;
     private String username;
-    private List<SkillRequirement> skills; // ✅ Stocke bien les compétences sous forme d'objets SkillRequirement
-    private String experience;
+    private List<Skill> skills; // ✅ Stocke bien les compétences sous forme d'objets SkillRequirement
+    private double experience;
     private String photoUrl; // Note : CamelCase pour les noms des champs
     private String location;
     private String resumeUrl;
     private String userId; // 🔹 Clé correspondant à un utilisateur dans la collection users
+    private boolean remote;
+    private double salaryMin;
+    private double salaryMax;
+    private List<String> locations; // ✅ Maintenant une liste
 
     // ✅ Ajoute les getters et setters nécessaires
     public String getUserId() {
@@ -26,6 +30,13 @@ public class JobSearcher {
 
     public void setUserId(String userId) {
         this.userId = userId;
+    }
+    public List<String> getLocations() {
+        return locations;
+    }
+
+    public void setLocations(List<String> locations) {
+        this.locations = locations;
     }
     // Getters et Setters
     public String getId() {
@@ -98,4 +109,19 @@ public class JobSearcher {
     public void setResumeUrl(String resumeUrl) {
         this.resumeUrl = resumeUrl;
     }
+}
+
+// ✅ Modèle Skill corrigé
+public class Skill {
+    private String name;
+    private double experience; // ✅ Maintenant en double
+
+    public Skill(String name, double experience) {
+        this.name = name;
+        this.experience = experience;
+    }
+
+    public String getName() { return name; }
+    public double getExperience() { return experience; }
+    public void setExperience(double experience) { this.experience = experience; }
 }

@@ -5,30 +5,29 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Document
 public class SkillRequirement {
     private String name;
-    private int experience; // ✅ Assure-toi que ce champ est bien un ENTIER
+    private double experience; // ✅ Modifier en double
 
-    // Constructeurs
-    public SkillRequirement() {}
-
-    public SkillRequirement(String name, int experience) {
+    // Constructeur
+    public SkillRequirement(String name, String experience) {
         this.name = name;
-        this.experience = experience;
+        this.experience = parseExperience(experience); // ✅ Convertir ici
     }
 
-    // Getters et Setters
+    // ✅ Convertir "2 ans" en 2.0 et "2.5 ans" en 2.5
+    private double parseExperience(String experience) {
+        if (experience == null || experience.isEmpty()) return 0.0;
+        return Double.parseDouble(experience.replaceAll("[^\\d.]", ""));
+    }
+
     public String getName() {
         return name;
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public int getExperience() {
+    public double getExperience() {
         return experience;
     }
 
-    public void setExperience(int experience) {
-        this.experience = experience;
+    public void setExperience(String experience) {
+        this.experience = parseExperience(experience);
     }
 }

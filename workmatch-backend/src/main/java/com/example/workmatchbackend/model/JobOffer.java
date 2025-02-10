@@ -23,6 +23,7 @@ public class JobOffer {
     @NotNull(message = "Description is required")
     @Size(min = 10, message = "Description should have at least 10 characters")
     private String description;
+    private List<String> locations; // ✅ Maintenant une liste
 
     private String location;
     private double salaryMin;
@@ -44,6 +45,14 @@ public class JobOffer {
 
     // Constructeur par défaut
     public JobOffer() {}
+
+    public List<String> getLocations() {
+        return locations;
+    }
+
+    public void setLocations(List<String> locations) {
+        this.locations = locations;
+    }
 
     // Getters et Setters
     public String getId() {
