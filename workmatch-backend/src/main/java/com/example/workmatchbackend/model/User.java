@@ -2,18 +2,23 @@ package com.example.workmatchbackend.model;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Document(collection = "users")
 public class User {
     @Id
     private String id;
+
     private String username;
     private String email;
     private String password;
     private List<String> skills;
     private UserType userType;
+
+    private List<String> preferredCategories = new ArrayList<>(); // ✅ Assure-toi que l'ArrayList est bien utilisé
 
     public User() {}
 
@@ -64,4 +69,15 @@ public class User {
     public void setUserType(UserType userType) {
         this.userType = userType;
     }
+
+    public List<String> getPreferredCategories() {
+        return preferredCategories;
+    }
+
+    public void setPreferredCategories(List<String> preferredCategories) {
+        if (this.userType != UserType.COMPANY) {
+            this.preferredCategories = preferredCategories;
+        }
+    }
+
 }

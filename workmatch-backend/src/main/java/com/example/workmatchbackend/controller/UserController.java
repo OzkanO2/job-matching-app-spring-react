@@ -22,6 +22,7 @@ import java.util.Map;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.ArrayList;
 
 @RestController
 @RequestMapping("/users")
@@ -37,6 +38,7 @@ public class UserController {
     public UserController(MatchService matchService) {
         this.matchService = matchService;
     }
+
     @Autowired
     private UserService userService;
 
@@ -60,9 +62,21 @@ public class UserController {
     }
 
     @GetMapping("/id/{id}")
-    public Optional<User> getUserById(@PathVariable String id) {
-        return userService.getUserById(id);
+    public ResponseEntity<?> getUserById(@PathVariable String id) {
+        Optional<User> userOptional = userService.getUserById(id);
+
+        if (userOptional.isEmpty()) {
+            System.out.println("❌ Utilisateur non trouvé !");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Utilisateur non trouvé");
+        }
+
+        User user = userOptional.get();
+
+        System.out.println("📡 Données utilisateur envoyées : " + user.getPreferredCategories());
+
+        return ResponseEntity.ok(user);
     }
+
 
     @GetMapping("/matches")
     public ResponseEntity<List<Match>> getUserMatches(@RequestParam String userId) {
@@ -237,6 +251,36 @@ public class UserController {
         // revokeToken(token); // Implémentez cette méthode pour invalider le token (par exemple, stocker dans une base de données)
 
         return ResponseEntity.ok("Successfully logged out");
+    }
+
+    @PutMapping("/{userId}/preferences")
+    public ResponseEntity<?> updateUserPreferences(@PathVariable String userId, @RequestBody Map<String, List<String>> requestBody) {
+        Optional<User> userOptional = userRepository.findById(userId);
+
+        if (userOptional.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Utilisateur non trouvé");
+        }
+
+        User user = userOptional.get();
+
+        if (user.getUserType() == UserType.COMPANY) { // ✅ Comparaison correcte avec enum
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Les entreprises ne peuvent pas modifier leurs préférences !");
+        }
+
+        List<String> newCategories = requestBody.get("preferredCategories");
+
+        System.out.println("📡 Mise à jour des préférences pour l'utilisateur ID : " + userId);
+        System.out.println("📂 Nouvelles catégories avant mise à jour : " + newCategories);
+
+        user.setPreferredCategories(newCategories);
+        userRepository.save(user);
+
+        System.out.println("✅ Préférences mises à jour en base !");
+
+        User updatedUser = userRepository.findById(userId).orElse(null);
+        System.out.println("🔍 Vérification après mise à jour : " + (updatedUser != null ? updatedUser.getPreferredCategories() : "Utilisateur introuvable"));
+
+        return ResponseEntity.ok("Préférences mises à jour avec succès !");
     }
 
 }

@@ -56,6 +56,24 @@ const IndividualHomePage = () => {
             }
         };
 
+        const fetchUserPreferences = async () => {
+            try {
+                const token = await AsyncStorage.getItem('userToken');
+                const userId = await AsyncStorage.getItem('userId');
+
+                const response = await axios.get(`http://localhost:8080/users/${userId}`, {
+                    headers: { Authorization: `Bearer ${token}` },
+                });
+
+                const userPreferences = response.data.preferredCategories || [];
+
+                setSelectedCategories(userPreferences);
+                console.log("📌 Préférences utilisateur récupérées :", userPreferences);
+            } catch (error) {
+                console.error("❌ Erreur lors de la récupération des préférences :", error);
+            }
+        };
+
         const fetchConversations = async () => {
             try {
                 const token = await AsyncStorage.getItem('userToken');
@@ -82,7 +100,7 @@ const IndividualHomePage = () => {
         fetchUserData();
         fetchJobOffers();
         fetchConversations();
-
+        fetchUserPreferences();
     }, []);
 
 
