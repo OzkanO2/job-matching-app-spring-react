@@ -17,6 +17,7 @@ import org.slf4j.LoggerFactory;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.time.LocalDate; // ✅ Ajoute cet import
 
 @RestController
 @RequestMapping("/joboffers")
@@ -53,6 +54,11 @@ public class JobOfferController {
     @PostMapping
     public ResponseEntity<JobOffer> createJobOffer(@RequestBody JobOffer jobOffer) {
         logger.info("Creating a new job offer.");
+
+        if (jobOffer.getCreatedAt() == null) {
+            jobOffer.setCreatedAt(LocalDate.now()); // ✅ Ajout d'une date de création si absente
+        }
+
         JobOffer savedJobOffer = jobOfferService.saveJobOffer(jobOffer);
         return ResponseEntity.status(HttpStatus.CREATED).body(savedJobOffer);
     }

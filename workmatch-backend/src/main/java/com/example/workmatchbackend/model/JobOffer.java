@@ -25,6 +25,7 @@ public class JobOffer {
     @NotNull(message = "Description is required")
     @Size(min = 10, message = "Description should have at least 10 characters")
     private String description;
+
     private List<String> locations;
 
     private double salaryMin;
@@ -35,12 +36,13 @@ public class JobOffer {
     private String url;
     private String apiSource;
     private String externalId;
-    private LocalDate createdAt;
     private boolean companyCertified;
     private String companyId;
 
     @NotNull(message = "Employment Type is required")
     private String employmentType;
+    @Field(name = "createdAt")
+    private LocalDate createdAt;
 
     private List<Skill> skills;
 
@@ -72,6 +74,13 @@ public class JobOffer {
     public List<String> getLocations() { return locations; }
     public void setLocations(List<String> locations) { this.locations = locations; }
 
+    public String getUrl() {
+        return url;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
+    }
 
     public double getSalaryMin() {
         return salaryMin;
@@ -136,14 +145,6 @@ public class JobOffer {
 
     public void setExternalId(String externalId) {
         this.externalId = externalId;
-    }
-
-    public String getUrl() {
-        return url;
-    }
-
-    public void setUrl(String url) {
-        this.url = url;
     }
 
     public String getApiSource() {
