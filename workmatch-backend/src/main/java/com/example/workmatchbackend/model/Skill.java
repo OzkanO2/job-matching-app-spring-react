@@ -2,7 +2,7 @@ package com.example.workmatchbackend.model;
 
 public class Skill {
     private String name;
-    private double experience; // ✅ Changer en double
+    private double experience;
 
     public Skill(String name, double experience) {
         this.name = name;

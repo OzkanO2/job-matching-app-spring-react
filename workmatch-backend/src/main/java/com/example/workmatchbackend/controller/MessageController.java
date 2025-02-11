@@ -20,10 +20,10 @@ public class MessageController {
 
     @PostMapping("/send")
     public ResponseEntity<Message> sendMessage(@RequestBody Message messageDetails) {
-        System.out.println("📩 Message reçu : " + messageDetails); // 🔥 Ajoute ceci
+        System.out.println("📩 Message reçu : " + messageDetails);
 
         if (messageDetails.getSenderId() == null || messageDetails.getReceiverId() == null) {
-            System.out.println("❌ Erreur : senderId ou receiverId est null"); // 🔥 Ajoute ceci
+            System.out.println("❌ Erreur : senderId ou receiverId est null");
             return ResponseEntity.badRequest().build();
         }
 
@@ -36,7 +36,7 @@ public class MessageController {
         );
 
         Message savedMessage = messageRepository.save(message);
-        System.out.println("✅ Message sauvegardé : " + savedMessage); // 🔥 Ajoute ceci
+        System.out.println("✅ Message sauvegardé : " + savedMessage);
         return ResponseEntity.ok(savedMessage);
     }
 
@@ -45,7 +45,6 @@ public class MessageController {
         return ResponseEntity.ok(messageRepository.findByConversationId(conversationId));
     }
 
-    // WebSocket Handler : ✅ Correction du conflit en changeant le chemin
     @PostMapping("/sendMessage/{conversationId}")
     public ResponseEntity<Message> handleMessage(@RequestBody Message messageDetails, @PathVariable String conversationId) {
         Message message = new Message();
@@ -53,11 +52,9 @@ public class MessageController {
         message.setSenderId(messageDetails.getSenderId());
         message.setContent(messageDetails.getContent());
 
-        // ✅ Correction ici aussi
         message.setTimestamp(Instant.ofEpochMilli(System.currentTimeMillis()));
 
         Message savedMessage = messageRepository.save(message);
         return ResponseEntity.ok(savedMessage);
     }
-
 }

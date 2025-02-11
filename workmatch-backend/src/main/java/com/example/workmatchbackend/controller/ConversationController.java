@@ -15,18 +15,12 @@ public class ConversationController {
     @Autowired
     private ConversationRepository conversationRepository;
 
-    /**
-     * 🔍 Récupérer toutes les conversations d'un utilisateur donné
-     */
     @GetMapping("/{userId}")
     public List<Conversation> getUserConversations(@PathVariable String userId) {
         System.out.println("📌 Requête reçue pour récupérer les conversations de l'utilisateur: " + userId);
         return conversationRepository.findByUser1IdOrUser2Id(userId, userId);
     }
 
-    /**
-     * ✅ Créer une nouvelle conversation entre deux utilisateurs
-     */
     @PostMapping("/create")
     public Conversation createConversation(@RequestBody Conversation conversation) {
         System.out.println("✅ Création d'une nouvelle conversation entre "
@@ -34,9 +28,6 @@ public class ConversationController {
         return conversationRepository.save(conversation);
     }
 
-    /**
-     * 🔍 Vérifier si une conversation existe déjà entre deux utilisateurs
-     */
     @GetMapping("/exists/{user1Id}/{user2Id}")
     public boolean checkConversationExists(@PathVariable String user1Id, @PathVariable String user2Id) {
         boolean exists = conversationRepository.existsByUser1IdAndUser2Id(user1Id, user2Id)

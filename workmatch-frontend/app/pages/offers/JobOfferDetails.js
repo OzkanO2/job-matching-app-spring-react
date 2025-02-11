@@ -6,7 +6,6 @@ const JobOfferDetails = ({ route, navigation }) => {
 
     return (
         <View style={styles.container}>
-            {/* 🔙 Bouton Retour */}
             <Button title="⬅ Retour" onPress={() => navigation.navigate('MyOffersPage')} />
 
             <Text style={styles.title}>{offer.title}</Text>

@@ -18,11 +18,9 @@ public class AdzunaJobController {
     @Autowired
     private AdzunaJobService adzunaJobService;
 
-    // Nouvelle route pour /adzuna/jobs
     @GetMapping("/jobs")
     public ResponseEntity<?> getAllAdzunaJobs() {
         try {
-            // Exemple : retournez une liste vide si aucune logique n'est implémentée
             return ResponseEntity.ok(List.of());
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)

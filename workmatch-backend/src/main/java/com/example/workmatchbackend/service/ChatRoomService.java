@@ -10,6 +10,7 @@ import java.util.Optional;
 
 @Service
 public class ChatRoomService {
+
     @Autowired
     private ChatRoomRepository chatRoomRepository;
 

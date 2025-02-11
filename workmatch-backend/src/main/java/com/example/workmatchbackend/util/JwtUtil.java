@@ -11,9 +11,9 @@ import java.util.Map;
 import java.util.function.Function;
 
 @Component
-public class JwtUtil {  // ✅ Correction du nom de la classe
+public class JwtUtil {
 
-    private final String secret = "mysecretkey";  // ✅ Vérifie que cette clé est la même partout
+    private final String secret = "mysecretkey";
 
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
@@ -45,7 +45,7 @@ public class JwtUtil {  // ✅ Correction du nom de la classe
                 .setClaims(claims)
                 .setSubject(username)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 10)) // 10 heures
+                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 10))
                 .signWith(SignatureAlgorithm.HS256, secret)
                 .compact();
     }

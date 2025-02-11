@@ -24,12 +24,12 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/users")  // ✅ Utilisation de /users sans /api
+@RequestMapping("/users")
 @CrossOrigin(origins = "*", allowedHeaders = "*")
 public class UserController {
 
     @Autowired
-    private LikeService likeService; // Injectez LikeService
+    private LikeService likeService;
 
     @Autowired
     private MatchService matchService;
@@ -104,12 +104,10 @@ public class UserController {
         if (optionalUser.isPresent()) {
             User user = optionalUser.get();
             user.setUsername(newUsername);
-            userRepository.save(user);  // Mise à jour du nom d'utilisateur dans la base de données
+            userRepository.save(user);
 
-            // Regénérer le token avec le nouveau nom d'utilisateur
             String newToken = jwtUtil.generateToken(newUsername);
 
-            // Retourner le nouveau token au client
             Map<String, String> response = new HashMap<>();
             response.put("token", newToken);
             return ResponseEntity.ok(response);
@@ -122,12 +120,11 @@ public class UserController {
 
     @PostMapping("/like-job-offer")
     public ResponseEntity<?> likeJobOffer(@RequestBody Map<String, String> payload) {
-        // 🔹 Récupération des valeurs envoyées par le frontend
+
         String swiperId = payload.get("swiperId");
         String swipedId = payload.get("swipedId");
         String companyId = payload.get("companyId");
 
-        // 🔎 Vérification que toutes les valeurs sont bien présentes
         if (swiperId == null || swipedId == null || companyId == null) {
             return ResponseEntity.badRequest().body("❌ swiperId, swipedId et companyId sont requis.");
         }
@@ -137,7 +134,6 @@ public class UserController {
         System.out.println("🔹 swipedId: " + swipedId);
         System.out.println("🔹 companyId: " + companyId);
 
-        // 🔥 Sauvegarde du "Like"
         Like like = likeService.saveLike(swiperId, swipedId, companyId);
 
         return ResponseEntity.ok("✅ Like enregistré: " + like);
@@ -162,7 +158,7 @@ public class UserController {
         }
 
         user.setPassword(passwordEncoder.encode(user.getPassword()));
-        // Ne redéfinissez pas userType par défaut ici
+
         System.out.println("UserType: " + user.getUserType());
 
         User savedUser = userService.saveUser(user);

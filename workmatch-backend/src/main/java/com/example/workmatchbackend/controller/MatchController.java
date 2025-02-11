@@ -41,7 +41,8 @@ public class MatchController {
     public MatchController(LikeService likeService) {
         this.likeService = likeService;
     }
-    @Autowired // 🔥 Ajout de l'annotation pour l'injection automatique
+
+    @Autowired
     public MatchController(
             MatchService matchService,
             LikeService likeService,
@@ -83,7 +84,7 @@ public class MatchController {
     public ResponseEntity<String> swipeJobSearcher(@RequestBody Map<String, String> payload) {
         String swiperId = payload.get("swiperId");
         String swipedId = payload.get("swipedId");
-        String companyId = payload.get("companyId"); // Peut être null
+        String companyId = payload.get("companyId");
 
         if (swiperId == null || swipedId == null) {
             return ResponseEntity.badRequest().body("❌ swiperId et swipedId sont requis.");
@@ -101,7 +102,6 @@ public class MatchController {
 
     @PostMapping("/like-job-offer")
     public ResponseEntity<?> likeJobOffer(@RequestBody Map<String, String> payload) {
-        // 🔹 Extraire les valeurs depuis le JSON
         String swiperId = payload.get("swiperId");
         String swipedId = payload.get("swipedId");
         String companyId = payload.get("companyId");
@@ -111,25 +111,21 @@ public class MatchController {
         System.out.println("➡️ swipedId: " + swipedId);
         System.out.println("➡️ companyId: " + companyId);
 
-        // 🛑 Vérification des valeurs reçues
         if (swiperId == null || swipedId == null || companyId == null) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body("❌ swiperId, swipedId et companyId sont requis.");
         }
 
-        // ✅ Sauvegarde du Like
         Like savedLike = likeService.saveLike(swiperId, swipedId, companyId);
         return ResponseEntity.status(HttpStatus.CREATED).body(savedLike);
     }
 
     @PostMapping("/like")
     public ResponseEntity<?> likeOffer(@RequestBody Map<String, String> payload) {
-        // ✅ Extraire les valeurs de la requête
         String swiperId = payload.get("swiperId");
         String swipedId = payload.get("swipedId");
         String companyId = payload.get("companyId");
 
-        // ❌ Vérifier si une des valeurs est absente
         if (swiperId == null || swipedId == null || companyId == null) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body("❌ swiperId, swipedId et companyId sont requis.");
@@ -140,12 +136,9 @@ public class MatchController {
         System.out.println("➡️ swipedId: " + swipedId);
         System.out.println("➡️ companyId: " + companyId);
 
-        // ✅ Sauvegarde du like
         Like savedLike = likeService.saveLike(swiperId, swipedId, companyId);
         return ResponseEntity.status(HttpStatus.CREATED).body(savedLike);
     }
-
-
 
     @PostMapping("/match")
     public ResponseEntity<String> checkAndCreateMatch(@RequestBody Map<String, String> payload) {
@@ -160,19 +153,16 @@ public class MatchController {
             return ResponseEntity.badRequest().body("❌ swiperId et swipedId sont requis.");
         }
 
-        // ✅ Vérifier si un match existe déjà
         boolean isMatch = matchService.checkIfMatchExists(swiperId, swipedId);
         System.out.println("📌 Match détecté ? " + isMatch);
 
         if (isMatch) {
-            // ✅ Vérifier si la conversation existe déjà
             boolean conversationExists = conversationRepository.existsByUser1IdAndUser2Id(swiperId, swipedId) ||
                     conversationRepository.existsByUser1IdAndUser2Id(swipedId, swiperId);
 
             System.out.println("📌 Conversation existe déjà ? " + conversationExists);
 
             if (!conversationExists) {
-                // ✅ Créer une nouvelle conversation après un match confirmé
                 Conversation conversation = new Conversation(swiperId, swipedId);
                 conversationRepository.save(conversation);
                 System.out.println("✅ Conversation créée entre " + swiperId + " et " + swipedId);
@@ -183,5 +173,4 @@ public class MatchController {
 
         return ResponseEntity.ok("⚠️ Pas encore de match, conversation non créée.");
     }
-
 }

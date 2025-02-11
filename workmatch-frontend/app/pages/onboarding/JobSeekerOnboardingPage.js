@@ -20,7 +20,6 @@ const JobSeekerOnboardingPage = ({ navigation, route }) => {
      try {
        const updatedUserInfo = { ...userInfo, skills };
 
-       // Connexion automatique après la sélection du type
        const response = await axios.post('http://localhost:8080/users/login', {
          username: userInfo.username,
          password: userInfo.password,
@@ -31,7 +30,6 @@ const JobSeekerOnboardingPage = ({ navigation, route }) => {
          await AsyncStorage.setItem('userToken', `Bearer ${token}`);
          await AsyncStorage.setItem('username', userInfo.username);
 
-         // Rediriger vers la page d'accueil avec les informations utilisateur mises à jour
          navigation.navigate('Home', { userInfo: updatedUserInfo });
        } else {
          alert('Login failed');

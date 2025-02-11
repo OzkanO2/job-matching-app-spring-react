@@ -10,11 +10,9 @@ const OnboardingPage = ({ navigation, route }) => {
     const updatedUserInfo = { ...userInfo, userType };
 
     try {
-      // Envoyer updatedUserInfo au backend
       const updateResponse = await axios.post('http://localhost:8080/users/updateUserType', updatedUserInfo);
 
       if (updateResponse.status === 200) {
-        // Connexion automatique après la mise à jour du type d'utilisateur
         const loginResponse = await axios.post('http://localhost:8080/users/login', {
           username: updatedUserInfo.username,
           password: updatedUserInfo.password,
@@ -24,9 +22,8 @@ const OnboardingPage = ({ navigation, route }) => {
         if (token) {
           await AsyncStorage.setItem('userToken', `Bearer ${token}`);
           await AsyncStorage.setItem('username', updatedUserInfo.username);
-          await AsyncStorage.setItem('userType', userType);  // Stocke le userType ici
+          await AsyncStorage.setItem('userType', userType);
 
-          // Rediriger vers la page d'accueil avec les informations utilisateur
           navigation.navigate('Home', { userInfo: updatedUserInfo });
         } else {
           Alert.alert('Login failed');

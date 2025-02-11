@@ -8,7 +8,7 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface JobSearcherRepository extends MongoRepository<JobSearcher, String> {
-    Optional<JobSearcher> findById(String id);  // 🔹 Trouver un jobseeker par son ID
+    Optional<JobSearcher> findById(String id);
 
     @Query(value = "{ '_id': ?0 }", fields = "{ 'userId': 1 }")
     Optional<JobSearcher> findUserIdByJobSearcherId(String jobSearcherId);

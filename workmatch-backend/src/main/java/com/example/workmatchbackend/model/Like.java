@@ -10,11 +10,10 @@ public class Like {
     private String id;
     private String swiperId;
     private String swipedId;
-    private String companyId; // ✅ Ajout du champ manquant
-    // 🔥 Ajoutez ce champ s'il manque
+    private String companyId;
+
     private String offerId;
 
-    // ✅ Getters et Setters
     public String getOfferId() {
         return offerId;
     }
@@ -27,11 +26,11 @@ public class Like {
         this.swipedId = swipedId;
         this.companyId = companyId;
     }
-    // ✅ Constructeur sans companyId
+
     public Like(String swiperId, String swipedId) {
         this.swiperId = swiperId;
         this.swipedId = swipedId;
-        this.companyId = ""; // ✅ Default à une chaîne vide pour éviter les erreurs
+        this.companyId = "";
     }
     public String getId() {
         return id;

@@ -22,7 +22,7 @@ import java.util.Optional;
 public class JobOfferService {
 
     @Autowired
-    private RestTemplate restTemplate; // ✅ Injection correcte
+    private RestTemplate restTemplate;
 
     private final JobOfferRepository jobOfferRepository;
     private static final Logger logger = LoggerFactory.getLogger(JobOfferService.class);
@@ -32,7 +32,7 @@ public class JobOfferService {
         this.jobOfferRepository = jobOfferRepository;
     }
     public List<JobOffer> getAllJobOffers() {
-        return jobOfferRepository.findAll();  // ✅ Aucune conversion nécessaire
+        return jobOfferRepository.findAll();
     }
 
 
@@ -55,7 +55,7 @@ public class JobOfferService {
         logger.info("🔍 Recherche des offres pour companyId: {}", companyId);
 
         try {
-            ObjectId companyObjectId = new ObjectId(companyId); // ✅ Convertir String en ObjectId
+            ObjectId companyObjectId = new ObjectId(companyId);
             List<JobOffer> jobOffers = jobOfferRepository.findByCompanyId(companyObjectId);
 
             logger.info("📊 Nombre d'offres trouvées : {}", jobOffers.size());
@@ -66,8 +66,6 @@ public class JobOfferService {
         }
     }
     public List<JobOffer> fetchJobsFromAdzuna(String country, String what, int resultsPerPage) {
-        // Implémentez la logique pour appeler l'API Adzuna et convertir les données en JobOffer
-        // Exemple de structure possible
-        return List.of(); // Remplacez par la liste des offres d'emploi obtenues
+        return List.of();
     }
 }

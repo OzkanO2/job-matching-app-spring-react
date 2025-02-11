@@ -26,7 +26,7 @@ public class MatchService {
     @Autowired
     private JobOfferRepository jobOfferRepository;
     @Autowired
-    private ConversationRepository conversationRepository; // ✅ Injection manquante
+    private ConversationRepository conversationRepository;
     @Autowired
     private JobSearcherRepository jobSearcherRepository;
 
@@ -40,9 +40,6 @@ public class MatchService {
         System.out.println("✅ Match enregistré entre " + swiperId + " et " + swipedId + " pour l'offre " + offerId);
     }
 
-    /**
-     * 🔍 Convertir `swipedId` en `userId` si c'est un `jobSearcher`.
-     */
     private String resolveUserId(String swipedId) {
         Optional<JobSearcher> jobSearcher = jobSearcherRepository.findById(swipedId);
         return jobSearcher.map(JobSearcher::getUserId).orElse(swipedId);
@@ -58,10 +55,6 @@ public class MatchService {
         return matchExists;
     }
 
-
-    /**
-     * 🔥 Vérification des matchs et création si nécessaire.
-     */
     public void checkAndCreateMatch(String swiperId, String swipedId, String companyId) {
         boolean isMutualLike = false;
         String individualUserId = null;
@@ -88,7 +81,6 @@ public class MatchService {
             matchRepository.save(match);
             System.out.println("✅ Match créé entre " + individualUserId + " et " + companyUserId);
 
-            // ✅ Vérifie si une conversation existe déjà avant de la créer
             boolean conversationExists = conversationRepository.existsByUser1IdAndUser2Id(individualUserId, companyUserId)
                     || conversationRepository.existsByUser1IdAndUser2Id(companyUserId, individualUserId);
 
@@ -98,6 +90,5 @@ public class MatchService {
                 System.out.println("✅ Conversation créée entre " + individualUserId + " et " + companyUserId);
             }
         }
-
     }
 }

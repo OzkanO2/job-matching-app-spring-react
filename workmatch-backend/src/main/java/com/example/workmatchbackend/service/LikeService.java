@@ -28,7 +28,6 @@ public class LikeService {
     @Autowired
     private MatchService matchService;
 
-    // ✅ Swipe entre utilisateurs
     public Like saveLike(String swiperId, String swipedId) {
         return saveLike(swiperId, swipedId, null);
     }
@@ -40,13 +39,11 @@ public class LikeService {
         return user1LikedUser2 && user2LikedUser1;
     }
 
-    // ✅ Swipe sur une offre d’emploi
     public Like saveLike(String swiperId, String swipedId, String companyId) {
         System.out.println("📌 [saveLike] swiperId reçu: " + swiperId);
         System.out.println("📌 [saveLike] swipedId reçu: " + swipedId);
         System.out.println("📌 [saveLike] companyId reçu: " + companyId);
 
-        // 🔥 Convertir les IDs pour garantir la cohérence
         String foundSwiperId = resolveUserId(swiperId);
         String foundSwipedId = resolveUserId(swipedId);
 
@@ -61,15 +58,11 @@ public class LikeService {
         likeRepository.save(like);
         System.out.println("✅ [saveLike] Like enregistré avec ID: " + like.getId());
 
-        // Vérification et création du match
         matchService.checkAndCreateMatch(foundSwiperId, foundSwipedId, companyId);
 
         return like;
     }
 
-    /**
-     * 🔍 Vérifie si l'ID appartient à un `jobSearcher`, et retourne son `userId` si trouvé.
-     */
     private String resolveUserId(String id) {
         Optional<JobSearcher> jobSearcher = jobSearcherRepository.findById(id);
         if (jobSearcher.isPresent()) {

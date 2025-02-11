@@ -14,7 +14,7 @@ import CompanyOnboardingPage from '../pages/onboarding/CompanyOnboardingPage';
 import IndividualHomePage from '../pages/IndividualHomePage';
 import CompanyHomePage from '../pages/CompanyHomePage';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import LikedPage from '../pages/liked/LikedPage'; // ✅ Ajout de LikedPage
+import LikedPage from '../pages/liked/LikedPage';
 import ChatRoom from '../pages/chat/ChatRoom';
 import JobOfferDetails from '../pages/offers/JobOfferDetails';
 

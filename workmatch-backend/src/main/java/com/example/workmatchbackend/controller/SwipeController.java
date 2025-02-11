@@ -24,9 +24,6 @@ public class SwipeController {
     @Autowired
     private JobSearcherRepository jobSearcherRepository;
 
-    /**
-     * 📌 Récupérer les JobSearchers non encore swipés par un utilisateur
-     */
     @GetMapping("/filteredJobSearchers/{swiperId}")
     public ResponseEntity<List<JobSearcher>> getFilteredJobSearchers(@PathVariable String swiperId) {
         List<SwipedCard> swipedCards = swipedCardRepository.findBySwiperId(swiperId);
@@ -40,9 +37,6 @@ public class SwipeController {
         return ResponseEntity.ok(filteredJobSearchers);
     }
 
-    /**
-     * 📌 Récupérer tous les swipes effectués par un utilisateur (right et left)
-     */
     @GetMapping("/{swiperId}")
     public ResponseEntity<List<SwipedCard>> getSwipedCards(@PathVariable String swiperId) {
         List<SwipedCard> swipedCards = swipedCardRepository.findBySwiperId(swiperId);
@@ -50,10 +44,6 @@ public class SwipeController {
         return ResponseEntity.ok(swipedCards);
     }
 
-
-    /**
-     * 📌 Vérifier si une carte a déjà été swipée par un utilisateur
-     */
     @GetMapping("/check")
     public ResponseEntity<Map<String, Boolean>> checkIfSwiped(
             @RequestParam String swiperId,
@@ -65,9 +55,6 @@ public class SwipeController {
         return ResponseEntity.ok(response);
     }
 
-    /**
-     * 📌 Enregistrer un swipe (right ou left)
-     */
     @PostMapping("/save")
     public ResponseEntity<String> saveSwipe(@RequestBody Map<String, String> payload) {
         String swiperId = payload.get("swiperId");
@@ -78,7 +65,6 @@ public class SwipeController {
             return ResponseEntity.badRequest().body("❌ swiperId, swipedId et direction sont requis.");
         }
 
-        // Vérifier si le swipe existe déjà
         if (swipedCardRepository.existsBySwiperIdAndSwipedId(swiperId, swipedId)) {
             return ResponseEntity.ok("⚠️ Swipe déjà enregistré !");
         }

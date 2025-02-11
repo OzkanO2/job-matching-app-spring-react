@@ -12,15 +12,15 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
-        registry.addEndpoint("/ws") // 🔥 Assure-toi que c'est bien "/ws"
-                .setAllowedOrigins("http://localhost:8081") // 🔥 Assure que c'est ton frontend
+        registry.addEndpoint("/ws")
+                .setAllowedOrigins("http://localhost:8081")
                 .withSockJS();
     }
 
 
     @Override
     public void configureMessageBroker(MessageBrokerRegistry registry) {
-        registry.enableSimpleBroker("/topic"); // ✅ Tous les messages sont envoyés vers "/topic"
-        registry.setApplicationDestinationPrefixes("/app"); // ✅ Les messages envoyés par le frontend doivent commencer par "/app"
+        registry.enableSimpleBroker("/topic");
+        registry.setApplicationDestinationPrefixes("/app");
     }
 }

@@ -15,7 +15,6 @@ public class User {
     private List<String> skills;
     private UserType userType;
 
-    // Getters and setters
     public User() {}
 
     public String getId() {

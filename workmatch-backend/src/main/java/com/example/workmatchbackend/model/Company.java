@@ -10,14 +10,13 @@ public class Company {
     private String name;
     private String email;
     private String username;
-    private String uniqueNumber; // Ex: SIRET, EIN, etc.
+    private String uniqueNumber;
     private boolean certified;
     private String externalId;
     private String password;
     private String verificationCode;
     private String apiSource;
 
-    // Getters and Setters
     public String getPassword() {
         return password;
     }
@@ -42,7 +41,6 @@ public class Company {
         this.apiSource = apiSource;
     }
 
-    // Getters and setters
     public String getId() {
         return id;
     }

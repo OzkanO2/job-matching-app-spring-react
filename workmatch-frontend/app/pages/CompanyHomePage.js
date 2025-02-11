@@ -13,7 +13,7 @@ const CompanyHomePage = () => {
     const [userType, setUserType] = useState('');
     const [conversations, setConversations] = useState([]);
     const route = useRoute();
-    const { selectedOffer } = route.params || {};  // ✅ Récupère l'offre sélectionnée
+    const { selectedOffer } = route.params || {};
     const [matchingJobSearchers, setMatchingJobSearchers] = useState([]);
 
     useEffect(() => {
@@ -48,17 +48,6 @@ const CompanyHomePage = () => {
         }
     };
 
-
-    /*useEffect(() => {
-        if (selectedOffer && selectedOffer._id) {
-            console.log("✅ selectedOffer détecté :", selectedOffer);
-            fetchMatchingCandidates(selectedOffer);
-        } else {
-            console.warn("⚠️ Aucun selectedOffer ou ID invalide !");
-        }
-    }, [selectedOffer]);
-*/
-
 const fetchJobSearchers = async () => {
         try {
             const token = await AsyncStorage.getItem('userToken');
@@ -70,20 +59,17 @@ const fetchJobSearchers = async () => {
 
             console.log("🔑 JWT Token récupéré :", token);
 
-            // 1️⃣ Récupération de tous les job searchers
             const response = await axios.get('http://localhost:8080/jobsearchers', {
                 headers: { Authorization: `Bearer ${token}` },
             });
             const allJobSearchers = response.data;
 
-            // 2️⃣ Récupération des swipedCards pour cet utilisateur
             const swipedResponse = await axios.get(`http://localhost:8080/api/swiped/${swiperId}`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
             const swipedData = swipedResponse.data;
             const swipedIds = new Set(swipedData.map(item => item.swipedId));
 
-            // 3️⃣ Filtrer les job searchers en excluant ceux déjà swipés
             const filteredJobSearchers = allJobSearchers.filter(jobSearcher => !swipedIds.has(jobSearcher.id));
 
             setJobSearchers(filteredJobSearchers);
@@ -106,7 +92,6 @@ const fetchJobSearchers = async () => {
     const handleSwipeRight = async (index) => {
         const swipedJobSearcher = selectedOffer ? matchingJobSearchers[index] : jobSearchers[index];
 
-        //const swipedJobSearcher = jobSearchers[index];
         if (!swipedJobSearcher) {
             console.error("❌ Aucun job searcher trouvé pour cet index.");
             return;
@@ -122,11 +107,10 @@ const fetchJobSearchers = async () => {
 
         console.log("✅ swiperId envoyé :", swiperId);
         console.log("✅ swipedId envoyé :", swipedId);
-        const direction = "right"; // ✅ Ajout de la direction
+        const direction = "right";
 
         try {
             const token = await AsyncStorage.getItem('userToken');
-            // 🔍 Vérifier si ce swiperId a déjà swipé ce swipedId
             const checkSwipe = await axios.get(`http://localhost:8080/api/swiped/check?swiperId=${swiperId}&swipedId=${swipedId}`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
@@ -134,7 +118,6 @@ const fetchJobSearchers = async () => {
                 console.log("🟡 Swipe déjà enregistré, pas besoin d'ajouter.");
                 return;
             }
-            // Enregistrer le like/match pour les swipes à droite (company)
             const response = await axios.post(
                 "http://localhost:8080/api/matches/swipe/company",
                 { swiperId, swipedId },
@@ -142,10 +125,9 @@ const fetchJobSearchers = async () => {
                     headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
                 }
             );
-            // Enregistrer tous les swipes (droite et gauche) dans `swipedCard`
             await axios.post(
                 "http://localhost:8080/api/swiped/save",
-                { swiperId, swipedId, direction }, // ✅ Envoie les IDs + la direction (right/left)
+                { swiperId, swipedId, direction },
                 {
                     headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
                 }
@@ -157,7 +139,7 @@ const fetchJobSearchers = async () => {
             );
             console.log("🟢 Réponse match :", matchResponse.data);
             console.log("✅ Réponse serveur :", response.data);
-            await fetchMatchingCandidates(selectedOffer); // Recharge après un swipe
+            await fetchMatchingCandidates(selectedOffer);
 
         } catch (error) {
             console.error('❌ Erreur lors du swipe:', error);
@@ -179,20 +161,19 @@ const fetchJobSearchers = async () => {
         }
         console.log("✅ swiperId envoyé :", swiperId);
         console.log("✅ swipedId envoyé :", swipedId);
-        const direction = "left"; // ✅ Indique que c'est un swipe à gauche
+        const direction = "left";
         try {
             const token = await AsyncStorage.getItem('userToken');
             console.log("🔑 Token utilisé pour la requête :", token);
-            // Enregistrer tous les swipes (droite et gauche) dans `swipedCard`
             await axios.post(
                 "http://localhost:8080/api/swiped/save",
-                { swiperId, swipedId, direction }, // ✅ Envoie les IDs + la direction "left"
+                { swiperId, swipedId, direction },
                 {
                     headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
                 }
             );
             console.log("✅ Swipe à gauche enregistré avec succès !");
-            await fetchMatchingCandidates(selectedOffer); // Recharge après un swipe
+            await fetchMatchingCandidates(selectedOffer);
 
         } catch (error) {
             console.error('❌ Erreur lors du swipe gauche:', error);
@@ -209,7 +190,6 @@ const fetchJobSearchers = async () => {
                         {userType === 'COMPANY' && <Button title="Liked Candidates" onPress={() => navigation.navigate('LikedPage')} />}
                     </View>
 
-                    {/* ✅ Afficher le titre uniquement si `selectedOffer` existe */}
                     {selectedOffer && selectedOffer.title && (
                         <Text style={styles.offerTitle}>🔍 Candidats pour : {selectedOffer.title}</Text>
                     )}
@@ -219,7 +199,7 @@ const fetchJobSearchers = async () => {
                             <Text>Loading...</Text>
                         ) : (
                             <Swiper
-                                cards={selectedOffer ? matchingJobSearchers : jobSearchers} // ✅ Affiche les candidats correspondants ou tous les candidats
+                                cards={selectedOffer ? matchingJobSearchers : jobSearchers}
                                 renderCard={(jobSearcher) => (
                                     jobSearcher ? (
                                         <View style={styles.card}>

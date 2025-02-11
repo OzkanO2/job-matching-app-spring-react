@@ -72,7 +72,6 @@ const ProfilePage = () => {
                 <Button title="Main Menu" onPress={() => navigation.navigate(userType === 'INDIVIDUAL' ? 'IndividualHome' : 'CompanyHome')} />
                 <Button title="Chat" onPress={() => navigation.navigate('ChatPage')} />
                 <Button title="My Offers" onPress={() => navigation.navigate('MyOffersPage')} />
-                {/* ✅ Bouton affiché uniquement pour COMPANY */}
                 {userType === 'COMPANY' && (
                     <Button title="Liked Candidates" onPress={() => navigation.navigate('LikedPage')} />
                 )}

@@ -21,7 +21,7 @@ const ChatRoom = () => {
         const fetchUserData = async () => {
             try {
                 const storedUserId = await AsyncStorage.getItem("userId");
-                const storedReceiverId = route.params.username; // Utiliser l'ID du destinataire affiché
+                const storedReceiverId = route.params.username;
 
                 console.log("userId:", storedUserId);
                 console.log("receiverId:", storedReceiverId);
@@ -57,16 +57,15 @@ const ChatRoom = () => {
     useEffect(() => {
         const socket = new SockJS("http://localhost:8080/ws", null, {
             transports: ["websocket", "xhr-streaming", "xhr-polling"],
-            withCredentials: false, // 🔥 Désactive credentials pour éviter CORS
+            withCredentials: false,
         });
 
         const stomp = Stomp.over(socket);
-        stomp.debug = null; // Désactive les logs WebSocket
+        stomp.debug = null;
 
         stomp.connect({}, () => {
             console.log("✅ Connecté au WebSocket");
 
-            // 🔥 Corrige l'abonnement en ajoutant "/topic/"
             stomp.subscribe(`/topic/messages/${conversationId}`, (message) => {
                 const receivedMessage = JSON.parse(message.body);
                 console.log("📩 Message reçu en WebSocket :", receivedMessage);

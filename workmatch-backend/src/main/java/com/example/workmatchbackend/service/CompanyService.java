@@ -10,6 +10,7 @@ import java.util.Optional;
 
 @Service
 public class CompanyService {
+
     @Autowired
     private CompanyRepository companyRepository;
 
@@ -58,7 +59,7 @@ public class CompanyService {
         if (company == null) {
             company = new Company();
             company.setName(companyName);
-            company.setCertified(false); // Par défaut, non certifiée
+            company.setCertified(false);
             return companyRepository.save(company);
         }
         return company;

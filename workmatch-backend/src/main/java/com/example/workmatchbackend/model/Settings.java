@@ -10,7 +10,6 @@ public class Settings {
     private int distanceFilter;
     private boolean notificationPermission;
 
-    // Getters and Setters
     public String getId() {
         return id;
     }

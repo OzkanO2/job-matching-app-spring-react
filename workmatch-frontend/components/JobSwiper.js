@@ -3,7 +3,7 @@ import { View, Text, StyleSheet } from 'react-native';
 import Swiper from 'react-native-deck-swiper';
 
 const JobSwiper = ({ jobs = [], onSwipeLeft, onSwipeRight }) => {
-  // Verify if "jobs" is an array
+
   if (!Array.isArray(jobs) || jobs.length === 0) {
     return (
       <View style={styles.container}>

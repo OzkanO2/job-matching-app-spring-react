@@ -14,6 +14,7 @@ import java.util.Optional;
 @RequestMapping("/companies")
 @CrossOrigin(origins = "*", allowedHeaders = "*")
 public class CompanyController {
+
     @Autowired
     private CompanyService companyService;
 
@@ -30,7 +31,7 @@ public class CompanyController {
 
     @PostMapping
     public ResponseEntity<?> createCompany(@RequestBody Company company) {
-        // Vérifier si une entreprise avec ce numéro unique existe déjà
+
         if (companyService.existsByUniqueNumber(company.getUniqueNumber())) {
             return ResponseEntity.status(HttpStatus.CONFLICT).body("Cette entreprise est déjà inscrite avec ce numéro unique.");
         }

@@ -8,7 +8,7 @@ const ChatPage = () => {
     const navigation = useNavigation();
     const [userType, setUserType] = useState('');
     const [userId, setUserId] = useState('');
-    const [conversations, setConversations] = useState([]); // 🔹 Stocker les conversations
+    const [conversations, setConversations] = useState([]);
 
     useEffect(() => {
         const fetchUserType = async () => {
@@ -32,17 +32,15 @@ const ChatPage = () => {
 
                 let formattedConversations = response.data.map(conv => ({
                     conversationId: conv.id,
-                    receiverId: conv.user1Id === id ? conv.user2Id : conv.user1Id, // Trouver l'autre utilisateur
-                    username: null // Sera remplacé après récupération des usernames
+                    receiverId: conv.user1Id === id ? conv.user2Id : conv.user1Id,
+                    username: null
                 }));
 
-                // 🔥 Récupérer les usernames correspondants
                 const receiverIds = formattedConversations.map(conv => conv.receiverId);
                 const usersResponse = await axios.post("http://localhost:8080/users/getUsernames", { userIds: receiverIds });
 
-                const userMap = usersResponse.data; // { "67a0cb49dce20987f4326745": "juju", ... }
+                const userMap = usersResponse.data;
 
-                // Associer les usernames aux conversations
                 formattedConversations = formattedConversations.map(conv => ({
                     ...conv,
                     username: userMap[conv.receiverId] || "Utilisateur inconnu"
@@ -59,7 +57,6 @@ const ChatPage = () => {
 
     return (
         <View style={styles.container}>
-            {/* ✅ Boutons en haut */}
             <View style={styles.topButtons}>
                 <Button title="Profile" onPress={() => navigation.navigate('ProfilePage')} />
                 <Button title="Main Menu" onPress={() => navigation.navigate(userType === 'INDIVIDUAL' ? 'IndividualHome' : 'CompanyHome')} />
@@ -70,10 +67,8 @@ const ChatPage = () => {
                 )}
             </View>
 
-            {/* ✅ Titre Conversations */}
             <Text style={styles.title}>💬 Conversations</Text>
 
-            {/* ✅ Liste des conversations */}
             <FlatList
                 data={conversations}
                 keyExtractor={(item) => item.conversationId}

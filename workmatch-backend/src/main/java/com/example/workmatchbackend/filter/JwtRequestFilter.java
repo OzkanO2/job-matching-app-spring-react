@@ -20,7 +20,7 @@ import com.example.workmatchbackend.util.JwtUtil;  // ✅ Vérifie que ça corre
 @Component
 public class JwtRequestFilter extends OncePerRequestFilter {
 
-    private final JwtUtil jwtUtil;  // ✅ Correction du nom ici
+    private final JwtUtil jwtUtil;
     private final UserDetailsService userDetailsService;
 
     @Autowired

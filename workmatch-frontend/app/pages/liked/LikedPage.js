@@ -45,7 +45,6 @@ const LikedPage = () => {
 
     return (
         <View style={styles.container}>
-            {/* Boutons de navigation */}
             <View style={styles.topButtons}>
                 <Button title="Profile" onPress={() => navigation.navigate('ProfilePage')} />
                 <Button title="Main Menu" onPress={() => navigation.navigate(userType === 'INDIVIDUAL' ? 'IndividualHome' : 'CompanyHome')} />
@@ -55,7 +54,6 @@ const LikedPage = () => {
 
             </View>
 
-            {/* Liste des candidats likés */}
             {isLoading ? (
                 <Text style={styles.loadingText}>Chargement...</Text>
             ) : likedCandidates.length > 0 ? (

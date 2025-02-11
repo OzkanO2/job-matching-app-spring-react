@@ -11,8 +11,6 @@ public class Profile {
     private String photo;
     private String tag;
 
-    // Getters et Setters
-
     public String getId() {
         return id;
     }

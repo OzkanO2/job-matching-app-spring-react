@@ -23,14 +23,13 @@ public class ChatController {
     @Autowired
     private MessageRepository messageRepository;
 
-    // ✅ Récupérer les conversations d’un utilisateur
     @GetMapping("/{userId}/conversations")
     public ResponseEntity<List<Conversation>> getUserConversations(@PathVariable String userId) {
         List<Conversation> conversations = conversationRepository.findByUser1IdOrUser2Id(userId, userId);
         return ResponseEntity.ok(conversations);
     }
 
-    // ✅ WebSocket Handler - Envoi du message en temps réel
+    // WebSocket Handler
     @MessageMapping("/send/{conversationId}")
     @SendTo("/topic/messages/{conversationId}")
     public Message handleChatMessage(@RequestBody Message messageDetails) {
@@ -47,8 +46,6 @@ public class ChatController {
         return savedMessage;
     }
 
-
-    // ✅ Endpoint REST pour envoyer un message via HTTP
     @PostMapping("/sendMessage")
     public ResponseEntity<Message> sendMessage(@RequestBody Message messageDetails) {
         System.out.println("📩 Message reçu via API : " + messageDetails);
@@ -72,11 +69,8 @@ public class ChatController {
         return ResponseEntity.ok(savedMessage);
     }
 
-
-    // ✅ Récupérer tous les messages d’une conversation
     @GetMapping("/messages/{conversationId}")
     public ResponseEntity<List<Message>> getMessages(@PathVariable String conversationId) {
         return ResponseEntity.ok(messageRepository.findByConversationId(conversationId));
     }
-
 }

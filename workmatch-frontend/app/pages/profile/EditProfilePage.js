@@ -16,7 +16,6 @@ const EditProfilePage = () => {
                 const storedUsername = await AsyncStorage.getItem('username');
                 const token = await AsyncStorage.getItem('userToken');
 
-                // Assurez-vous que le token est précédé de "Bearer "
                 const bearerToken = `Bearer ${token}`;
 
                 const response = await axios.get(`http://localhost:8080/users/${storedUsername}`, {
@@ -43,7 +42,7 @@ const EditProfilePage = () => {
            const token = await AsyncStorage.getItem('userToken');
            const bearerToken = `${token}`;
 
-           console.log('Bearer Token Sent in EditProfilePage:', bearerToken); // Log pour vérifier le token
+           console.log('Bearer Token Sent in EditProfilePage:', bearerToken);
 
            const response = await axios.put(
                'http://localhost:8080/users/updateUsername',

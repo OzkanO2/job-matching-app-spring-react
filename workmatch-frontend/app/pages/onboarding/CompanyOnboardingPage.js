@@ -8,7 +8,6 @@ const CompanyOnboardingPage = ({ navigation, route }) => {
 
    const handleSubmit = async () => {
       try {
-        // Connexion automatique après la sélection du type
         const response = await axios.post('http://localhost:8080/users/login', {
           username: userInfo.username,
           password: userInfo.password,
@@ -19,7 +18,6 @@ const CompanyOnboardingPage = ({ navigation, route }) => {
           await AsyncStorage.setItem('userToken', `Bearer ${token}`);
           await AsyncStorage.setItem('username', userInfo.username);
 
-          // Rediriger vers la page d'accueil avec les informations utilisateur
           navigation.navigate('Home', { userInfo });
         } else {
           alert('Login failed');
@@ -32,7 +30,6 @@ const CompanyOnboardingPage = ({ navigation, route }) => {
  return (
     <View style={styles.container}>
       <Text>Welcome, {userInfo.username}! Complete your company profile.</Text>
-      {/* Ajouter des éléments de formulaire supplémentaires pour les informations de l'entreprise si nécessaire */}
       <Button title="Submit" onPress={handleSubmit} />
     </View>
   );

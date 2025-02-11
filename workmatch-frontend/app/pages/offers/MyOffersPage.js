@@ -13,7 +13,7 @@ const MyOffersPage = () => {
     useEffect(() => {
         const fetchUserData = async () => {
             const type = await AsyncStorage.getItem('userType');
-            const id = await AsyncStorage.getItem('userId'); // Normalement, c'est l'ID de la company
+            const id = await AsyncStorage.getItem('userId');
             console.log("🔍 UserType:", type);
             console.log("🔍 Company ID récupéré:", id);
             setUserType(type);
@@ -71,7 +71,6 @@ const MyOffersPage = () => {
                             <Text style={styles.jobLocation}>{item.location}</Text>
                         </TouchableOpacity>
 
-                        {/* ✅ Encapsuler le texte du bouton dans un <Text> */}
                         <TouchableOpacity
                             style={styles.viewCandidatesButton}
                             onPress={() => navigation.navigate("CompanyHome", { selectedOffer: item })}

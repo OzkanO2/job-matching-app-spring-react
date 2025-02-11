@@ -22,7 +22,7 @@ const IndividualHomePage = () => {
         const fetchJobOffers = async () => {
             try {
                 const token = await AsyncStorage.getItem('userToken');
-                const swiperId = await AsyncStorage.getItem("userId"); // L'ID de l'utilisateur Individual
+                const swiperId = await AsyncStorage.getItem("userId");
 
                 if (!token || !swiperId) {
                     console.error("❌ Token ou swiperId manquant !");
@@ -31,26 +31,22 @@ const IndividualHomePage = () => {
 
                 console.log("🔑 JWT Token récupéré :", token);
 
-                // 📌 Récupération de toutes les offres d'emploi
                 const response = await axios.get('http://localhost:8080/joboffers', {
                     headers: { Authorization: `Bearer ${token}` },
                 });
                 const allJobOffers = response.data;
 
-                // 📌 Récupération des swipes déjà effectués par cet utilisateur
                 const swipedResponse = await axios.get(`http://localhost:8080/api/swiped/${swiperId}`, {
                     headers: { Authorization: `Bearer ${token}` },
                 });
 
-                const swipedData = swipedResponse.data; // Liste des swipes (right & left)
-                const swipedIds = new Set(swipedData.map(item => item.swipedId)); // Stocker les IDs swipés
+                const swipedData = swipedResponse.data;
+                const swipedIds = new Set(swipedData.map(item => item.swipedId));
 
-                // 🔥 Filtrer les offres en excluant celles déjà swipées
                 const filteredJobOffers = allJobOffers.filter(offer => !swipedIds.has(offer._id));
 
-                setJobOffers(filteredJobOffers); // Met à jour l'état avec la liste filtrée
+                setJobOffers(filteredJobOffers);
 
-                // 🖥️ Console.log : Affiche la liste après filtrage
                 console.log("✅ Liste des offres affichées après filtrage :", filteredJobOffers);
 
             } catch (error) {
@@ -85,7 +81,7 @@ const IndividualHomePage = () => {
 
         fetchUserData();
         fetchJobOffers();
-        fetchConversations(); // ✅ Ajoute cet appel pour éviter l'erreur
+        fetchConversations();
 
     }, []);
 
@@ -100,8 +96,8 @@ const IndividualHomePage = () => {
 
         console.log("🟢 Job Offer sélectionnée:", swipedJobOffer);
 
-        const swipedId = swipedJobOffer._id;  // ✅ Vérifie bien que "_id" est utilisé
-        const companyId = swipedJobOffer.companyId || swipedJobOffer.company?.id;  // ✅ Récupère bien le companyId
+        const swipedId = swipedJobOffer._id;
+        const companyId = swipedJobOffer.companyId || swipedJobOffer.company?.id;
         const swiperId = await AsyncStorage.getItem("userId");
 
         if (!swiperId || !swipedId || !companyId) {
@@ -116,7 +112,7 @@ const IndividualHomePage = () => {
         console.log("✅ swipedId envoyé :", swipedId);
         console.log("✅ companyId envoyé :", companyId);
 
-        const direction = "right"; // ✅ Ajout de la direction
+        const direction = "right";
 
         try {
             const token = await AsyncStorage.getItem('userToken');
@@ -138,7 +134,7 @@ const IndividualHomePage = () => {
 
             await axios.post(
                 "http://localhost:8080/api/swiped/save",
-                { swiperId, swipedId, direction }, // ✅ Envoie les IDs + la direction (right/left)
+                { swiperId, swipedId, direction },
                 {
                     headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
                 }
@@ -168,7 +164,7 @@ const IndividualHomePage = () => {
 
         console.log("🔴 Job Offer ignorée:", swipedJobOffer);
 
-        const swipedId = swipedJobOffer._id;  // ✅ Vérifie bien que "_id" est utilisé
+        const swipedId = swipedJobOffer._id;
         const companyId = swipedJobOffer.companyId?.toString();
         const swiperId = await AsyncStorage.getItem("userId");
 
@@ -184,23 +180,21 @@ const IndividualHomePage = () => {
         console.log("✅ swipedId envoyé :", swipedId);
         console.log("✅ companyId envoyé :", companyId);
 
-        const direction = "left"; // ✅ Indique que c'est un swipe à gauche
+        const direction = "left";
 
         try {
             const token = await AsyncStorage.getItem('userToken');
 
             console.log("🔑 Token utilisé pour la requête :", token);
 
-            // Enregistrer tous les swipes (droite et gauche) dans `swipedCard`
             await axios.post(
                 "http://localhost:8080/api/swiped/save",
-                { swiperId, swipedId, direction }, // ✅ Envoie les IDs + la direction "left"
+                { swiperId, swipedId, direction },
                 {
                     headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
                 }
             );
 
-            // ✅ Vérifier si un match est confirmé
             const matchResponse = await axios.post(
                 "http://localhost:8080/api/matches/match",
                 { swiperId, swipedId },

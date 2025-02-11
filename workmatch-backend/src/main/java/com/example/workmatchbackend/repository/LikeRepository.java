@@ -16,7 +16,6 @@ public interface LikeRepository extends MongoRepository<Like, String> {
 
     Optional<Like> findBySwiperIdAndCompanyId(String swiperId, String companyId);
 
-    // ✅ La méthode correcte pour récupérer les likes d'un utilisateur
     List<Like> findAllBySwiperId(String swiperId);
 
     void deleteBySwiperIdAndSwipedId(String swiperId, String swipedId);

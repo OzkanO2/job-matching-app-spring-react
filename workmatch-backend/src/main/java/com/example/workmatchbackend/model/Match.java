@@ -10,20 +10,18 @@ public class Match {
     private String id;
     private String individualUserId;
     private String companyUserId;
-    private String jobOfferId; // Peut être null
+    private String jobOfferId;
 
-    // ✅ Constructeur avec 3 arguments
     public Match(String individualUserId, String companyUserId, String jobOfferId) {
         this.individualUserId = individualUserId;
         this.companyUserId = companyUserId;
         this.jobOfferId = jobOfferId;
     }
 
-    // ✅ Constructeur sans jobOfferId (solution pour ton erreur)
     public Match(String individualUserId, String companyUserId) {
         this.individualUserId = individualUserId;
         this.companyUserId = companyUserId;
-        this.jobOfferId = null; // Défaut à null si non fourni
+        this.jobOfferId = null;
     }
 
     public String getId() {

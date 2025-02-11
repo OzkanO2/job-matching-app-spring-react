@@ -40,7 +40,6 @@ public class JobSearcherService {
 
         System.out.println("📜 Compétences requises pour l'offre : " + jobOffer.getSkills());
 
-        // ✅ Liste des compétences requises
         List<JobSearcher> matchingCandidates =
                 jobSearcherRepository.findAll()
                 .stream()
@@ -73,12 +72,10 @@ public class JobSearcherService {
         );
     }
 
-    // ✅ Récupère tous les chercheurs d'emploi
     public List<JobSearcher> getAllJobSearchers() {
         return jobSearcherRepository.findAll();
     }
 
-    // ✅ Sauvegarde un chercheur d'emploi
     public JobSearcher saveJobSearcher(JobSearcher jobSearcher) {
         return jobSearcherRepository.save(jobSearcher);
     }
@@ -86,13 +83,13 @@ public class JobSearcherService {
     private double getRequiredExperience(List<String> requiredSkills, String skillName) {
         return requiredSkills.stream()
                 .filter(skill -> skill.equalsIgnoreCase(skillName))
-                .map(skill -> 2.0) // ⬅️ Remplace par la valeur demandée (ici 2 ans par défaut)
+                .map(skill -> 2.0)
                 .findFirst()
                 .orElse(0.0);
     }
 
     private boolean matchesLocation(JobSearcher jobSearcher, List<String> requiredLocations, boolean isRemote) {
-        if (isRemote) return true; // Accepte tous les job searchers si remote
+        if (isRemote) return true;
         return jobSearcher.getLocations().stream().anyMatch(requiredLocations::contains);
     }
 }

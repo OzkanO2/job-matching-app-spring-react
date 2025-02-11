@@ -15,7 +15,6 @@ public class Individual {
     private int age;
     private List<String> photos;
 
-    // Getters and Setters
     public String getId() {
         return id;
     }

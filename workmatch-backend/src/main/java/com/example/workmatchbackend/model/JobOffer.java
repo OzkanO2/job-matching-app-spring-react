@@ -25,29 +25,27 @@ public class JobOffer {
     @NotNull(message = "Description is required")
     @Size(min = 10, message = "Description should have at least 10 characters")
     private String description;
-    private List<String> locations; // ✅ Maintenant une liste
+    private List<String> locations;
 
     private double salaryMin;
     private double salaryMax;
     private String category;
     private boolean remote;
 
-    private String url;  // 🔹 Ajouté
-    private String apiSource;  // 🔹 Ajouté
-    private String externalId;  // 🔹 Ajouté
-    private LocalDate createdAt;  // 🔹 Ajouté
-    private boolean companyCertified;  // 🔹 Ajouté
-    private String companyId;  // 🔥 S'assurer que c'est bien String et pas ObjectId
+    private String url;
+    private String apiSource;
+    private String externalId;
+    private LocalDate createdAt;
+    private boolean companyCertified;
+    private String companyId;
 
     @NotNull(message = "Employment Type is required")
-    private String employmentType; // ✅ Ajout du type d'emploi (Full-time, Part-time, Internship...)
+    private String employmentType;
 
-    private List<Skill> skills; // ✅ Remplace SkillRequirement par Skill
+    private List<Skill> skills;
 
-    // Constructeur par défaut
     public JobOffer() {}
 
-    // Getters et Setters
     public String getId() {
         return id;
     }
@@ -71,8 +69,8 @@ public class JobOffer {
     public void setDescription(String description) {
         this.description = description;
     }
-    public List<String> getLocations() { return locations; } // ✅ Correction ici
-    public void setLocations(List<String> locations) { this.locations = locations; } // ✅ Correction ici
+    public List<String> getLocations() { return locations; }
+    public void setLocations(List<String> locations) { this.locations = locations; }
 
 
     public double getSalaryMin() {
@@ -117,7 +115,7 @@ public class JobOffer {
 
     public List<Skill> getSkills() {
         if (skills == null) {
-            skills = new ArrayList<>(); // ✅ Initialise la liste si elle est `null`
+            skills = new ArrayList<>();
         }
         return skills;
     }

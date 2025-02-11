@@ -3,7 +3,7 @@ package com.example.workmatchbackend.model;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-@Document(collection = "swipedCard") // Collection MongoDB
+@Document(collection = "swipedCard")
 public class SwipedCard {
 
     @Id
