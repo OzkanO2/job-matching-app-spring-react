@@ -11,6 +11,7 @@ const IndividualHomePage = () => {
     const [isLoading, setIsLoading] = useState(true);
     const [userId, setUserId] = useState(null);
     const [conversations, setConversations] = useState([]);
+    const [userType, setUserType] = useState('');
 
     useEffect(() => {
         const fetchUserData = async () => {
@@ -21,34 +22,52 @@ const IndividualHomePage = () => {
 
         const fetchJobOffers = async () => {
             try {
+                setIsLoading(true);
                 const token = await AsyncStorage.getItem('userToken');
                 const swiperId = await AsyncStorage.getItem("userId");
 
                 if (!token || !swiperId) {
                     console.error("❌ Token ou swiperId manquant !");
+                    setIsLoading(false);
                     return;
                 }
 
-                console.log("🔑 JWT Token récupéré :", token);
+                console.log("📡 Récupération des offres d'emploi filtrées...");
 
-                const response = await axios.get('http://localhost:8080/joboffers', {
+                // 🔹 1. Récupère toutes les offres
+                const response = await axios.get(`http://localhost:8080/joboffers/user/${swiperId}`, {
                     headers: { Authorization: `Bearer ${token}` },
                 });
-                const allJobOffers = response.data;
 
+                const allJobOffers = response.data;
+                console.log("📋 Toutes les offres récupérées :", allJobOffers);
+
+                // 🔹 2. Récupère toutes les offres déjà swipées
                 const swipedResponse = await axios.get(`http://localhost:8080/api/swiped/${swiperId}`, {
                     headers: { Authorization: `Bearer ${token}` },
                 });
 
                 const swipedData = swipedResponse.data;
-                const swipedIds = new Set(swipedData.map(item => item.swipedId));
+                console.log("🛑 Offres déjà swipées :", swipedData);
 
-                const filteredJobOffers = allJobOffers.filter(offer => !swipedIds.has(offer._id));
+                // 🔹 3. Transforme les IDs en String pour assurer la compatibilité
+                const swipedIds = new Set(swipedData.map(item => item.swipedId.toString()));
+                console.log("🛑 Swiped IDs Set :", swipedIds);
 
-                setJobOffers(filteredJobOffers);
+                // 🔹 4. Filtrage des offres déjà swipées
+                const filteredJobOffers = allJobOffers.filter(offer => !swipedIds.has(offer._id.toString()));
 
-                console.log("✅ Liste des offres affichées après filtrage :", filteredJobOffers);
+                console.log("✅ Liste des offres après filtrage :", filteredJobOffers);
 
+                // 🔹 5. Garde uniquement les offres uniques
+                const uniqueJobOffers = filteredJobOffers.reduce((acc, offer) => {
+                    if (!acc.some(o => o._id === offer._id)) acc.push(offer);
+                    return acc;
+                }, []);
+
+                console.log("📜 IDs des offres uniques après filtrage :", uniqueJobOffers.map(o => o._id));
+
+                setJobOffers(uniqueJobOffers);
             } catch (error) {
                 console.error('❌ Error fetching job offers:', error);
             } finally {
@@ -56,51 +75,9 @@ const IndividualHomePage = () => {
             }
         };
 
-        const fetchUserPreferences = async () => {
-            try {
-                const token = await AsyncStorage.getItem('userToken');
-                const userId = await AsyncStorage.getItem('userId');
-
-                const response = await axios.get(`http://localhost:8080/users/${userId}`, {
-                    headers: { Authorization: `Bearer ${token}` },
-                });
-
-                const userPreferences = response.data.preferredCategories || [];
-
-                setSelectedCategories(userPreferences);
-                console.log("📌 Préférences utilisateur récupérées :", userPreferences);
-            } catch (error) {
-                console.error("❌ Erreur lors de la récupération des préférences :", error);
-            }
-        };
-
-        const fetchConversations = async () => {
-            try {
-                const token = await AsyncStorage.getItem('userToken');
-                const storedUserId = await AsyncStorage.getItem('userId');
-
-                if (!token || !storedUserId) {
-                    console.error("❌ Token ou UserId manquant !");
-                    return;
-                }
-
-                setUserId(storedUserId);
-
-                const response = await axios.get(`http://localhost:8080/api/conversations/${storedUserId}`, {
-                    headers: { Authorization: `Bearer ${token}` },
-                });
-
-                setConversations(response.data);
-                console.log("✅ Conversations chargées :", response.data);
-            } catch (error) {
-                console.error("❌ Erreur lors du chargement des conversations :", error);
-            }
-        };
 
         fetchUserData();
         fetchJobOffers();
-        fetchConversations();
-        fetchUserPreferences();
     }, []);
 
 
@@ -227,40 +204,46 @@ const IndividualHomePage = () => {
 
 
     return (
-        <View style={styles.container}>
-            <View style={styles.topButtons}>
-                <Button title="Profile" onPress={() => navigation.navigate('ProfilePage')} />
-                <Button title="Main Menu" onPress={() => navigation.navigate('IndividualHome')} />
-                <Button title="Chat"
-                    onPress={() => navigation.navigate('ChatPage')}
-                />
-                <Button title="My Offers" onPress={() => navigation.navigate('MyOffersPage')} />
-            </View>
+         <View style={styles.container}>
+             <View style={styles.topButtons}>
+                 <Button title="Profile" onPress={() => navigation.navigate('ProfilePage')} />
+                 <Button title="Main Menu" onPress={() => navigation.navigate('IndividualHome')} />
+                 <Button title="Chat" onPress={() => navigation.navigate('ChatPage')} />
+                 <Button title="My Offers" onPress={() => navigation.navigate('MyOffersPage')} />
+             </View>
 
-            <View style={styles.swiperContainer}>
-                {isLoading ? (
-                    <Text>Loading...</Text>
-                ) : (
-                    <Swiper
-                        cards={jobOffers}
-                        renderCard={(offer) => (
-                            <View style={styles.card}>
-                                <Text style={styles.cardTitle}>{offer.title}</Text>
-                                <Text style={styles.cardDescription}>
-                                    {offer.description.length > 150 ? `${offer.description.slice(0, 150)}...` : offer.description}
-                                </Text>
-                            </View>
-                        )}
-                        onSwipedRight={(cardIndex) => handleSwipeRight(cardIndex)}
-                        onSwipedLeft={(cardIndex) => handleSwipeLeft(cardIndex)}
-                        cardIndex={0}
-                        backgroundColor={'#f3f3f3'}
-                        stackSize={3}
-                        infinite
-                    />
-                )}
-            </View>
-        </View>
+             <View style={styles.swiperContainer}>
+                 {isLoading ? (
+                     <Text>Loading...</Text>
+                 ) : jobOffers.length === 0 ? (
+                     <Text style={styles.noOffers}>Aucune offre disponible</Text>
+                 ) : (
+                     <Swiper
+                         key={jobOffers.length}
+                         cards={jobOffers}
+                         renderCard={(offer) => (
+                             <View key={offer._id} style={styles.card}>
+                                 <Text style={styles.cardTitle}>{offer.title || "Titre indisponible"}</Text>
+                                 <Text style={styles.cardDescription}>
+                                     {offer.description
+                                         ? offer.description.length > 150
+                                             ? `${offer.description.slice(0, 150)}...`
+                                             : offer.description
+                                         : "Description indisponible"}
+                                 </Text>
+                             </View>
+                         )}
+                         onSwipedRight={(cardIndex) => handleSwipeRight(cardIndex)}
+                         onSwipedLeft={(cardIndex) => handleSwipeLeft(cardIndex)}
+                         cardIndex={0}
+                         backgroundColor={'#f3f3f3'}
+                         stackSize={Math.min(jobOffers.length, 3)}
+                         infinite={false}
+                     />
+                 )}
+             </View>
+         </View>
+
     );
 };
 

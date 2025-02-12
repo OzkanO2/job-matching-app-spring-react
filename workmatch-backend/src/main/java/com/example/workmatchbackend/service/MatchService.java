@@ -61,12 +61,13 @@ public class MatchService {
         String companyUserId = null;
 
         if (companyId == null || companyId.isEmpty()) {
-            Optional<Like> mutualLike = likeRepository.findBySwiperIdAndCompanyId(swipedId, swiperId);
-            if (mutualLike.isPresent()) {
+            List<Like> mutualLikes = likeRepository.findAllBySwiperIdAndCompanyId(swipedId, swiperId);
+            if (!mutualLikes.isEmpty()) {
                 isMutualLike = true;
                 individualUserId = swipedId;
                 companyUserId = swiperId;
             }
+
         } else {
             Optional<Like> companyLike = likeRepository.findBySwiperIdAndSwipedId(companyId, swiperId);
             if (companyLike.isPresent()) {

@@ -146,7 +146,7 @@ const fetchJobSearchers = async () => {
         }
     };
 
-    const handleSwipeLeft = async (index) => {
+     const handleSwipeLeft = async (index) => {
         const swipedJobSearcher = jobSearchers[index];
         if (!swipedJobSearcher) {
             console.error("❌ Aucun job searcher trouvé pour cet index.");
@@ -179,6 +179,7 @@ const fetchJobSearchers = async () => {
             console.error('❌ Erreur lors du swipe gauche:', error);
         }
     };
+
 
     return (
         <View style={styles.container}>
@@ -216,9 +217,11 @@ const fetchJobSearchers = async () => {
                                     )
                                 )}
                                 onSwipedRight={(cardIndex) => handleSwipeRight(cardIndex)}
+                                onSwipedLeft={(cardIndex) => handleSwipeLeft(cardIndex)}
                                 cardIndex={0}
                                 stackSize={3}
                             />
+
                         )}
                     </View>
                 </View>

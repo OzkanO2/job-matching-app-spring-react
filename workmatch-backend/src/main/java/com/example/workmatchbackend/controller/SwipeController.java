@@ -65,12 +65,17 @@ public class SwipeController {
             return ResponseEntity.badRequest().body("❌ swiperId, swipedId et direction sont requis.");
         }
 
+        // Vérifie si le swipe existe déjà
         if (swipedCardRepository.existsBySwiperIdAndSwipedId(swiperId, swipedId)) {
             return ResponseEntity.ok("⚠️ Swipe déjà enregistré !");
         }
 
         SwipedCard swipe = new SwipedCard(swiperId, swipedId, direction);
         swipedCardRepository.save(swipe);
+
+        System.out.println("✅ Swipe enregistré : " + swipe);
+
         return ResponseEntity.ok("✅ Swipe enregistré !");
     }
+
 }

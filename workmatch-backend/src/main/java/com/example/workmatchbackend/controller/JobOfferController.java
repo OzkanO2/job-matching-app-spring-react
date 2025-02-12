@@ -1,7 +1,9 @@
 package com.example.workmatchbackend.controller;
 
 import com.example.workmatchbackend.model.JobOffer;
-import com.example.workmatchbackend.model.Company;
+import com.example.workmatchbackend.model.User;
+import com.example.workmatchbackend.repository.JobOfferRepository;
+import com.example.workmatchbackend.repository.UserRepository;
 import com.example.workmatchbackend.service.JobOfferService;
 import com.example.workmatchbackend.service.CompanyService;
 import com.example.workmatchbackend.service.LikeService;
@@ -14,10 +16,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.time.LocalDate; // ✅ Ajoute cet import
+import java.time.LocalDate;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/joboffers")
@@ -34,6 +38,12 @@ public class JobOfferController {
 
     @Autowired
     private LikeService likeService;
+
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private JobOfferRepository jobOfferRepository; // ✅ Injection correcte du repository
 
     @Autowired
     private MatchService matchService;
@@ -118,4 +128,29 @@ public class JobOfferController {
         matchService.saveMatch(match.getIndividualUserId(), match.getCompanyUserId(), match.getJobOfferId());
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<List<JobOffer>> getJobOffersForUser(@PathVariable String userId) {
+        Optional<User> userOptional = userRepository.findById(userId);
+
+        if (userOptional.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(List.of());
+        }
+
+        User user = userOptional.get();
+        List<String> preferredCategories = user.getPreferredCategories();
+
+        // Si l'utilisateur n'a pas de préférences, on retourne toutes les offres
+        List<JobOffer> allJobOffers = jobOfferRepository.findAll();
+        if (preferredCategories == null || preferredCategories.isEmpty()) {
+            return ResponseEntity.ok(allJobOffers);
+        }
+
+        // On filtre les offres en fonction des catégories préférées
+        List<JobOffer> filteredJobOffers = allJobOffers.stream()
+                .filter(offer -> preferredCategories.contains(offer.getCategory()))
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(filteredJobOffers);
+    }
+
 }

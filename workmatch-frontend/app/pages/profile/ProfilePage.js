@@ -196,7 +196,7 @@ const ProfilePage = () => {
 
             <View style={styles.content}>
                 <Image source={{ uri: 'https://example.com/photo.jpg' }} style={styles.photo} />
-                <Text style={styles.infoText}>User Info</Text>
+                <Text style={styles.infoText}>{userInfo.username ?? "Nom indisponible"}</Text>
                 <Text>{userInfo.username}</Text>
                 <Text>{userInfo.email}</Text>
                 <Text>{userInfo.userType}</Text>
