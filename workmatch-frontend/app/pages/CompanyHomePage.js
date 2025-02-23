@@ -265,11 +265,10 @@ const fetchJobSearchers = async () => {
                                 renderCard={(jobSearcher) => (
                                     jobSearcher ? (
                                         <View style={styles.card}>
-                                            {jobSearcher.hasLikedOffer ? (
-                                                <Text style={styles.likedText}>💖 Cet utilisateur a liké {selectedOffer?.title} !</Text>
-                                            ) : (
-                                                <Text style={styles.notLikedText}>🤝 Pas encore liké cette offre</Text>
+                                            {jobSearcher.hasLikedOffer && (
+                                                <Text style={styles.likedText}>💖 Cet utilisateur a liké : {selectedOffer?.title} !</Text>
                                             )}
+
                                             <Text style={styles.cardTitle}>{jobSearcher.name || 'No name provided'}</Text>
                                             <Text>📍 Localisation : {jobSearcher.locations?.join(", ") || "Unknown"}</Text>
                                             <Text>💻 Compétences :
