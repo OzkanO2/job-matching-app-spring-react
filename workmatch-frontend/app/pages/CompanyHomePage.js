@@ -35,7 +35,7 @@ const CompanyHomePage = () => {
             const token = await AsyncStorage.getItem("userToken");
             console.log("📡 Chargement des candidats pour :", jobOffer.title);
 
-            // 1️⃣ Récupérer la liste des candidats correspondant à l'offre
+            // ✅ 1️⃣ Récupérer les candidats correspondant à l'offre
             const response = await axios.get(`http://localhost:8080/jobsearchers/matching?jobOfferId=${jobOffer._id}`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
@@ -43,21 +43,28 @@ const CompanyHomePage = () => {
             let candidates = response.data;
             console.log("✅ Candidats correspondants avant tri :", candidates);
 
-            const likesResponse = await axios.get(`http://localhost:8080/likes?swipedId=${jobOffer._id}`, {
-                headers: { Authorization: `Bearer ${token}` },
-            });
+            // ✅ 2️⃣ Récupérer les likes pour cette offre
+            let likedUsers = [];
+            try {
+                const likesResponse = await axios.get(`http://localhost:8080/likes?swipedId=${jobOffer._id}`, {
+                    headers: { Authorization: `Bearer ${token}` },
+                });
 
-            console.log("📌 Réponse API Likes :", likesResponse.data);
+                likedUsers = likesResponse.data.map(like => like.swiperId.toString().trim());
+                console.log("💖 Liste des likes normalisée :", likedUsers);
 
-            const likedUsers = new Set(likesResponse.data.map(like => like.swiperId.toString())); // Convertir en string
-            console.log("💖 Utilisateurs ayant liké cette offre :", likedUsers);
+            } catch (error) {
+                console.error("⚠️ Erreur lors de la récupération des likes, on continue sans eux :", error);
+            }
 
-            // 3️⃣ Ajouter la propriété `hasLikedOffer` et trier la liste
+            // ✅ 3️⃣ Ajouter une propriété `hasLikedOffer` et trier la liste
             candidates = candidates.map(candidate => {
-                const userIdString = candidate.userId ? candidate.userId.toString() : "";
-                const hasLiked = likedUsers.has(userIdString);
+                const userIdString = candidate.userId ? candidate.userId.toString().trim() : "";
+                const hasLiked = likedUsers.includes(userIdString);
 
-                console.log(`🔎 Vérification pour ${candidate.name} (ID: ${userIdString}) -> Liké ? ${hasLiked}`);
+                console.log(`🔎 Vérification pour ${candidate.name}`);
+                console.log(`   - ID candidat: ${userIdString}`);
+                console.log(`   - Match trouvé ? ${hasLiked}`);
 
                 return {
                     ...candidate,
@@ -65,15 +72,13 @@ const CompanyHomePage = () => {
                 };
             });
 
-            // Vérifions combien ont réellement `hasLikedOffer = true`
-            const likedCount = candidates.filter(c => c.hasLikedOffer).length;
-            console.log(`📊 Nombre de candidats ayant liké l'offre : ${likedCount}`);
-
-            // 4️⃣ Trier la liste : Ceux qui ont liké en premier
+            // ✅ 4️⃣ Trier la liste : Ceux qui ont liké d'abord
             candidates.sort((a, b) => b.hasLikedOffer - a.hasLikedOffer);
 
-            // 5️⃣ Mettre à jour l'état avec la liste triée
-            setMatchingJobSearchers(candidates);
+            console.log("📌 Liste finale des candidats après tri :", candidates);
+
+            // ✅ 5️⃣ Mettre à jour l'état avec la liste triée
+            setMatchingJobSearchers([...candidates]);
             console.log("✅ Candidats après tri :", candidates);
 
         } catch (error) {
@@ -82,7 +87,6 @@ const CompanyHomePage = () => {
             setIsLoading(false);
         }
     };
-
 
 
 const fetchJobSearchers = async () => {
@@ -241,8 +245,10 @@ const fetchJobSearchers = async () => {
                                 renderCard={(jobSearcher) => (
                                     jobSearcher ? (
                                         <View style={styles.card}>
-                                            {jobSearcher.hasLikedOffer && (
+                                            {jobSearcher.hasLikedOffer ? (
                                                 <Text style={styles.likedText}>💖 Cet utilisateur a liké {selectedOffer?.title} !</Text>
+                                            ) : (
+                                                <Text style={styles.notLikedText}>🤝 Pas encore liké cette offre</Text>
                                             )}
                                             <Text style={styles.cardTitle}>{jobSearcher.name || 'No name provided'}</Text>
                                             <Text>📍 Localisation : {jobSearcher.locations?.join(", ") || "Unknown"}</Text>
@@ -250,6 +256,7 @@ const fetchJobSearchers = async () => {
                                                 {jobSearcher.skills?.map(skill => `${skill.name} (${skill.experience} ans)`).join(", ") || "Unknown"}
                                             </Text>
                                         </View>
+
                                     ) : (
                                         <View style={styles.card}>
                                             <Text style={styles.cardTitle}>No candidates available</Text>
@@ -310,7 +317,13 @@ const styles = StyleSheet.create({
         fontWeight: "bold",
         fontSize: 16,
         marginBottom: 5,
-    },
+    },notLikedText: {
+          color: "gray",
+          fontWeight: "bold",
+          fontSize: 14,
+          marginBottom: 5,
+      },
+
 
 });
 export default CompanyHomePage;

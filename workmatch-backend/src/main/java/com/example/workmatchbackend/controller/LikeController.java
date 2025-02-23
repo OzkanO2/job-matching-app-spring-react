@@ -38,12 +38,9 @@ public class LikeController {
     public ResponseEntity<List<Like>> getLikesBySwipedId(@RequestParam String swipedId) {
         List<Like> likes = likeRepository.findBySwipedId(swipedId);
 
-        if (likes.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
-        }
-
-        return ResponseEntity.ok(likes);
+        return ResponseEntity.ok(likes); // ✅ Retourne une liste vide au lieu d'un 404
     }
+
     @GetMapping("/likes/{userId}")
     public ResponseEntity<List<JobOffer>> getLikedJobOffers(@PathVariable String userId) {
         List<String> likedOfferIds = likeRepository.findAllBySwiperId(userId).stream()
