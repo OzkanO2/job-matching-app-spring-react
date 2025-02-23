@@ -5,6 +5,8 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 import java.util.List;
 import java.util.Optional;
+import org.springframework.http.HttpStatus;
+
 @Repository
 public interface LikeRepository extends MongoRepository<Like, String> {
 
@@ -13,6 +15,7 @@ public interface LikeRepository extends MongoRepository<Like, String> {
     boolean existsBySwiperIdAndOfferId(String swiperId, String offerId);
 
     Optional<Like> findBySwiperIdAndSwipedId(String swiperId, String swipedId);
+    List<Like> findBySwipedId(String swipedId); // Récupère les likes par swipedId
 
     List<Like> findAllBySwiperIdAndCompanyId(String swiperId, String companyId);
 

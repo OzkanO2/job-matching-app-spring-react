@@ -35,18 +35,55 @@ const CompanyHomePage = () => {
             const token = await AsyncStorage.getItem("userToken");
             console.log("📡 Chargement des candidats pour :", jobOffer.title);
 
+            // 1️⃣ Récupérer la liste des candidats correspondant à l'offre
             const response = await axios.get(`http://localhost:8080/jobsearchers/matching?jobOfferId=${jobOffer._id}`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
 
-            setMatchingJobSearchers(response.data);
-            console.log("✅ Candidats correspondants :", response.data);
+            let candidates = response.data;
+            console.log("✅ Candidats correspondants avant tri :", candidates);
+
+            const likesResponse = await axios.get(`http://localhost:8080/likes?swipedId=${jobOffer._id}`, {
+                headers: { Authorization: `Bearer ${token}` },
+            });
+
+            console.log("📌 Réponse API Likes :", likesResponse.data);
+
+            const likedUsers = new Set(likesResponse.data.map(like => like.swiperId.toString())); // Convertir en string
+            console.log("💖 Utilisateurs ayant liké cette offre :", likedUsers);
+
+            // 3️⃣ Ajouter la propriété `hasLikedOffer` et trier la liste
+            candidates = candidates.map(candidate => {
+                const userIdString = candidate.userId ? candidate.userId.toString() : "";
+                const hasLiked = likedUsers.has(userIdString);
+
+                console.log(`🔎 Vérification pour ${candidate.name} (ID: ${userIdString}) -> Liké ? ${hasLiked}`);
+
+                return {
+                    ...candidate,
+                    hasLikedOffer: hasLiked
+                };
+            });
+
+            // Vérifions combien ont réellement `hasLikedOffer = true`
+            const likedCount = candidates.filter(c => c.hasLikedOffer).length;
+            console.log(`📊 Nombre de candidats ayant liké l'offre : ${likedCount}`);
+
+            // 4️⃣ Trier la liste : Ceux qui ont liké en premier
+            candidates.sort((a, b) => b.hasLikedOffer - a.hasLikedOffer);
+
+            // 5️⃣ Mettre à jour l'état avec la liste triée
+            setMatchingJobSearchers(candidates);
+            console.log("✅ Candidats après tri :", candidates);
+
         } catch (error) {
             console.error("❌ Erreur lors du chargement des candidats :", error);
         } finally {
             setIsLoading(false);
         }
     };
+
+
 
 const fetchJobSearchers = async () => {
         try {
@@ -204,6 +241,9 @@ const fetchJobSearchers = async () => {
                                 renderCard={(jobSearcher) => (
                                     jobSearcher ? (
                                         <View style={styles.card}>
+                                            {jobSearcher.hasLikedOffer && (
+                                                <Text style={styles.likedText}>💖 Cet utilisateur a liké {selectedOffer?.title} !</Text>
+                                            )}
                                             <Text style={styles.cardTitle}>{jobSearcher.name || 'No name provided'}</Text>
                                             <Text>📍 Localisation : {jobSearcher.locations?.join(", ") || "Unknown"}</Text>
                                             <Text>💻 Compétences :
@@ -221,6 +261,7 @@ const fetchJobSearchers = async () => {
                                 cardIndex={0}
                                 stackSize={3}
                             />
+
 
                         )}
                     </View>
@@ -264,5 +305,12 @@ const styles = StyleSheet.create({
         color: '#555',
         textAlign: 'center',
     },
+    likedText: {
+        color: "green",
+        fontWeight: "bold",
+        fontSize: 16,
+        marginBottom: 5,
+    },
+
 });
 export default CompanyHomePage;

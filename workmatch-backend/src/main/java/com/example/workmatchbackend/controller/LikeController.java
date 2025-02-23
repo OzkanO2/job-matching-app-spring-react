@@ -7,6 +7,7 @@ import com.example.workmatchbackend.repository.JobOfferRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.http.HttpStatus; // ✅ Ajout de l'import
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -33,7 +34,16 @@ public class LikeController {
         likeRepository.save(like);
         return ResponseEntity.ok("✅ Offre likée avec succès !");
     }
+    @GetMapping
+    public ResponseEntity<List<Like>> getLikesBySwipedId(@RequestParam String swipedId) {
+        List<Like> likes = likeRepository.findBySwipedId(swipedId);
 
+        if (likes.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        }
+
+        return ResponseEntity.ok(likes);
+    }
     @GetMapping("/likes/{userId}")
     public ResponseEntity<List<JobOffer>> getLikedJobOffers(@PathVariable String userId) {
         List<String> likedOfferIds = likeRepository.findAllBySwiperId(userId).stream()
