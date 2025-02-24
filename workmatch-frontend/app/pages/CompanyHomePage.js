@@ -24,6 +24,9 @@ const CompanyHomePage = () => {
         }
     }, [selectedOffer]);
 
+useEffect(() => {
+    console.log("🆕 Mise à jour des candidats après swipe :", matchingJobSearchers);
+}, [matchingJobSearchers]);
 
     const fetchMatchingCandidates = async (jobOffer) => {
         if (!jobOffer || !jobOffer._id) {
@@ -200,7 +203,7 @@ const fetchJobSearchers = async () => {
             );
             console.log("🟢 Réponse match :", matchResponse.data);
             console.log("✅ Réponse serveur :", response.data);
-            await fetchMatchingCandidates(selectedOffer);
+setMatchingJobSearchers(prevState => prevState.filter((_, i) => i !== index));
 
         } catch (error) {
             console.error('❌ Erreur lors du swipe:', error);
@@ -234,7 +237,7 @@ const fetchJobSearchers = async () => {
                 }
             );
             console.log("✅ Swipe à gauche enregistré avec succès !");
-            await fetchMatchingCandidates(selectedOffer);
+setMatchingJobSearchers(prevState => prevState.filter((_, i) => i !== index));
 
         } catch (error) {
             console.error('❌ Erreur lors du swipe gauche:', error);
@@ -261,6 +264,7 @@ const fetchJobSearchers = async () => {
                             <Text>Loading...</Text>
                         ) : (
                             <Swiper
+                                key={matchingJobSearchers.length} // 🔥 Clé dynamique pour forcer un re-render
                                 cards={selectedOffer ? matchingJobSearchers : jobSearchers}
                                 renderCard={(jobSearcher) => (
                                     jobSearcher ? (
@@ -275,7 +279,6 @@ const fetchJobSearchers = async () => {
                                                 {jobSearcher.skills?.map(skill => `${skill.name} (${skill.experience} ans)`).join(", ") || "Unknown"}
                                             </Text>
                                         </View>
-
                                     ) : (
                                         <View style={styles.card}>
                                             <Text style={styles.cardTitle}>No candidates available</Text>
