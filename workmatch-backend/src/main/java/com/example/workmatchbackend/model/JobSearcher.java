@@ -4,6 +4,9 @@ package com.example.workmatchbackend.model;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import java.util.List;
+import javax.persistence.Transient;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 @Document(collection = "jobSearchers") // Assurez-vous que le nom de la collection est correct.
 public class JobSearcher {
@@ -22,8 +25,36 @@ public class JobSearcher {
     private int salaryMax;
     private List<String> locations;
 
+    @Transient // Ce champ ne sera PAS stocké en base
+    @JsonIgnore
+    private double matchingScore;
+
+    public int getSalaryMin() {
+        return salaryMin;
+    }
+
+    public int getSalaryMax() {
+        return salaryMax;
+    }
+    public boolean isRemote() {
+        return remote;
+    }
+    public void setRemote(boolean remote) {
+        this.remote = remote;
+    }
+
     public String getUserId() {
         return userId;
+    }
+
+    @JsonProperty("matchingScore") // 🔥 S'assure que le score est inclus dans la réponse JSON
+    public double getMatchingScore() {
+        return matchingScore;
+    }
+
+
+    public void setMatchingScore(double matchingScore) {
+        this.matchingScore = matchingScore;
     }
 
     public void setUserId(String userId) {

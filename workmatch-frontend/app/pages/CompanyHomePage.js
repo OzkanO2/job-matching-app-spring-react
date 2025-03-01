@@ -44,7 +44,7 @@ useEffect(() => {
 
             console.log("📡 Chargement des candidats pour :", jobOffer.title);
 
-            // ✅ 1️⃣ Récupérer tous les candidats correspondant à l'offre
+            // ✅ Récupérer tous les candidats correspondant à l'offre
             const response = await axios.get(`http://localhost:8080/jobsearchers/matching?jobOfferId=${jobOffer._id}`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
@@ -52,7 +52,10 @@ useEffect(() => {
             let candidates = response.data;
             console.log("✅ Candidats correspondants avant filtrage :", candidates);
 
-            // ✅ 2️⃣ Récupérer les job searchers déjà swipés
+            // ✅ Vérifier que les scores sont bien transmis
+            candidates.forEach(c => console.log(`🎯 ${c.name} - Score reçu: ${c.matchingScore}`));
+
+            // ✅ Filtrer les candidats déjà swipés
             let swipedIds = new Set();
             try {
                 const swipedResponse = await axios.get(`http://localhost:8080/api/swiped/${swiperId}`, {
@@ -63,45 +66,25 @@ useEffect(() => {
                 console.log("❌ Liste des candidats déjà swipés :", [...swipedIds]);
 
             } catch (error) {
-                console.error("⚠️ Erreur lors de la récupération des swipes, on continue sans filtrage :", error);
+                console.error("⚠️ Erreur lors de la récupération des swipes :", error);
             }
 
-            // ✅ 3️⃣ Filtrer les candidats déjà swipés
-candidates = candidates.filter(candidate => !swipedIds.has(candidate.id));
+            candidates = candidates.filter(candidate => !swipedIds.has(candidate.id));
+candidates.forEach(c => console.log(`🎯 ${c.name} - Score reçu du backend :`, c.matchingScore));
 
-            // ✅ 4️⃣ Récupérer les likes pour cette offre
-            let likedUsers = [];
-            try {
-                const likesResponse = await axios.get(`http://localhost:8080/likes?swipedId=${jobOffer._id}`, {
-                    headers: { Authorization: `Bearer ${token}` },
-                });
+            // ✅ Assurer que les scores sont bien affichés et éviter `NaN`
+            candidates = candidates.map(candidate => ({
+                        ...candidate,
+                        matchingScore: isNaN(candidate.matchingScore) || candidate.matchingScore === null
+                            ? "N/A"
+                            : Math.round(candidate.matchingScore * 100) / 100
+                    }));
+            candidates.forEach(c => console.log(`✅ Score final après traitement : ${c.name} - ${c.matchingScore}%`));
 
-                likedUsers = likesResponse.data.map(like => like.swiperId.toString().trim());
-                console.log("💖 Liste des likes normalisée :", likedUsers);
-
-            } catch (error) {
-                console.error("⚠️ Erreur lors de la récupération des likes, on continue sans eux :", error);
-            }
-
-            // ✅ 5️⃣ Ajouter une propriété `hasLikedOffer` et trier la liste
-            candidates = candidates.map(candidate => {
-                const userIdString = candidate.userId ? candidate.userId.toString().trim() : "";
-                const hasLiked = likedUsers.includes(userIdString);
-
-                return {
-                    ...candidate,
-                    hasLikedOffer: hasLiked
-                };
-            });
-
-            // ✅ 6️⃣ Trier la liste : Ceux qui ont liké d'abord
-            candidates.sort((a, b) => b.hasLikedOffer - a.hasLikedOffer);
 
             console.log("📌 Liste finale des candidats après tri :", candidates);
 
-            // ✅ 7️⃣ Mettre à jour l'état avec la liste triée
             setMatchingJobSearchers([...candidates]);
-            console.log("✅ Candidats après tri :", candidates);
 
         } catch (error) {
             console.error("❌ Erreur lors du chargement des candidats :", error);
@@ -109,8 +92,6 @@ candidates = candidates.filter(candidate => !swipedIds.has(candidate.id));
             setIsLoading(false);
         }
     };
-
-
 
 const fetchJobSearchers = async () => {
         try {
@@ -278,6 +259,7 @@ setMatchingJobSearchers(prevState => prevState.filter((_, i) => i !== index));
                                             <Text>💻 Compétences :
                                                 {jobSearcher.skills?.map(skill => `${skill.name} (${skill.experience} ans)`).join(", ") || "Unknown"}
                                             </Text>
+                                            <Text>🎯 Score de matching : {jobSearcher.matchingScore !== undefined ? jobSearcher.matchingScore + "%" : "N/A"}</Text>
                                         </View>
                                     ) : (
                                         <View style={styles.card}>
@@ -285,6 +267,7 @@ setMatchingJobSearchers(prevState => prevState.filter((_, i) => i !== index));
                                         </View>
                                     )
                                 )}
+
                                 onSwipedRight={(cardIndex) => handleSwipeRight(cardIndex)}
                                 onSwipedLeft={(cardIndex) => handleSwipeLeft(cardIndex)}
                                 cardIndex={0}
