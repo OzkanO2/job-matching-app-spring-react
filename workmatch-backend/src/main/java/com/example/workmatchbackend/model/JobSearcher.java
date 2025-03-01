@@ -29,10 +29,20 @@ public class JobSearcher {
     @JsonIgnore
     private double matchingScore;
 
+    @Transient
+    @JsonIgnore
+    private boolean hasLikedOffer;
+
     public int getSalaryMin() {
         return salaryMin;
     }
+    public boolean isHasLikedOffer() {
+        return hasLikedOffer;
+    }
 
+    public void setHasLikedOffer(boolean hasLikedOffer) {
+        this.hasLikedOffer = hasLikedOffer;
+    }
     public int getSalaryMax() {
         return salaryMax;
     }

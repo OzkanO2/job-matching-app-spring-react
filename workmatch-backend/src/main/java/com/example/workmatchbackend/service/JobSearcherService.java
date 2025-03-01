@@ -15,6 +15,9 @@ import java.util.stream.Collectors;
 import javax.persistence.Transient;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.Comparator;
+import com.example.workmatchbackend.repository.LikeRepository;
+import com.example.workmatchbackend.model.Like;
+import java.util.Set;
 
 @Service
 public class JobSearcherService {
@@ -22,6 +25,7 @@ public class JobSearcherService {
     private final JobSearcherRepository jobSearcherRepository;
     private final JobOfferRepository jobOfferRepository;
     private final ObjectMapper objectMapper = new ObjectMapper(); // ✅ Ajoute ici
+    private final LikeRepository likeRepository;
 
     @Transient // Ce champ ne sera pas stocké en base
     @JsonIgnore
@@ -34,10 +38,14 @@ public class JobSearcherService {
         this.matchingScore = matchingScore;
     }
     @Autowired
-    public JobSearcherService(JobSearcherRepository jobSearcherRepository, JobOfferRepository jobOfferRepository) {
+    public JobSearcherService(JobSearcherRepository jobSearcherRepository,
+                              JobOfferRepository jobOfferRepository,
+                              LikeRepository likeRepository) {
         this.jobSearcherRepository = jobSearcherRepository;
         this.jobOfferRepository = jobOfferRepository;
+        this.likeRepository = likeRepository;
     }
+
 
     public List<JobSearcher> findMatchingCandidates(String jobOfferId) {
         Optional<JobOffer> jobOfferOpt = jobOfferRepository.findById(jobOfferId);
@@ -55,6 +63,10 @@ public class JobSearcherService {
 
         System.out.println("📜 Compétences requises pour l'offre : " + jobOffer.getSkills());
 
+        // ✅ Récupérer les "likes" associés à l'offre
+        List<Like> likedOffers = likeRepository.findBySwipedId(jobOfferId);
+        Set<String> likedIds = likedOffers.stream().map(Like::getSwiperId).collect(Collectors.toSet());
+
         List<JobSearcher> matchingCandidates =
                 jobSearcherRepository.findAll()
                         .stream()
@@ -70,31 +82,23 @@ public class JobSearcherService {
                                 )
                         )
                         .map(js -> {
-                            double score = calculateMatchingScore(js, jobOffer);
-                            js.setMatchingScore(score); // 🔹 Ajout du score de matching
+                            boolean hasLiked = likedIds.contains(js.getId()); // ✅ Vérifier si l'utilisateur a liké
+                            js.setHasLikedOffer(hasLiked);
+
+                            double score = calculateMatchingScore(js, jobOffer); // 🔹 Calcul du score
+                            js.setMatchingScore(score);
                             return js;
                         })
-                        .sorted(Comparator.comparing(JobSearcher::getMatchingScore).reversed()) // 🔹 Tri par score
+                        .sorted(Comparator.comparing(JobSearcher::isHasLikedOffer).reversed()
+                                .thenComparing(JobSearcher::getMatchingScore).reversed()) // 🔹 Trier ceux qui ont liké en premier
                         .collect(Collectors.toList());
 
         System.out.println("✅ Nombre de candidats correspondants : " + matchingCandidates.size());
-
-        matchingCandidates.forEach(js ->
-                System.out.println("🟢 Score envoyé pour " + js.getName() + " : " + js.getMatchingScore())
-        );
-        System.out.println("✅ Nombre de candidats correspondants : " + matchingCandidates.size());
-        try {
-            System.out.println("✅ Structure JSON envoyée : " + objectMapper.writeValueAsString(matchingCandidates));
-        } catch (Exception e) {
-            System.out.println("❌ Erreur lors de la conversion JSON : " + e.getMessage());
-        }
-        matchingCandidates.forEach(js -> {
-            js.setMatchingScore(Math.round(js.getMatchingScore() * 100.0) / 100.0);
-            System.out.println("🟢 Score final après traitement : " + js.getName() + " - " + js.getMatchingScore() + "%");
-        });
+        matchingCandidates.forEach(js -> System.out.println("🟢 Score envoyé pour " + js.getName() + " : " + js.getMatchingScore()));
 
         return matchingCandidates;
     }
+
 
     private double calculateMatchingScore(JobSearcher jobSearcher, JobOffer jobOffer) {
         double score = 0.0;

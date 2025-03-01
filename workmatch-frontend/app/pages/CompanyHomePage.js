@@ -51,11 +51,9 @@ useEffect(() => {
 
             let candidates = response.data;
             console.log("✅ Candidats correspondants avant filtrage :", candidates);
+            candidates.forEach(c => console.log(`🎯 ${c.name} - Score reçu du backend :`, c.matchingScore));
 
-            // ✅ Vérifier que les scores sont bien transmis
-            candidates.forEach(c => console.log(`🎯 ${c.name} - Score reçu: ${c.matchingScore}`));
-
-            // ✅ Filtrer les candidats déjà swipés
+            // ✅ Récupérer les job searchers déjà swipés
             let swipedIds = new Set();
             try {
                 const swipedResponse = await axios.get(`http://localhost:8080/api/swiped/${swiperId}`, {
@@ -69,18 +67,38 @@ useEffect(() => {
                 console.error("⚠️ Erreur lors de la récupération des swipes :", error);
             }
 
+            // ✅ Filtrer les candidats déjà swipés
             candidates = candidates.filter(candidate => !swipedIds.has(candidate.id));
-candidates.forEach(c => console.log(`🎯 ${c.name} - Score reçu du backend :`, c.matchingScore));
 
-            // ✅ Assurer que les scores sont bien affichés et éviter `NaN`
+            // ✅ Récupérer les utilisateurs ayant liké cette offre
+            let likedUsers = [];
+            try {
+                const likesResponse = await axios.get(`http://localhost:8080/likes?swipedId=${jobOffer._id}`, {
+                    headers: { Authorization: `Bearer ${token}` },
+                });
+
+                likedUsers = likesResponse.data.map(like => like.swiperId.toString().trim());
+                console.log("💖 Liste des likes normalisée :", likedUsers);
+
+            } catch (error) {
+                console.error("⚠️ Erreur lors de la récupération des likes :", error);
+            }
+
+            // ✅ Ajouter une propriété `hasLikedOffer` et corriger `matchingScore`
             candidates = candidates.map(candidate => ({
-                        ...candidate,
-                        matchingScore: isNaN(candidate.matchingScore) || candidate.matchingScore === null
-                            ? "N/A"
-                            : Math.round(candidate.matchingScore * 100) / 100
-                    }));
-            candidates.forEach(c => console.log(`✅ Score final après traitement : ${c.name} - ${c.matchingScore}%`));
+                ...candidate,
+                hasLikedOffer: likedUsers.includes(candidate.userId ? candidate.userId.toString().trim() : ""),
+                matchingScore: isNaN(candidate.matchingScore) || candidate.matchingScore === null
+                    ? 0
+                    : Math.round(candidate.matchingScore * 100) / 100
+            }));
 
+            // ✅ Trier les candidats : Ceux qui ont liké d'abord, puis ceux avec le meilleur score
+            candidates.sort((a, b) =>
+                (b.hasLikedOffer - a.hasLikedOffer) || (b.matchingScore - a.matchingScore)
+            );
+
+            candidates.forEach(c => console.log(`✅ Score final après traitement : ${c.name} - ${c.matchingScore}%`));
 
             console.log("📌 Liste finale des candidats après tri :", candidates);
 
@@ -92,6 +110,7 @@ candidates.forEach(c => console.log(`🎯 ${c.name} - Score reçu du backend :`,
             setIsLoading(false);
         }
     };
+
 
 const fetchJobSearchers = async () => {
         try {
