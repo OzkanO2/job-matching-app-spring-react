@@ -36,4 +36,9 @@ public class JobSearcherController {
         JobSearcher savedJobSearcher = jobSearcherService.saveJobSearcher(jobSearcher);
         return ResponseEntity.ok(savedJobSearcher);
     }
+    @GetMapping("/matching/company")
+    public List<JobSearcher> getMatchingCandidatesForCompany(@RequestParam String companyId) {
+        return jobSearcherService.findMatchingCandidatesForCompany(companyId);
+    }
+
 }

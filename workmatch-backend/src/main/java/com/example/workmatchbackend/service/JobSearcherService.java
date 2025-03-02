@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.example.workmatchbackend.model.Skill;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.bson.types.ObjectId;
 
 import java.util.List;
 import java.util.Optional;
@@ -95,6 +96,65 @@ public class JobSearcherService {
 
         System.out.println("✅ Nombre de candidats correspondants : " + matchingCandidates.size());
         matchingCandidates.forEach(js -> System.out.println("🟢 Score envoyé pour " + js.getName() + " : " + js.getMatchingScore()));
+
+        return matchingCandidates;
+    }
+
+    public List<JobSearcher> findMatchingCandidatesForCompany(String companyId) {
+        // ✅ Récupérer toutes les offres de l’entreprise
+        List<JobOffer> companyOffers = jobOfferRepository.findByCompanyId(new ObjectId(companyId));
+
+        if (companyOffers.isEmpty()) {
+            System.out.println("❌ Aucune offre trouvée pour l'entreprise : " + companyId);
+            return List.of();
+        }
+
+        // ✅ Récupérer tous les job seekers
+        List<JobSearcher> jobSearchers = jobSearcherRepository.findAll();
+
+        // ✅ Calculer le score moyen pour chaque utilisateur
+        for (JobSearcher js : jobSearchers) {
+            double totalScore = 0.0;
+            for (JobOffer offer : companyOffers) {
+                totalScore += calculateMatchingScore(js, offer);
+            }
+
+            double averageScore = totalScore / companyOffers.size();
+            js.setMatchingScore(averageScore);
+        }
+
+        // ✅ Trier les candidats selon le score décroissant
+        return jobSearchers.stream()
+                .sorted(Comparator.comparing(JobSearcher::getMatchingScore).reversed())
+                .collect(Collectors.toList());
+    }
+
+    public List<JobSearcher> findMatchingCandidatesForSingleOffer(String jobOfferId) {
+        Optional<JobOffer> jobOfferOpt = jobOfferRepository.findById(jobOfferId);
+        if (jobOfferOpt.isEmpty()) {
+            System.out.println("❌ Aucune offre trouvée pour l'ID : " + jobOfferId);
+            return List.of();
+        }
+        JobOffer jobOffer = jobOfferOpt.get();
+        System.out.println("🔍 Offre trouvée : " + jobOffer.getTitle());
+
+        List<JobSearcher> matchingCandidates =
+                jobSearcherRepository.findAll()
+                        .stream()
+                        .filter(js -> js.getSkills() != null)
+                        .map(js -> {
+                            double score = calculateMatchingScore(js, jobOffer);
+                            js.setMatchingScore(score);
+
+                            // ✅ Log important pour voir les scores envoyés
+                            System.out.println("🟢 Candidat : " + js.getName() + " | Score : " + score + "%");
+
+                            return js;
+                        })
+                        .sorted(Comparator.comparing(JobSearcher::getMatchingScore).reversed())
+                        .collect(Collectors.toList());
+
+        System.out.println("✅ Nombre de candidats trouvés pour l'offre : " + matchingCandidates.size());
 
         return matchingCandidates;
     }
