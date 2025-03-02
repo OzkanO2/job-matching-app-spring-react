@@ -114,7 +114,7 @@ useEffect(() => {
 const fetchMatchingCandidatesForCompany = async () => {
     try {
         const token = await AsyncStorage.getItem('userToken');
-        const companyId = await AsyncStorage.getItem("userId"); // Supposons que userId est l'ID de l'entreprise
+        const companyId = await AsyncStorage.getItem("userId");
 
         if (!token || !companyId) {
             console.error("❌ Token ou companyId manquant !");
@@ -123,7 +123,7 @@ const fetchMatchingCandidatesForCompany = async () => {
 
         console.log("📡 Chargement des candidats pour l'entreprise...");
 
-        // ✅ Appel du nouveau endpoint
+        // ✅ Récupérer la liste des candidats
         const response = await axios.get(`http://localhost:8080/jobsearchers/matching/company?companyId=${companyId}`, {
             headers: { Authorization: `Bearer ${token}` },
         });
@@ -132,11 +132,22 @@ const fetchMatchingCandidatesForCompany = async () => {
 
         console.log("✅ Candidats triés par score :", allJobSearchers);
 
-        // ✅ Arrondir les scores pour affichage
-        allJobSearchers = allJobSearchers.map(js => ({
-            ...js,
-            matchingScore: Math.round(js.matchingScore * 100) / 100
-        }));
+        // ✅ Récupérer les candidats déjà swipés
+        let swipedIds = new Set();
+        try {
+            const swipedResponse = await axios.get(`http://localhost:8080/api/swiped/${companyId}`, {
+                headers: { Authorization: `Bearer ${token}` },
+            });
+
+            swipedIds = new Set(swipedResponse.data.map(item => item.swipedId));
+            console.log("❌ Liste des candidats déjà swipés :", [...swipedIds]);
+
+        } catch (error) {
+            console.error("⚠️ Erreur lors de la récupération des swipes :", error);
+        }
+
+        // ✅ Filtrer les candidats déjà swipés
+        allJobSearchers = allJobSearchers.filter(candidate => !swipedIds.has(candidate.id));
 
         setJobSearchers(allJobSearchers);
     } catch (error) {
@@ -145,7 +156,6 @@ const fetchMatchingCandidatesForCompany = async () => {
         setIsLoading(false);
     }
 };
-
 
 const fetchJobSearchers = async () => {
         try {
@@ -314,11 +324,15 @@ setMatchingJobSearchers(prevState => prevState.filter((_, i) => i !== index));
                                                 {jobSearcher.skills?.map(skill => `${skill.name} (${skill.experience} ans)`).join(", ") || "Unknown"}
                                             </Text>
 
-                                            {/* ✅ Affichage conditionnel du score */}
+                                            {/* ✅ Affichage conditionnel du score avec arrondi à 2 chiffres */}
                                             {selectedOffer ? (
-                                                <Text>🎯 Score de matching (offre sélectionnée) : {jobSearcher.matchingScore !== undefined ? jobSearcher.matchingScore + "%" : "N/A"}</Text>
+                                                <Text>🎯 Score de matching (offre sélectionnée) :
+                                                    {jobSearcher.matchingScore !== undefined ? jobSearcher.matchingScore.toFixed(2) + "%" : "N/A"}
+                                                </Text>
                                             ) : (
-                                                <Text>🎯 Score de matching (toutes offres) : {jobSearcher.matchingScore !== undefined ? jobSearcher.matchingScore + "%" : "N/A"}</Text>
+                                                <Text>🎯 Score de matching (toutes offres) :
+                                                    {jobSearcher.matchingScore !== undefined ? jobSearcher.matchingScore.toFixed(2) + "%" : "N/A"}
+                                                </Text>
                                             )}
                                         </View>
                                     ) : (
@@ -327,7 +341,6 @@ setMatchingJobSearchers(prevState => prevState.filter((_, i) => i !== index));
                                         </View>
                                     )
                                 )}
-
 
                                 onSwipedRight={(cardIndex) => handleSwipeRight(cardIndex)}
                                 onSwipedLeft={(cardIndex) => handleSwipeLeft(cardIndex)}

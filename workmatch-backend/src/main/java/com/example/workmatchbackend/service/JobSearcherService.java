@@ -101,7 +101,6 @@ public class JobSearcherService {
     }
 
     public List<JobSearcher> findMatchingCandidatesForCompany(String companyId) {
-        // ✅ Récupérer toutes les offres de l’entreprise
         List<JobOffer> companyOffers = jobOfferRepository.findByCompanyId(new ObjectId(companyId));
 
         if (companyOffers.isEmpty()) {
@@ -109,25 +108,33 @@ public class JobSearcherService {
             return List.of();
         }
 
-        // ✅ Récupérer tous les job seekers
         List<JobSearcher> jobSearchers = jobSearcherRepository.findAll();
 
-        // ✅ Calculer le score moyen pour chaque utilisateur
+        // ✅ Récupérer les swipes pour exclure les candidats déjà vus
+        List<Like> swipedCandidates = likeRepository.findBySwiperId(companyId);
+        Set<String> swipedIds = swipedCandidates.stream()
+                .map(Like::getSwipedId)
+                .collect(Collectors.toSet());
+
         for (JobSearcher js : jobSearchers) {
+            if (swipedIds.contains(js.getId())) {
+                continue; // Ignorer les candidats déjà swipés
+            }
+
             double totalScore = 0.0;
             for (JobOffer offer : companyOffers) {
                 totalScore += calculateMatchingScore(js, offer);
             }
-
             double averageScore = totalScore / companyOffers.size();
             js.setMatchingScore(averageScore);
         }
 
-        // ✅ Trier les candidats selon le score décroissant
         return jobSearchers.stream()
+                .filter(js -> !swipedIds.contains(js.getId())) // 🔥 Vérification finale
                 .sorted(Comparator.comparing(JobSearcher::getMatchingScore).reversed())
                 .collect(Collectors.toList());
     }
+
 
     public List<JobSearcher> findMatchingCandidatesForSingleOffer(String jobOfferId) {
         Optional<JobOffer> jobOfferOpt = jobOfferRepository.findById(jobOfferId);
