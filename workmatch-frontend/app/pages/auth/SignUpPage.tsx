@@ -1,16 +1,23 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, Button, Alert, StyleSheet } from 'react-native';
+import { Picker } from '@react-native-picker/picker';
 import axios from 'axios';
 
 export default function SignUpPage({ navigation }) {
   const [userType, setUserType] = useState(''); // "INDIVIDUAL" ou "COMPANY"
   const [username, setUsername] = useState('');
-  const [email, setEmail] = useState('');
+  const [emailPrefix, setEmailPrefix] = useState('');
+  const [emailDomain, setEmailDomain] = useState('gmail.com'); // Domaine par défaut
   const [password, setPassword] = useState('');
   const [companyName, setCompanyName] = useState('');
   const [uniqueNumber, setUniqueNumber] = useState(''); // SIRET ou autre identifiant unique
   const [isUsernameValid, setIsUsernameValid] = useState(true);
   const [usernameError, setUsernameError] = useState('');
+  const [emailError, setEmailError] = useState('');
+  const [isEmailPrefixValid, setIsEmailPrefixValid] = useState(true);
+  const [emailPrefixError, setEmailPrefixError] = useState('');
+
+  const allowedDomains = ['gmail.com', 'hotmail.com', 'yahoo.com', 'outlook.com', 'protonmail.com'];
 
   // Vérification du username en backend
   const checkUsernameAvailability = async (username) => {
@@ -39,45 +46,39 @@ export default function SignUpPage({ navigation }) {
     }
   };
 
-  const validateInput = async () => {
-    if (username.length < 4) {
-      Alert.alert('Invalid Username', 'Username must be at least 4 characters long.');
+  // Vérification du préfixe de l'email
+  const validateEmailPrefix = (prefix) => {
+    setEmailPrefix(prefix);
+
+    if (!/^[a-zA-Z0-9]+$/.test(prefix)) {
+      setEmailPrefixError('Only letters and numbers are allowed.');
+      setIsEmailPrefixValid(false);
       return false;
     }
 
-    const usernameAvailable = await checkUsernameAvailability(username);
-    if (!usernameAvailable) {
+    if (!/[0-9]/.test(prefix) || prefix.replace(/[^a-zA-Z]/g, '').length < 4) {
+      setEmailPrefixError('Must contain at least 4 letters and 1 number.');
+      setIsEmailPrefixValid(false);
       return false;
     }
 
-    if (password.length < 4) {
-      Alert.alert('Invalid Password', 'Password must be at least 4 characters long.');
-      return false;
-    }
+    setEmailPrefixError('');
+    setIsEmailPrefixValid(true);
+    return true;
+  };
 
-    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailPattern.test(email)) {
-      Alert.alert('Invalid Email', 'Please enter a valid email address.');
-      return false;
-    }
-
-    // Validation spécifique aux entreprises
-    if (userType === 'COMPANY' && uniqueNumber.length < 8) {
-      Alert.alert('Invalid SIRET', 'Company Unique Number must be at least 8 characters long.');
-      return false;
-    }
-
+  const validateEmail = () => {
+    if (!validateEmailPrefix(emailPrefix)) return false;
+    setEmailError('');
     return true;
   };
 
   const handleSignUp = async () => {
-    if (!(await validateInput())) {
-      return;
-    }
+    if (!validateEmail()) return;
 
     const userData = {
       username,
-      email,
+      email: `${emailPrefix}@${emailDomain}`,
       password,
       userType,
       companyName: userType === 'COMPANY' ? companyName : null,
@@ -127,7 +128,25 @@ export default function SignUpPage({ navigation }) {
           />
           {usernameError ? <Text style={styles.errorText}>{usernameError}</Text> : null}
 
-          <TextInput placeholder="Email" value={email} onChangeText={setEmail} keyboardType="email-address" style={styles.input} />
+          <View style={styles.emailContainer}>
+            <TextInput
+              placeholder="Email Prefix"
+              value={emailPrefix}
+              onChangeText={(text) => validateEmailPrefix(text)}
+              style={[styles.input, !isEmailPrefixValid && styles.inputError]}
+            />
+            <Picker
+              selectedValue={emailDomain}
+              style={styles.picker}
+              onValueChange={(itemValue) => setEmailDomain(itemValue)}
+            >
+              {allowedDomains.map((domain) => (
+                <Picker.Item key={domain} label={`@${domain}`} value={domain} />
+              ))}
+            </Picker>
+          </View>
+          {emailPrefixError ? <Text style={styles.errorText}>{emailPrefixError}</Text> : null}
+
           <TextInput placeholder="Password" value={password} onChangeText={setPassword} secureTextEntry style={styles.input} />
         </>
       )}
@@ -166,5 +185,15 @@ const styles = StyleSheet.create({
   errorText: {
     color: 'red',
     marginBottom: 8,
+  },
+  emailContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    width: '100%',
+  },
+  picker: {
+    height: 40,
+    width: 150,
+    marginLeft: 10,
   },
 });

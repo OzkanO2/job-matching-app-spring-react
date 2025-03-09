@@ -4,6 +4,7 @@ import com.example.workmatchbackend.model.User;
 import com.example.workmatchbackend.repository.UserRepository;
 import com.example.workmatchbackend.service.UserService;
 import com.example.workmatchbackend.util.JwtUtil;
+import java.util.Arrays;
 
 
 import org.springframework.http.HttpStatus;
@@ -38,7 +39,10 @@ public class UserController {
     public UserController(MatchService matchService) {
         this.matchService = matchService;
     }
-
+    public UserController(UserService userService, PasswordEncoder passwordEncoder) {
+        this.userService = userService;
+        this.passwordEncoder = passwordEncoder;
+    }
     @Autowired
     private UserService userService;
 
@@ -157,36 +161,55 @@ public class UserController {
     public void deleteUser(@PathVariable String id) {
         userService.deleteUser(id);
     }
-
     @PostMapping("/register")
     public ResponseEntity<?> registerUser(@RequestBody User user) {
-        System.out.println("Registering user: " + user.getUsername() + ", " + user.getEmail() + ", UserType: " + user.getUserType());
+        System.out.println("Registering user: " + user.getEmail());
 
-        // Vérification de la longueur minimale du username
-        if (user.getUsername().length() < 4) {
-            System.out.println("❌ Username too short: " + user.getUsername());
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Username must be at least 4 characters long.");
+        // Liste des domaines autorisés
+        List<String> allowedDomains = Arrays.asList("gmail.com", "hotmail.com", "yahoo.com", "outlook.com", "protonmail.com");
+
+        // Vérifier que l'email contient "@"
+        String email = user.getEmail();
+        if (!email.contains("@")) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Email must contain '@' symbol.");
         }
 
-        // Vérifier si l'email ou le username existe déjà
+        String[] emailParts = email.split("@");
+        if (emailParts.length != 2) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid email format.");
+        }
+
+        String prefix = emailParts[0];
+        String domain = emailParts[1];
+
+        // Vérifier que le préfixe contient uniquement lettres et chiffres
+        if (!prefix.matches("^[a-zA-Z0-9]+$")) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Email prefix must contain only letters and numbers.");
+        }
+
+        // Vérifier que le préfixe contient au moins 4 lettres et 1 chiffre
+        if (!prefix.matches(".*\\d.*") || prefix.replaceAll("[^a-zA-Z]", "").length() < 4) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("The email prefix must contain at least 4 letters and 1 number.");
+        }
+
+        // Vérifier que le domaine est autorisé
+        if (!allowedDomains.contains(domain)) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Allowed domains are: " + String.join(", ", allowedDomains));
+        }
+
+        // Vérifier si l'email existe déjà
         if (userService.existsByEmail(user.getEmail())) {
-            System.out.println("❌ Email already in use: " + user.getEmail());
-            return ResponseEntity.status(HttpStatus.CONFLICT).body("Email already in use");
-        }
-        if (userService.existsByUsername(user.getUsername())) {
-            System.out.println("❌ Username already in use: " + user.getUsername());
-            return ResponseEntity.status(HttpStatus.CONFLICT).body("Username already in use");
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("Email already in use.");
         }
 
+        // Hachage du mot de passe
         user.setPassword(passwordEncoder.encode(user.getPassword()));
 
-        System.out.println("✅ UserType: " + user.getUserType());
-
+        // Sauvegarde de l'utilisateur
         User savedUser = userService.saveUser(user);
-        System.out.println("✅ User registered successfully: " + savedUser.getUsername() + ", UserType: " + savedUser.getUserType());
+
         return ResponseEntity.status(HttpStatus.CREATED).body(savedUser);
     }
-
 
     @PostMapping("/updateUserType")
     public ResponseEntity<?> updateUserType(@RequestBody User user) {
