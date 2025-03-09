@@ -74,7 +74,9 @@ export default function SignUpPage({ navigation }) {
   };
 
   const handleSignUp = async () => {
-    if (!validateEmail()) return;
+    if (!(await validateEmail())) {
+      return;
+    }
 
     const userData = {
       username,
@@ -85,27 +87,29 @@ export default function SignUpPage({ navigation }) {
       uniqueNumber: userType === 'COMPANY' ? uniqueNumber : null,
     };
 
-    axios.post('http://localhost:8080/users/register', userData)
-      .then(response => {
-        if (response.status === 201) {
-          Alert.alert('Success', 'User registered successfully');
-          const userInfo = response.data;
-          if (userType === 'INDIVIDUAL') {
-            navigation.navigate('JobSeekerOnboardingPage', { userInfo });
-          } else {
-            navigation.navigate('CompanyOnboardingPage', { userInfo });
-          }
-        } else {
-          Alert.alert('Error', 'Registration failed');
+    try {
+      const response = await axios.post('http://localhost:8080/users/register', userData);
+      if (response.status === 201) {
+        Alert.alert('Success', 'User registered successfully');
+        const userInfo = response.data;
+
+        // 🟢 Vérification : L'ID utilisateur est-il bien récupéré ?
+        console.log("User ID reçu :", userInfo.id);
+
+        if (!userInfo.id) {
+          Alert.alert('Error', 'User ID not found in response.');
+          return;
         }
-      })
-      .catch(error => {
-        if (error.response && error.response.status === 409) {
-          Alert.alert('Conflict', error.response.data);
-        } else {
-          Alert.alert('Error', 'An error occurred. Please try again.');
-        }
-      });
+
+        // 🔹 On passe bien l'ID utilisateur à la page d'onboarding
+        navigation.navigate('JobSeekerOnboardingPage', { userInfo });
+      } else {
+        Alert.alert('Error', 'Registration failed');
+      }
+    } catch (error) {
+      console.error('Sign-up failed:', error);
+      Alert.alert('Error', 'An error occurred. Please try again.');
+    }
   };
 
   return (

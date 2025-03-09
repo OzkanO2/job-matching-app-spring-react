@@ -39,9 +39,19 @@ public class UserController {
     public UserController(MatchService matchService) {
         this.matchService = matchService;
     }
-    public UserController(UserService userService, PasswordEncoder passwordEncoder) {
+    @Autowired
+    public UserController(UserService userService,
+                          JwtUtil jwtUtil,
+                          UserRepository userRepository,
+                          PasswordEncoder passwordEncoder,
+                          LikeService likeService,
+                          MatchService matchService) {
         this.userService = userService;
+        this.jwtUtil = jwtUtil;
+        this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.likeService = likeService;
+        this.matchService = matchService;
     }
     @Autowired
     private UserService userService;
@@ -63,6 +73,34 @@ public class UserController {
     @PostMapping
     public User createUser(@RequestBody User user) {
         return userService.saveUser(user);
+    }
+    @PutMapping("/{userId}/updateSkills")
+    public ResponseEntity<?> updateSkills(@PathVariable String userId, @RequestBody Map<String, List<String>> requestBody) {
+        Optional<User> userOptional = userRepository.findById(userId);
+
+        if (userOptional.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
+        }
+
+        User user = userOptional.get();
+        user.setSkills(requestBody.get("skills"));
+        userRepository.save(user);
+
+        return ResponseEntity.ok("Skills updated successfully!");
+    }
+    @PutMapping("/{id}/skills")
+    public ResponseEntity<?> updateUserSkills(@PathVariable String id, @RequestBody List<String> skills) {
+        Optional<User> optionalUser = userRepository.findById(id);
+
+        if (optionalUser.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
+        }
+
+        User user = optionalUser.get();
+        user.setPreferredCategories(skills); // Stocke les compétences dans la BD
+
+        userRepository.save(user);
+        return ResponseEntity.ok("Skills updated successfully");
     }
 
     @GetMapping("/id/{id}")

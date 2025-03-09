@@ -17,27 +17,37 @@ const JobSeekerOnboardingPage = ({ navigation, route }) => {
   };
 
   const handleSubmit = async () => {
-     try {
-       const updatedUserInfo = { ...userInfo, skills };
+    try {
+      if (!userInfo.id) {
+        console.error("❌ Erreur : userInfo.id est undefined !");
+        alert("User ID is missing. Please try again.");
+        return;
+      }
 
-       const response = await axios.post('http://localhost:8080/users/login', {
-         username: userInfo.username,
-         password: userInfo.password,
-       });
+      // 🔹 Mettre à jour les skills
+      await axios.put(`http://localhost:8080/users/${userInfo.id}/skills`, skills);
 
-       const token = response.data.token;
-       if (token) {
-         await AsyncStorage.setItem('userToken', `Bearer ${token}`);
-         await AsyncStorage.setItem('username', userInfo.username);
+      // 🔹 Connexion après mise à jour des skills
+      const response = await axios.post('http://localhost:8080/users/login', {
+        email: userInfo.email,
+        password: userInfo.password,
+      });
 
-         navigation.navigate('Home', { userInfo: updatedUserInfo });
-       } else {
-         alert('Login failed');
-       }
-     } catch (error) {
-       console.error('Login failed:', error);
-     }
-   };
+      const token = response.data.token;
+      if (token) {
+        await AsyncStorage.setItem('userToken', `Bearer ${token}`);
+        await AsyncStorage.setItem('username', userInfo.username);
+
+        navigation.navigate('Home', { userInfo });
+      } else {
+        alert('Login failed');
+      }
+    } catch (error) {
+      console.error('Login failed:', error);
+      alert('Failed to update skills. Please try again.');
+    }
+  };
+
 
   return (
     <View style={styles.container}>
