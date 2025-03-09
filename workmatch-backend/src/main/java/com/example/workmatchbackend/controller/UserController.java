@@ -162,23 +162,31 @@ public class UserController {
     public ResponseEntity<?> registerUser(@RequestBody User user) {
         System.out.println("Registering user: " + user.getUsername() + ", " + user.getEmail() + ", UserType: " + user.getUserType());
 
+        // Vérification de la longueur minimale du username
+        if (user.getUsername().length() < 4) {
+            System.out.println("❌ Username too short: " + user.getUsername());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Username must be at least 4 characters long.");
+        }
+
+        // Vérifier si l'email ou le username existe déjà
         if (userService.existsByEmail(user.getEmail())) {
-            System.out.println("Email already in use: " + user.getEmail());
+            System.out.println("❌ Email already in use: " + user.getEmail());
             return ResponseEntity.status(HttpStatus.CONFLICT).body("Email already in use");
         }
         if (userService.existsByUsername(user.getUsername())) {
-            System.out.println("Username already in use: " + user.getUsername());
+            System.out.println("❌ Username already in use: " + user.getUsername());
             return ResponseEntity.status(HttpStatus.CONFLICT).body("Username already in use");
         }
 
         user.setPassword(passwordEncoder.encode(user.getPassword()));
 
-        System.out.println("UserType: " + user.getUserType());
+        System.out.println("✅ UserType: " + user.getUserType());
 
         User savedUser = userService.saveUser(user);
-        System.out.println("User registered successfully: " + savedUser.getUsername() + ", UserType: " + savedUser.getUserType());
+        System.out.println("✅ User registered successfully: " + savedUser.getUsername() + ", UserType: " + savedUser.getUserType());
         return ResponseEntity.status(HttpStatus.CREATED).body(savedUser);
     }
+
 
     @PostMapping("/updateUserType")
     public ResponseEntity<?> updateUserType(@RequestBody User user) {
@@ -201,6 +209,14 @@ public class UserController {
     @GetMapping("/{username}")
     public User getUserInfo(@PathVariable String username) {
         return userRepository.findByUsername(username);
+    }
+    @GetMapping("/checkUsername/{username}")
+    public ResponseEntity<?> checkUsername(@PathVariable String username) {
+        boolean exists = userService.existsByUsername(username);
+        if (exists) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("Username already taken");
+        }
+        return ResponseEntity.ok("Username available");
     }
 
     @PostMapping("/login")

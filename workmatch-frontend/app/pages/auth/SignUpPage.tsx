@@ -9,31 +9,69 @@ export default function SignUpPage({ navigation }) {
   const [password, setPassword] = useState('');
   const [companyName, setCompanyName] = useState('');
   const [uniqueNumber, setUniqueNumber] = useState(''); // SIRET ou autre identifiant unique
+  const [isUsernameValid, setIsUsernameValid] = useState(true);
+  const [usernameError, setUsernameError] = useState('');
 
-  const validateInput = () => {
+  // Vérification du username en backend
+  const checkUsernameAvailability = async (username) => {
+    if (username.length < 4) {
+      setUsernameError('Username must be at least 4 characters long.');
+      setIsUsernameValid(false);
+      return false;
+    }
+
+    try {
+      const response = await axios.get(`http://localhost:8080/users/checkUsername/${username}`);
+      if (response.status === 200) {
+        setUsernameError('');
+        setIsUsernameValid(true);
+        return true;
+      }
+    } catch (error) {
+      if (error.response && error.response.status === 409) {
+        setUsernameError('This username is already taken. Please choose another.');
+        setIsUsernameValid(false);
+      } else {
+        setUsernameError('Error checking username availability.');
+        setIsUsernameValid(false);
+      }
+      return false;
+    }
+  };
+
+  const validateInput = async () => {
     if (username.length < 4) {
       Alert.alert('Invalid Username', 'Username must be at least 4 characters long.');
       return false;
     }
+
+    const usernameAvailable = await checkUsernameAvailability(username);
+    if (!usernameAvailable) {
+      return false;
+    }
+
     if (password.length < 4) {
       Alert.alert('Invalid Password', 'Password must be at least 4 characters long.');
       return false;
     }
+
     const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailPattern.test(email)) {
       Alert.alert('Invalid Email', 'Please enter a valid email address.');
       return false;
     }
+
     // Validation spécifique aux entreprises
     if (userType === 'COMPANY' && uniqueNumber.length < 8) {
       Alert.alert('Invalid SIRET', 'Company Unique Number must be at least 8 characters long.');
       return false;
     }
+
     return true;
   };
 
-  const handleSignUp = () => {
-    if (!validateInput()) {
+  const handleSignUp = async () => {
+    if (!(await validateInput())) {
       return;
     }
 
@@ -78,7 +116,17 @@ export default function SignUpPage({ navigation }) {
 
       {userType !== '' && (
         <>
-          <TextInput placeholder="Username" value={username} onChangeText={setUsername} style={styles.input} />
+          <TextInput
+            placeholder="Username"
+            value={username}
+            onChangeText={(text) => {
+              setUsername(text);
+              checkUsernameAvailability(text);
+            }}
+            style={[styles.input, !isUsernameValid && styles.inputError]}
+          />
+          {usernameError ? <Text style={styles.errorText}>{usernameError}</Text> : null}
+
           <TextInput placeholder="Email" value={email} onChangeText={setEmail} keyboardType="email-address" style={styles.input} />
           <TextInput placeholder="Password" value={password} onChangeText={setPassword} secureTextEntry style={styles.input} />
         </>
@@ -111,5 +159,12 @@ const styles = StyleSheet.create({
     marginBottom: 12,
     width: '100%',
     paddingHorizontal: 8,
+  },
+  inputError: {
+    borderColor: 'red',
+  },
+  errorText: {
+    color: 'red',
+    marginBottom: 8,
   },
 });
