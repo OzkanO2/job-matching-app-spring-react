@@ -291,7 +291,7 @@ public class UserController {
             Map<String, String> response = new HashMap<>();
             response.put("token", token);
             response.put("userType", existingUser.getUserType().toString());
-            response.put("userId", existingUser.getId()); // ✅ Ajout de l'ID utilisateur
+            response.put("userId", existingUser.getId());
             return ResponseEntity.ok(response);
         } else {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");

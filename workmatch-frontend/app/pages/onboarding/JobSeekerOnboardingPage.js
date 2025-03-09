@@ -25,29 +25,30 @@ const JobSeekerOnboardingPage = ({ navigation, route }) => {
       }
 
       // 🔹 Mettre à jour les skills
-      await axios.put(`http://localhost:8080/users/${userInfo.id}/skills`, skills);
-
-      // 🔹 Connexion après mise à jour des skills
-      const response = await axios.post('http://localhost:8080/users/login', {
-        email: userInfo.email,
-        password: userInfo.password,
+      await axios.put(`http://localhost:8080/users/${userInfo.id}/skills`, skills, {
+        headers: {
+          Authorization: `Bearer ${await AsyncStorage.getItem('userToken')}`,
+        },
       });
 
-      const token = response.data.token;
-      if (token) {
-        await AsyncStorage.setItem('userToken', `Bearer ${token}`);
-        await AsyncStorage.setItem('username', userInfo.username);
+      console.log("✅ Skills updated successfully!");
 
-        navigation.navigate('Home', { userInfo });
-      } else {
-        alert('Login failed');
+      // ✅ 🔹 Stocker `userType` dans AsyncStorage pour éviter qu'il soit perdu
+      await AsyncStorage.setItem('userType', userInfo.userType);
+      await AsyncStorage.setItem('userId', userInfo.id);
+
+      // ✅ 🔹 Redirection correcte
+      if (userInfo.userType === 'INDIVIDUAL') {
+        navigation.navigate('IndividualHome', { userInfo });
+      } else if (userInfo.userType === 'COMPANY') {
+        navigation.navigate('CompanyHome', { userInfo });
       }
+
     } catch (error) {
-      console.error('Login failed:', error);
+      console.error('❌ Failed to update skills:', error);
       alert('Failed to update skills. Please try again.');
     }
   };
-
 
   return (
     <View style={styles.container}>

@@ -27,6 +27,9 @@ function MainStackNavigator() {
     const determineInitialRoute = async () => {
       const userType = await AsyncStorage.getItem('userType');
       const isLoggedIn = await AsyncStorage.getItem('userToken');
+
+      console.log("🔍 userType récupéré :", userType);
+
       if (isLoggedIn) {
         if (userType === 'INDIVIDUAL') {
           setInitialRoute('IndividualHome');

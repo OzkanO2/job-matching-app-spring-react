@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, Button, Alert, StyleSheet } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import axios from 'axios';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function SignUpPage({ navigation }) {
   const [userType, setUserType] = useState(''); // "INDIVIDUAL" ou "COMPANY"
@@ -89,25 +90,36 @@ export default function SignUpPage({ navigation }) {
 
     try {
       const response = await axios.post('http://localhost:8080/users/register', userData);
+
       if (response.status === 201) {
         Alert.alert('Success', 'User registered successfully');
         const userInfo = response.data;
 
-        // 🟢 Vérification : L'ID utilisateur est-il bien récupéré ?
-        console.log("User ID reçu :", userInfo.id);
+        console.log("🟢 User registered:", userInfo);
 
-        if (!userInfo.id) {
-          Alert.alert('Error', 'User ID not found in response.');
-          return;
+        // 🔹 Auto-login après inscription
+        const loginResponse = await axios.post('http://localhost:8080/users/login', {
+          username: userInfo.username, // ✅ Correction: Utilisation de username
+          password: password, // 🔥 On utilise le mot de passe saisi à l'inscription
+        });
+
+        console.log("🟢 Auto-login successful:", loginResponse.data);
+
+        const token = loginResponse.data.token;
+        if (token) {
+          await AsyncStorage.setItem('userToken', `Bearer ${token}`);
+          await AsyncStorage.setItem('username', userInfo.username);
+
+          // 🔹 Rediriger directement vers la page des compétences après l'inscription
+          navigation.navigate('JobSeekerOnboardingPage', { userInfo });
+        } else {
+          Alert.alert('Error', 'Login failed after registration.');
         }
-
-        // 🔹 On passe bien l'ID utilisateur à la page d'onboarding
-        navigation.navigate('JobSeekerOnboardingPage', { userInfo });
       } else {
         Alert.alert('Error', 'Registration failed');
       }
     } catch (error) {
-      console.error('Sign-up failed:', error);
+      console.error('🔴 Sign-up or login failed:', error);
       Alert.alert('Error', 'An error occurred. Please try again.');
     }
   };
