@@ -18,7 +18,6 @@ public class JobSearcher {
     private String email;
     private String username;
     private List<Skill> skills = new ArrayList<>();
-    private double experience;
     private String photoUrl;
     private String resumeUrl;
     private ObjectId userId;
@@ -28,9 +27,10 @@ public class JobSearcher {
     private List<String> locations = new ArrayList<>();
     public JobSearcher() {}
 
-    public JobSearcher(ObjectId userId, String name, String email, List<Skill> skills, int salaryMin, int salaryMax, boolean remote, List<String> locations) {
-        this.userId = userId; // ✅ Garde tel quel, pas besoin de reconvertir !
+    public JobSearcher(ObjectId userId, String name, String username, String email, List<Skill> skills, int salaryMin, int salaryMax, boolean remote, List<String> locations) {
+        this.userId = userId;
         this.name = name;
+        this.username = username; // ✅ Ajout du username
         this.email = email;
         this.skills = skills;
         this.salaryMin = salaryMin;
@@ -38,6 +38,7 @@ public class JobSearcher {
         this.remote = remote;
         this.locations = locations;
     }
+
 
     @Transient // Ce champ ne sera PAS stocké en base
     @JsonIgnore
@@ -124,14 +125,6 @@ public class JobSearcher {
 
     public void setUsername(String username) {
         this.username = username;
-    }
-
-    public double getExperience() {
-        return experience;
-    }
-
-    public void setExperience(double experience) {
-        this.experience = experience;
     }
 
     public String getPhotoUrl() {

@@ -244,8 +244,9 @@ public class UserController {
             }
 
             JobSearcher jobSearcher = new JobSearcher(
-                    userIdObject, // ✅ Passe un ObjectId et non une String
-                    savedUser.getUsername(),
+                    userIdObject, // ✅ Passe l'ObjectId
+                    savedUser.getUsername(), // ✅ Nom
+                    savedUser.getUsername(), // ✅ Username = Nom
                     savedUser.getEmail(),
                     new ArrayList<>(),
                     0,
