@@ -10,6 +10,7 @@ import com.example.workmatchbackend.repository.JobOfferRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.Optional;
+import org.bson.types.ObjectId;
 
 @Service
 public class LikeService {
@@ -65,10 +66,7 @@ public class LikeService {
 
     private String resolveUserId(String id) {
         Optional<JobSearcher> jobSearcher = jobSearcherRepository.findById(id);
-        if (jobSearcher.isPresent()) {
-            System.out.println("🔄 Convertir " + id + " en userId " + jobSearcher.get().getUserId());
-            return jobSearcher.get().getUserId();
-        }
-        return id;
+        return jobSearcher.map(js -> js.getUserId().toHexString()).orElse(id); // ✅ Conversion propre
     }
+
 }

@@ -2,10 +2,12 @@ package com.example.workmatchbackend.controller;
 
 import com.example.workmatchbackend.model.User;
 import com.example.workmatchbackend.repository.UserRepository;
+import com.example.workmatchbackend.repository.JobSearcherRepository;
 import com.example.workmatchbackend.service.UserService;
 import com.example.workmatchbackend.util.JwtUtil;
 import java.util.Arrays;
-
+import com.example.workmatchbackend.model.JobSearcher;
+import org.bson.types.ObjectId;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -35,6 +37,9 @@ public class UserController {
 
     @Autowired
     private MatchService matchService;
+
+    @Autowired
+    private JobSearcherRepository jobSearcherRepository;
 
     public UserController(MatchService matchService) {
         this.matchService = matchService;
@@ -199,55 +204,64 @@ public class UserController {
     public void deleteUser(@PathVariable String id) {
         userService.deleteUser(id);
     }
+
     @PostMapping("/register")
     public ResponseEntity<?> registerUser(@RequestBody User user) {
         System.out.println("Registering user: " + user.getEmail());
 
-        // Liste des domaines autorisés
+        // ✅ Vérification du format de l'email
         List<String> allowedDomains = Arrays.asList("gmail.com", "hotmail.com", "yahoo.com", "outlook.com", "protonmail.com");
-
-        // Vérifier que l'email contient "@"
         String email = user.getEmail();
-        if (!email.contains("@")) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Email must contain '@' symbol.");
-        }
-
-        String[] emailParts = email.split("@");
-        if (emailParts.length != 2) {
+        if (!email.contains("@") || email.split("@").length != 2) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid email format.");
         }
 
-        String prefix = emailParts[0];
-        String domain = emailParts[1];
-
-        // Vérifier que le préfixe contient uniquement lettres et chiffres
-        if (!prefix.matches("^[a-zA-Z0-9]+$")) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Email prefix must contain only letters and numbers.");
-        }
-
-        // Vérifier que le préfixe contient au moins 4 lettres et 1 chiffre
-        if (!prefix.matches(".*\\d.*") || prefix.replaceAll("[^a-zA-Z]", "").length() < 4) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("The email prefix must contain at least 4 letters and 1 number.");
-        }
-
-        // Vérifier que le domaine est autorisé
+        String domain = email.split("@")[1];
         if (!allowedDomains.contains(domain)) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Allowed domains are: " + String.join(", ", allowedDomains));
         }
 
-        // Vérifier si l'email existe déjà
+        // ✅ Vérifier si l'email existe déjà
         if (userService.existsByEmail(user.getEmail())) {
             return ResponseEntity.status(HttpStatus.CONFLICT).body("Email already in use.");
         }
 
-        // Hachage du mot de passe
+        // ✅ Hachage du mot de passe
         user.setPassword(passwordEncoder.encode(user.getPassword()));
 
-        // Sauvegarde de l'utilisateur
+        // ✅ Sauvegarde de l'utilisateur
         User savedUser = userService.saveUser(user);
+
+        // **Créer un JobSearcher si l'utilisateur est un INDIVIDUAL**
+        // **Créer un JobSearcher si l'utilisateur est un INDIVIDUAL**
+        if (savedUser.getUserType() == UserType.INDIVIDUAL) {
+            ObjectId userIdObject;
+            try {
+                userIdObject = new ObjectId(savedUser.getId()); // ✅ Conversion propre de String à ObjectId
+            } catch (IllegalArgumentException e) {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                        .body("Erreur : Impossible de convertir l'ID utilisateur en ObjectId.");
+            }
+
+            JobSearcher jobSearcher = new JobSearcher(
+                    userIdObject, // ✅ Passe un ObjectId et non une String
+                    savedUser.getUsername(),
+                    savedUser.getEmail(),
+                    new ArrayList<>(),
+                    0,
+                    0,
+                    false,
+                    new ArrayList<>()
+            );
+
+            jobSearcherRepository.save(jobSearcher);
+            System.out.println("✅ JobSearcher créé avec userId: " + userIdObject.toHexString());
+        }
+
 
         return ResponseEntity.status(HttpStatus.CREATED).body(savedUser);
     }
+
 
     @PostMapping("/updateUserType")
     public ResponseEntity<?> updateUserType(@RequestBody User user) {

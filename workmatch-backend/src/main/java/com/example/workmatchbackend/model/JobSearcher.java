@@ -7,23 +7,37 @@ import java.util.List;
 import javax.persistence.Transient;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import org.bson.types.ObjectId;
+import java.util.ArrayList;
 
 @Document(collection = "jobSearchers") // Assurez-vous que le nom de la collection est correct.
 public class JobSearcher {
     @Id
-    private String id;
+    private ObjectId id;
     private String name;
     private String email;
     private String username;
-    private List<Skill> skills;
+    private List<Skill> skills = new ArrayList<>();
     private double experience;
     private String photoUrl;
     private String resumeUrl;
-    private String userId;
+    private ObjectId userId;
     private boolean remote;
     private int salaryMin;
     private int salaryMax;
-    private List<String> locations;
+    private List<String> locations = new ArrayList<>();
+    public JobSearcher() {}
+
+    public JobSearcher(ObjectId userId, String name, String email, List<Skill> skills, int salaryMin, int salaryMax, boolean remote, List<String> locations) {
+        this.userId = userId; // ✅ Garde tel quel, pas besoin de reconvertir !
+        this.name = name;
+        this.email = email;
+        this.skills = skills;
+        this.salaryMin = salaryMin;
+        this.salaryMax = salaryMax;
+        this.remote = remote;
+        this.locations = locations;
+    }
 
     @Transient // Ce champ ne sera PAS stocké en base
     @JsonIgnore
@@ -53,10 +67,9 @@ public class JobSearcher {
         this.remote = remote;
     }
 
-    public String getUserId() {
+    public ObjectId getUserId() {
         return userId;
     }
-
     @JsonProperty("matchingScore") // 🔥 S'assure que le score est inclus dans la réponse JSON
     public double getMatchingScore() {
         return matchingScore;
@@ -67,7 +80,7 @@ public class JobSearcher {
         this.matchingScore = matchingScore;
     }
 
-    public void setUserId(String userId) {
+    public void setUserId(ObjectId userId) {
         this.userId = userId;
     }
     public List<Skill> getSkills() { return skills; }
@@ -81,11 +94,11 @@ public class JobSearcher {
         this.locations = locations;
     }
 
-    public String getId() {
+    public ObjectId getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(ObjectId id) {
         this.id = id;
     }
 

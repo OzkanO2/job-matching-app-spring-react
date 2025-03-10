@@ -42,8 +42,9 @@ public class MatchService {
 
     private String resolveUserId(String swipedId) {
         Optional<JobSearcher> jobSearcher = jobSearcherRepository.findById(swipedId);
-        return jobSearcher.map(JobSearcher::getUserId).orElse(swipedId);
+        return jobSearcher.map(js -> js.getUserId().toHexString()).orElse(swipedId);
     }
+
     public boolean checkIfMatchExists(String userId1, String userId2) {
         System.out.println("📌 checkIfMatchExists() appelé !");
         System.out.println("➡️ Vérification du match entre " + userId1 + " et " + userId2);
