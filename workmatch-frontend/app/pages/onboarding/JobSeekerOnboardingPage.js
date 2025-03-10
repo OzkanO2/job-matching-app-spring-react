@@ -1,21 +1,44 @@
-import React, { useState } from 'react';
-import { View, Text, Button, StyleSheet, CheckBox } from 'react-native';
-import axios from 'axios';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import React, { useState } from "react";
+import {
+  View, Text, TouchableOpacity, StyleSheet, FlatList
+} from "react-native";
+import { Ionicons } from "@expo/vector-icons"; // ✅ Ajout d'icônes
+import axios from "axios";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const JobSeekerOnboardingPage = ({ navigation, route }) => {
   const { userInfo } = route.params;
-  const [skills, setSkills] = useState([]);
-  const allSkills = ['JavaScript', 'React', 'Node.js', 'Python', 'Java', 'C#', 'Ruby', 'Swift'];
 
-  const handleSkillChange = (skill) => {
-    if (skills.includes(skill)) {
-      setSkills(skills.filter((s) => s !== skill));
-    } else {
-      setSkills([...skills, skill]);
-    }
+  // Liste des compétences possibles
+  const allSkills = ["JavaScript", "React", "Node.js", "Python", "Java", "C#", "Ruby", "Swift"];
+
+  // État pour stocker les compétences sélectionnées et leur expérience
+  const [selectedSkills, setSelectedSkills] = useState({});
+
+  // Fonction pour ajouter ou retirer une compétence
+  const handleSkillToggle = (skill) => {
+    setSelectedSkills((prevSkills) => {
+      const newSkills = { ...prevSkills };
+
+      if (newSkills[skill]) {
+        delete newSkills[skill]; // Retire la compétence si elle est déjà sélectionnée
+      } else {
+        newSkills[skill] = 1; // Ajoute avec une expérience de 1 par défaut
+      }
+
+      return newSkills;
+    });
   };
 
+  // Fonction pour ajuster l'expérience d'une compétence
+  const handleExperienceChange = (skill, value) => {
+    setSelectedSkills((prevSkills) => ({
+      ...prevSkills,
+      [skill]: Math.max(1, prevSkills[skill] + value), // Minimum 1 an
+    }));
+  };
+
+  // Fonction pour soumettre les données
   const handleSubmit = async () => {
     try {
       if (!userInfo.id) {
@@ -24,55 +47,146 @@ const JobSeekerOnboardingPage = ({ navigation, route }) => {
         return;
       }
 
-      // 🔹 Mettre à jour les skills
-      await axios.put(`http://localhost:8080/users/${userInfo.id}/skills`, skills, {
-        headers: {
-          Authorization: `Bearer ${await AsyncStorage.getItem('userToken')}`,
-        },
-      });
+      // ✅ Transformation des compétences en JSON correct
+      const formattedSkills = Object.entries(selectedSkills).map(([skill, experience]) => ({
+        name: skill,
+        experience,
+      }));
 
-      console.log("✅ Skills updated successfully!");
+      // ✅ Vérification du JSON avant envoi
+      console.log("📤 Envoi des compétences :", JSON.stringify({ skills: formattedSkills }));
 
-      // ✅ 🔹 Stocker `userType` dans AsyncStorage pour éviter qu'il soit perdu
-      await AsyncStorage.setItem('userType', userInfo.userType);
-      await AsyncStorage.setItem('userId', userInfo.id);
+      const response = await axios.put(
+        `http://localhost:8080/jobsearchers/${userInfo.id}/skills`,
+        { skills: formattedSkills },
+        {
+          headers: {
+            Authorization: `Bearer ${await AsyncStorage.getItem("userToken")}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
-      // ✅ 🔹 Redirection correcte
-      if (userInfo.userType === 'INDIVIDUAL') {
-        navigation.navigate('IndividualHome', { userInfo });
-      } else if (userInfo.userType === 'COMPANY') {
-        navigation.navigate('CompanyHome', { userInfo });
+      console.log("✅ Skills updated successfully!", response.data);
+
+      await AsyncStorage.setItem("userType", userInfo.userType);
+      await AsyncStorage.setItem("userId", userInfo.id);
+
+      if (userInfo.userType === "INDIVIDUAL") {
+        navigation.navigate("IndividualHome", { userInfo });
+      } else if (userInfo.userType === "COMPANY") {
+        navigation.navigate("CompanyHome", { userInfo });
       }
-
     } catch (error) {
-      console.error('❌ Failed to update skills:', error);
-      alert('Failed to update skills. Please try again.');
+      console.error("❌ Failed to update skills:", error.response ? error.response.data : error);
+      alert("Failed to update skills. Please try again.");
     }
   };
 
+
   return (
     <View style={styles.container}>
-      <Text>Select your skills:</Text>
-      {allSkills.map((skill) => (
-        <View key={skill} style={styles.checkboxContainer}>
-          <CheckBox value={skills.includes(skill)} onValueChange={() => handleSkillChange(skill)} />
-          <Text>{skill}</Text>
-        </View>
-      ))}
-      <Button title="Submit" onPress={handleSubmit} />
+      <Text style={styles.title}>Select Your Skills and Experience:</Text>
+
+      <FlatList
+        data={allSkills}
+        keyExtractor={(item) => item}
+        renderItem={({ item }) => (
+          <View style={styles.skillContainer}>
+            {/* Bouton de sélection de compétence */}
+            <TouchableOpacity
+              onPress={() => handleSkillToggle(item)}
+              style={[styles.skillButton, selectedSkills[item] && styles.selectedSkill]}
+            >
+              <Text style={[styles.skillText, selectedSkills[item] && styles.selectedSkillText]}>
+                {item}
+              </Text>
+            </TouchableOpacity>
+
+            {/* Sélection de l'expérience si le skill est choisi */}
+            {selectedSkills[item] && (
+              <View style={styles.experienceContainer}>
+                <TouchableOpacity onPress={() => handleExperienceChange(item, -1)}>
+                  <Ionicons name="remove-circle-outline" size={24} color="#6c757d" />
+                </TouchableOpacity>
+
+                <Text style={styles.experienceValue}>{selectedSkills[item]} years</Text>
+
+                <TouchableOpacity onPress={() => handleExperienceChange(item, 1)}>
+                  <Ionicons name="add-circle-outline" size={24} color="#6c757d" />
+                </TouchableOpacity>
+              </View>
+            )}
+          </View>
+        )}
+      />
+
+      <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>
+        <Text style={styles.submitButtonText}>SUBMIT</Text>
+      </TouchableOpacity>
     </View>
   );
 };
 
+// 🎨 **Styles améliorés**
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    padding: 20,
+    alignItems: "center",
+    backgroundColor: "#f8f9fa", // Couleur de fond douce
   },
-  checkboxContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
+  title: {
+    fontSize: 20,
+    fontWeight: "bold",
+    marginBottom: 10,
+    color: "#343a40",
+  },
+  skillContainer: {
+    alignItems: "center",
+    marginVertical: 8,
+  },
+  skillButton: {
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderWidth: 2,
+    borderColor: "#007bff",
+    borderRadius: 10,
+    backgroundColor: "white",
+    marginBottom: 5,
+  },
+  selectedSkill: {
+    backgroundColor: "#007bff",
+  },
+  skillText: {
+    fontSize: 16,
+    color: "#007bff",
+  },
+  selectedSkillText: {
+    color: "white",
+    fontWeight: "bold",
+  },
+  experienceContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginTop: 5,
+  },
+  experienceValue: {
+    fontSize: 16,
+    fontWeight: "bold",
+    marginHorizontal: 10,
+  },
+  submitButton: {
+    backgroundColor: "#007bff",
+    paddingVertical: 12,
+    paddingHorizontal: 25,
+    borderRadius: 10,
+    marginTop: 15,
+  },
+  submitButtonText: {
+    color: "white",
+    fontSize: 18,
+    fontWeight: "bold",
   },
 });
 

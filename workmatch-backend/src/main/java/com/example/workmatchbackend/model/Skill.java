@@ -2,9 +2,9 @@ package com.example.workmatchbackend.model;
 
 public class Skill {
     private String name;
-    private double experience;
+    private int experience;
 
-    public Skill(String name, double experience) {
+    public Skill(String name, int experience) {
         this.name = name;
         this.experience = experience;
     }
@@ -12,6 +12,6 @@ public class Skill {
     public String getName() { return name; }
     public void setName(String name) { this.name = name; }
 
-    public double getExperience() { return experience; }
-    public void setExperience(double experience) { this.experience = experience; }
+    public int getExperience() { return experience; }
+    public void setExperience(int experience) { this.experience = experience; }
 }

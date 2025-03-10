@@ -230,4 +230,7 @@ public class JobSearcherService {
         if (isRemote) return true;
         return jobSearcher.getLocations().stream().anyMatch(requiredLocations::contains);
     }
+    public Optional<JobSearcher> findByUserId(ObjectId userId) {
+        return jobSearcherRepository.findByUserId(userId);
+    }
 }

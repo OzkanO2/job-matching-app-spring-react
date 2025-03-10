@@ -5,6 +5,9 @@ import com.example.workmatchbackend.service.JobSearcherService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
+import java.util.Optional;
+import org.bson.types.ObjectId;
 
 import java.util.List;
 
@@ -40,5 +43,26 @@ public class JobSearcherController {
     public List<JobSearcher> getMatchingCandidatesForCompany(@RequestParam String companyId) {
         return jobSearcherService.findMatchingCandidatesForCompany(companyId);
     }
+
+    @PutMapping("/{userId}/skills")
+    public ResponseEntity<?> updateSkills(@PathVariable String userId, @RequestBody JobSearcher jobSearcher) {
+        System.out.println("📥 Requête reçue pour mettre à jour les compétences de " + userId);
+
+        // ✅ Vérifier si le JobSearcher existe avec cet userId
+        Optional<JobSearcher> existingJobSearcher = jobSearcherService.findByUserId(new ObjectId(userId));
+
+        if (existingJobSearcher.isPresent()) {
+            JobSearcher updatedJobSearcher = existingJobSearcher.get();
+            updatedJobSearcher.setSkills(jobSearcher.getSkills());
+
+            jobSearcherService.saveJobSearcher(updatedJobSearcher);
+            System.out.println("✅ Compétences mises à jour avec succès !");
+
+            return ResponseEntity.ok(updatedJobSearcher);
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Utilisateur non trouvé.");
+        }
+    }
+
 
 }

@@ -114,6 +114,7 @@ function MainStackNavigator() {
         name="JobSeekerOnboardingPage"
         component={JobSeekerOnboardingPage}
         options={{
+          headerLeft: () => null,
           title: 'Job Seeker Onboarding',
         }}
       />
