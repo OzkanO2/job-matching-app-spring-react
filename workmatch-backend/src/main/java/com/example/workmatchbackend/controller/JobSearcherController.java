@@ -44,9 +44,9 @@ public class JobSearcherController {
         return jobSearcherService.findMatchingCandidatesForCompany(companyId);
     }
 
-    @PutMapping("/{userId}/skills")
-    public ResponseEntity<?> updateSkills(@PathVariable String userId, @RequestBody JobSearcher jobSearcher) {
-        System.out.println("📥 Requête reçue pour mettre à jour les compétences de " + userId);
+    @PutMapping("/{userId}/updateUser")
+    public ResponseEntity<?> updateUser(@PathVariable String userId, @RequestBody JobSearcher jobSearcher) {
+        System.out.println("📥 Requête reçue pour mettre à jour les données de " + userId);
 
         // ✅ Vérifier si le JobSearcher existe avec cet userId
         Optional<JobSearcher> existingJobSearcher = jobSearcherService.findByUserId(new ObjectId(userId));
@@ -54,15 +54,15 @@ public class JobSearcherController {
         if (existingJobSearcher.isPresent()) {
             JobSearcher updatedJobSearcher = existingJobSearcher.get();
             updatedJobSearcher.setSkills(jobSearcher.getSkills());
+            updatedJobSearcher.setRemote(jobSearcher.isRemote()); // ✅ Ajout de isRemote
 
             jobSearcherService.saveJobSearcher(updatedJobSearcher);
-            System.out.println("✅ Compétences mises à jour avec succès !");
+            System.out.println("✅ Données utilisateur mises à jour avec succès !");
 
             return ResponseEntity.ok(updatedJobSearcher);
         } else {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Utilisateur non trouvé.");
         }
     }
-
 
 }

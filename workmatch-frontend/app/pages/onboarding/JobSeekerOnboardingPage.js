@@ -14,6 +14,7 @@ const JobSeekerOnboardingPage = ({ navigation, route }) => {
 
   // État pour stocker les compétences sélectionnées et leur expérience
   const [selectedSkills, setSelectedSkills] = useState({});
+  const [isRemote, setIsRemote] = useState(false); // ✅ Ajout du remote toggle
 
   // Fonction pour ajouter ou retirer une compétence
   const handleSkillToggle = (skill) => {
@@ -23,7 +24,7 @@ const JobSeekerOnboardingPage = ({ navigation, route }) => {
       if (newSkills[skill]) {
         delete newSkills[skill]; // Retire la compétence si elle est déjà sélectionnée
       } else {
-        newSkills[skill] = 1; // Ajoute avec une expérience de 1 par défaut
+        newSkills[skill] = 1; // Ajoute avec une expérience de 1 an par défaut
       }
 
       return newSkills;
@@ -54,11 +55,11 @@ const JobSeekerOnboardingPage = ({ navigation, route }) => {
       }));
 
       // ✅ Vérification du JSON avant envoi
-      console.log("📤 Envoi des compétences :", JSON.stringify({ skills: formattedSkills }));
+      console.log("📤 Envoi des données :", JSON.stringify({ skills: formattedSkills, remote: isRemote }));
 
       const response = await axios.put(
-        `http://localhost:8080/jobsearchers/${userInfo.id}/skills`,
-        { skills: formattedSkills },
+        `http://localhost:8080/jobsearchers/${userInfo.id}/updateUser`, // ✅ Nouveau endpoint
+        { skills: formattedSkills, remote: isRemote }, // ✅ Ajout de remote
         {
           headers: {
             Authorization: `Bearer ${await AsyncStorage.getItem("userToken")}`,
@@ -67,22 +68,21 @@ const JobSeekerOnboardingPage = ({ navigation, route }) => {
         }
       );
 
-      console.log("✅ Skills updated successfully!", response.data);
+      console.log("✅ User data updated successfully!", response.data);
 
       await AsyncStorage.setItem("userType", userInfo.userType);
       await AsyncStorage.setItem("userId", userInfo.id);
 
       if (userInfo.userType === "INDIVIDUAL") {
-        navigation.navigate("IndividualHome", { userInfo });
+        navigation.replace("IndividualHome", { userInfo });
       } else if (userInfo.userType === "COMPANY") {
-        navigation.navigate("CompanyHome", { userInfo });
+        navigation.replace("CompanyHome", { userInfo });
       }
     } catch (error) {
-      console.error("❌ Failed to update skills:", error.response ? error.response.data : error);
-      alert("Failed to update skills. Please try again.");
+      console.error("❌ Failed to update user data:", error.response ? error.response.data : error);
+      alert("Failed to update user data. Please try again.");
     }
   };
-
 
   return (
     <View style={styles.container}>
@@ -121,6 +121,17 @@ const JobSeekerOnboardingPage = ({ navigation, route }) => {
         )}
       />
 
+      {/* ✅ Toggle Remote Work */}
+      <View style={styles.remoteContainer}>
+        <Text style={styles.remoteText}>Remote:</Text>
+        <TouchableOpacity
+          style={[styles.remoteButton, isRemote && styles.remoteSelected]}
+          onPress={() => setIsRemote(!isRemote)}
+        >
+          <Text style={styles.remoteButtonText}>{isRemote ? "YES" : "NO"}</Text>
+        </TouchableOpacity>
+      </View>
+
       <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>
         <Text style={styles.submitButtonText}>SUBMIT</Text>
       </TouchableOpacity>
@@ -134,7 +145,7 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 20,
     alignItems: "center",
-    backgroundColor: "#f8f9fa", // Couleur de fond douce
+    backgroundColor: "#f8f9fa",
   },
   title: {
     fontSize: 20,
@@ -175,6 +186,29 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "bold",
     marginHorizontal: 10,
+  },
+  remoteContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginTop: 20,
+  },
+  remoteText: {
+    fontSize: 18,
+    marginRight: 10,
+  },
+  remoteButton: {
+    paddingVertical: 10,
+    paddingHorizontal: 15,
+    borderRadius: 10,
+    backgroundColor: "#ddd",
+  },
+  remoteSelected: {
+    backgroundColor: "#007bff",
+  },
+  remoteButtonText: {
+    fontSize: 16,
+    fontWeight: "bold",
+    color: "white",
   },
   submitButton: {
     backgroundColor: "#007bff",
