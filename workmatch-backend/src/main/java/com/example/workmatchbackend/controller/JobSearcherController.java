@@ -45,7 +45,8 @@ public class JobSearcherController {
     }
 
     @PutMapping("/{userId}/updateUser")  // ✅ Changement du nom de l'endpoint
-    public ResponseEntity<?> updateUser(@PathVariable String userId, @RequestBody JobSearcher jobSearcher) {
+    public ResponseEntity<?> updateUser(@PathVariable String userId,
+                                        @RequestBody JobSearcher jobSearcher) {
         System.out.println("📥 Requête reçue pour mettre à jour l'utilisateur : " + userId);
 
         // ✅ Vérifier si le JobSearcher existe
@@ -62,6 +63,13 @@ public class JobSearcherController {
 
             // ✅ Mise à jour des villes sélectionnées
             updatedJobSearcher.setLocations(jobSearcher.getLocations());
+
+            if (jobSearcher.getSalaryMin() > jobSearcher.getSalaryMax()) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .body("❌ Erreur: Le salaire minimum ne peut pas être supérieur au salaire maximum !");
+            }
+            updatedJobSearcher.setSalaryMin(jobSearcher.getSalaryMin());
+            updatedJobSearcher.setSalaryMax(jobSearcher.getSalaryMax());
 
             // ✅ Sauvegarde en base de données
             jobSearcherService.saveJobSearcher(updatedJobSearcher);

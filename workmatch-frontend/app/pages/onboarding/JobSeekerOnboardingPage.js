@@ -18,6 +18,8 @@ const JobSeekerOnboardingPage = ({ navigation, route }) => {
   const [selectedSkills, setSelectedSkills] = useState({});
   const [isRemote, setIsRemote] = useState(false); // ✅ Ajout du remote toggle
   const [selectedLocations, setSelectedLocations] = useState([]); // ✅ Ajout pour les villes
+const [salaryMin, setSalaryMin] = useState(30000);
+  const [salaryMax, setSalaryMax] = useState(60000);
 
   // Fonction pour ajouter ou retirer une compétence
   const handleSkillToggle = (skill) => {
@@ -51,7 +53,13 @@ const JobSeekerOnboardingPage = ({ navigation, route }) => {
       }
     });
   };
-
+const handleSalaryChange = (type, amount) => {
+    if (type === "min") {
+      setSalaryMin((prev) => Math.max(10000, Math.min(prev + amount, salaryMax - 1000)));
+    } else {
+      setSalaryMax((prev) => Math.max(salaryMin + 1000, prev + amount));
+    }
+  };
   // Fonction pour soumettre les données
   const handleSubmit = async () => {
     try {
@@ -71,15 +79,15 @@ const JobSeekerOnboardingPage = ({ navigation, route }) => {
       console.log("📤 Envoi des données :", JSON.stringify({
       skills: formattedSkills,
       remote: isRemote,
-      locations: selectedLocations // ✅ Envoi des villes sélectionnées
+      locations: selectedLocations, // ✅ Envoi des villes sélectionnées
+        salaryMin,
+        salaryMax
       }));
 
       const response = await axios.put(
         `http://localhost:8080/jobsearchers/${userInfo.id}/updateUser`, // ✅ Nouveau endpoint
-        { skills: formattedSkills,
-          remote: isRemote,
-          locations: selectedLocations
-          }, // ✅ Ajout de remote
+                { skills: formattedSkills, remote: isRemote, locations: selectedLocations, salaryMin, salaryMax },
+
         {
           headers: {
             Authorization: `Bearer ${await AsyncStorage.getItem("userToken")}`,
@@ -167,8 +175,27 @@ const JobSeekerOnboardingPage = ({ navigation, route }) => {
             </Text>
           </TouchableOpacity>
         )}
-      />
-
+      /><Text style={styles.title}>Select Your Salary Range:</Text>
+              <View style={styles.salaryContainer}>
+                <Text>Min Salary:</Text>
+                <TouchableOpacity onPress={() => handleSalaryChange("min", -1000)}>
+                  <Ionicons name="remove-circle-outline" size={24} color="#6c757d" />
+                </TouchableOpacity>
+                <Text style={styles.salaryValue}>{salaryMin} €</Text>
+                <TouchableOpacity onPress={() => handleSalaryChange("min", 1000)}>
+                  <Ionicons name="add-circle-outline" size={24} color="#6c757d" />
+                </TouchableOpacity>
+              </View>
+<View style={styles.salaryContainer}>
+        <Text>Max Salary:</Text>
+        <TouchableOpacity onPress={() => handleSalaryChange("max", -1000)}>
+          <Ionicons name="remove-circle-outline" size={24} color="#6c757d" />
+        </TouchableOpacity>
+        <Text style={styles.salaryValue}>{salaryMax} €</Text>
+        <TouchableOpacity onPress={() => handleSalaryChange("max", 1000)}>
+          <Ionicons name="add-circle-outline" size={24} color="#6c757d" />
+        </TouchableOpacity>
+      </View>
       <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>
         <Text style={styles.submitButtonText}>SUBMIT</Text>
       </TouchableOpacity>

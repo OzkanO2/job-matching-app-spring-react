@@ -47,9 +47,18 @@ public class JobSearcher {
     @Transient
     @JsonIgnore
     private boolean hasLikedOffer;
-
     public int getSalaryMin() {
         return salaryMin;
+    }
+
+    public void setSalaryMin(int salaryMin) {
+        this.salaryMin = salaryMin;
+    }public int getSalaryMax() {
+        return salaryMax;
+    }
+
+    public void setSalaryMax(int salaryMax) {
+        this.salaryMax = salaryMax;
     }
     public boolean isHasLikedOffer() {
         return hasLikedOffer;
@@ -57,9 +66,6 @@ public class JobSearcher {
 
     public void setHasLikedOffer(boolean hasLikedOffer) {
         this.hasLikedOffer = hasLikedOffer;
-    }
-    public int getSalaryMax() {
-        return salaryMax;
     }
     public boolean isRemote() {
         return remote;
