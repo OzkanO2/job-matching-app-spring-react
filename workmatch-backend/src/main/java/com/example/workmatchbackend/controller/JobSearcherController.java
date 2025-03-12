@@ -44,25 +44,32 @@ public class JobSearcherController {
         return jobSearcherService.findMatchingCandidatesForCompany(companyId);
     }
 
-    @PutMapping("/{userId}/updateUser")
+    @PutMapping("/{userId}/updateUser")  // ✅ Changement du nom de l'endpoint
     public ResponseEntity<?> updateUser(@PathVariable String userId, @RequestBody JobSearcher jobSearcher) {
-        System.out.println("📥 Requête reçue pour mettre à jour les données de " + userId);
+        System.out.println("📥 Requête reçue pour mettre à jour l'utilisateur : " + userId);
 
-        // ✅ Vérifier si le JobSearcher existe avec cet userId
+        // ✅ Vérifier si le JobSearcher existe
         Optional<JobSearcher> existingJobSearcher = jobSearcherService.findByUserId(new ObjectId(userId));
 
         if (existingJobSearcher.isPresent()) {
             JobSearcher updatedJobSearcher = existingJobSearcher.get();
-            updatedJobSearcher.setSkills(jobSearcher.getSkills());
-            updatedJobSearcher.setRemote(jobSearcher.isRemote()); // ✅ Ajout de isRemote
 
+            // ✅ Mise à jour des skills
+            updatedJobSearcher.setSkills(jobSearcher.getSkills());
+
+            // ✅ Mise à jour du remote (true / false)
+            updatedJobSearcher.setRemote(jobSearcher.isRemote());
+
+            // ✅ Mise à jour des villes sélectionnées
+            updatedJobSearcher.setLocations(jobSearcher.getLocations());
+
+            // ✅ Sauvegarde en base de données
             jobSearcherService.saveJobSearcher(updatedJobSearcher);
-            System.out.println("✅ Données utilisateur mises à jour avec succès !");
+            System.out.println("✅ Utilisateur mis à jour avec succès !");
 
             return ResponseEntity.ok(updatedJobSearcher);
         } else {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Utilisateur non trouvé.");
         }
     }
-
 }

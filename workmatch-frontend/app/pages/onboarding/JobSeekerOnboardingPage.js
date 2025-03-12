@@ -12,9 +12,12 @@ const JobSeekerOnboardingPage = ({ navigation, route }) => {
   // Liste des compétences possibles
   const allSkills = ["JavaScript", "React", "Node.js", "Python", "Java", "C#", "Ruby", "Swift"];
 
+  const availableLocations = ["Paris", "Lyon", "Marseille", "Toulouse", "Nice", "Bordeaux", "Lille", "Nantes"];
+
   // État pour stocker les compétences sélectionnées et leur expérience
   const [selectedSkills, setSelectedSkills] = useState({});
   const [isRemote, setIsRemote] = useState(false); // ✅ Ajout du remote toggle
+  const [selectedLocations, setSelectedLocations] = useState([]); // ✅ Ajout pour les villes
 
   // Fonction pour ajouter ou retirer une compétence
   const handleSkillToggle = (skill) => {
@@ -39,6 +42,16 @@ const JobSeekerOnboardingPage = ({ navigation, route }) => {
     }));
   };
 
+  const handleLocationToggle = (location) => {
+    setSelectedLocations((prevLocations) => {
+      if (prevLocations.includes(location)) {
+        return prevLocations.filter((loc) => loc !== location); // Supprime si déjà sélectionné
+      } else {
+        return [...prevLocations, location]; // Ajoute si non sélectionné
+      }
+    });
+  };
+
   // Fonction pour soumettre les données
   const handleSubmit = async () => {
     try {
@@ -55,11 +68,18 @@ const JobSeekerOnboardingPage = ({ navigation, route }) => {
       }));
 
       // ✅ Vérification du JSON avant envoi
-      console.log("📤 Envoi des données :", JSON.stringify({ skills: formattedSkills, remote: isRemote }));
+      console.log("📤 Envoi des données :", JSON.stringify({
+      skills: formattedSkills,
+      remote: isRemote,
+      locations: selectedLocations // ✅ Envoi des villes sélectionnées
+      }));
 
       const response = await axios.put(
         `http://localhost:8080/jobsearchers/${userInfo.id}/updateUser`, // ✅ Nouveau endpoint
-        { skills: formattedSkills, remote: isRemote }, // ✅ Ajout de remote
+        { skills: formattedSkills,
+          remote: isRemote,
+          locations: selectedLocations
+          }, // ✅ Ajout de remote
         {
           headers: {
             Authorization: `Bearer ${await AsyncStorage.getItem("userToken")}`,
@@ -131,6 +151,23 @@ const JobSeekerOnboardingPage = ({ navigation, route }) => {
           <Text style={styles.remoteButtonText}>{isRemote ? "YES" : "NO"}</Text>
         </TouchableOpacity>
       </View>
+
+ {/* ✅ Dropdown pour les villes */}
+      <Text style={styles.title}>Select Locations:</Text>
+      <FlatList
+        data={availableLocations}
+        keyExtractor={(item) => item}
+        renderItem={({ item }) => (
+          <TouchableOpacity
+            style={[styles.locationButton, selectedLocations.includes(item) && styles.selectedLocation]}
+            onPress={() => handleLocationToggle(item)}
+          >
+            <Text style={[styles.locationText, selectedLocations.includes(item) && styles.selectedLocationText]}>
+              {item}
+            </Text>
+          </TouchableOpacity>
+        )}
+      />
 
       <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>
         <Text style={styles.submitButtonText}>SUBMIT</Text>
@@ -216,6 +253,20 @@ const styles = StyleSheet.create({
     paddingHorizontal: 25,
     borderRadius: 10,
     marginTop: 15,
+  },
+  locationButton: {
+      padding: 10,
+      borderWidth: 2,
+      borderColor: "#007bff",
+      borderRadius: 10,
+      marginVertical: 5,
+  },
+    selectedLocation: {
+    backgroundColor: "#007bff",
+  },
+  selectedLocationText: {
+    color: "white",
+    fontWeight: "bold",
   },
   submitButtonText: {
     color: "white",
