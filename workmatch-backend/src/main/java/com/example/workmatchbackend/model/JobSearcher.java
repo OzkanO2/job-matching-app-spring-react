@@ -56,6 +56,10 @@ public class JobSearcher {
     }public int getSalaryMax() {
         return salaryMax;
     }
+    @JsonProperty("userId") // 🔥 Cela force la sérialisation correcte en JSON
+    public String getUserIdAsString() {
+        return userId != null ? userId.toHexString() : null;
+    }
 
     public void setSalaryMax(int salaryMax) {
         this.salaryMax = salaryMax;
