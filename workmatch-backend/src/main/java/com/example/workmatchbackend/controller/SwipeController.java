@@ -24,10 +24,16 @@ public class SwipeController {
     @Autowired
     private JobSearcherRepository jobSearcherRepository;
 
-    @GetMapping("/filteredJobSearchers/{swiperId}")
-    public ResponseEntity<List<JobSearcher>> getFilteredJobSearchers(@PathVariable String swiperId) {
-        List<SwipedCard> swipedCards = swipedCardRepository.findBySwiperId(swiperId);
-        List<String> swipedIds = swipedCards.stream().map(SwipedCard::getSwipedId).collect(Collectors.toList());
+    @GetMapping("/filteredJobSearchers/{swiperId}/{jobOfferId}")
+    public ResponseEntity<List<JobSearcher>> getFilteredJobSearchers(
+            @PathVariable String swiperId,
+            @PathVariable String jobOfferId) {
+
+        List<SwipedCard> swipedCards = swipedCardRepository.findBySwiperIdAndJobOfferId(swiperId, jobOfferId);
+        List<String> swipedIds = swipedCards.stream()
+                .filter(card -> "left".equals(card.getDirection())) // Filtrer uniquement les swipes à gauche
+                .map(SwipedCard::getSwipedId)
+                .collect(Collectors.toList());
 
         List<JobSearcher> jobSearchers = jobSearcherRepository.findAll();
         List<JobSearcher> filteredJobSearchers = jobSearchers.stream()
@@ -36,6 +42,15 @@ public class SwipeController {
 
         return ResponseEntity.ok(filteredJobSearchers);
     }
+    @GetMapping("/{swiperId}/{jobOfferId}")
+    public ResponseEntity<List<SwipedCard>> getSwipedCardsForOffer(
+            @PathVariable String swiperId,
+            @PathVariable String jobOfferId) {
+
+        List<SwipedCard> swipedCards = swipedCardRepository.findBySwiperIdAndJobOfferId(swiperId, jobOfferId);
+        return ResponseEntity.ok(swipedCards);
+    }
+
 
     @GetMapping("/{swiperId}")
     public ResponseEntity<List<SwipedCard>> getSwipedCards(@PathVariable String swiperId) {
@@ -56,26 +71,24 @@ public class SwipeController {
     }
 
     @PostMapping("/save")
-    public ResponseEntity<String> saveSwipe(@RequestBody Map<String, String> payload) {
-        String swiperId = payload.get("swiperId");
-        String swipedId = payload.get("swipedId");
-        String direction = payload.get("direction");
+    public ResponseEntity<String> saveSwipe(@RequestBody Map<String, Object> payload) {
+        String swiperId = (String) payload.get("swiperId");
+        String swipedId = (String) payload.get("swipedId");
+        String direction = (String) payload.get("direction");
+        String jobOfferId = (String) payload.get("jobOfferId");
+        boolean isFromRedirection = payload.containsKey("isFromRedirection") && (boolean) payload.get("isFromRedirection"); // ✅ Ajout
 
         if (swiperId == null || swipedId == null || direction == null) {
             return ResponseEntity.badRequest().body("❌ swiperId, swipedId et direction sont requis.");
         }
 
-        // Vérifie si le swipe existe déjà
-        if (swipedCardRepository.existsBySwiperIdAndSwipedId(swiperId, swipedId)) {
-            return ResponseEntity.ok("⚠️ Swipe déjà enregistré !");
-        }
-
-        SwipedCard swipe = new SwipedCard(swiperId, swipedId, direction);
+        SwipedCard swipe = new SwipedCard(swiperId, swipedId, direction, jobOfferId, isFromRedirection);
         swipedCardRepository.save(swipe);
 
         System.out.println("✅ Swipe enregistré : " + swipe);
 
         return ResponseEntity.ok("✅ Swipe enregistré !");
     }
+
 
 }

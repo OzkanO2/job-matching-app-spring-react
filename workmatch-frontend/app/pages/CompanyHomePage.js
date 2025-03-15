@@ -28,109 +28,114 @@ const CompanyHomePage = () => {
 useEffect(() => {
     console.log("🆕 Mise à jour des candidats après swipe :", matchingJobSearchers);
 }, [matchingJobSearchers]);
+const fetchMatchingCandidates = async (jobOffer) => {
+    if (!jobOffer || !jobOffer._id) {
+        console.error("❌ Erreur : jobOffer ou son ID est invalide !");
+        return;
+    }
 
-    const fetchMatchingCandidates = async (jobOffer) => {
-        if (!jobOffer || !jobOffer._id) {
-            console.error("❌ Erreur : jobOffer ou son ID est invalide !");
+    try {
+        const token = await AsyncStorage.getItem("userToken");
+        const swiperId = await AsyncStorage.getItem("userId"); // ID de l'entreprise qui swipe
+        if (!token || !swiperId) {
+            console.error("❌ Token ou swiperId manquant !");
             return;
         }
 
+        console.log("📡 Chargement des candidats pour :", jobOffer.title);
+
+        // ✅ Récupérer tous les candidats correspondant à l'offre
+        const response = await axios.get(`http://localhost:8080/jobsearchers/matching?jobOfferId=${jobOffer._id}`, {
+            headers: { Authorization: `Bearer ${token}` },
+        });
+
+        let candidates = response.data;
+        console.log("✅ Candidats correspondants avant filtrage :", candidates.map(c => ({
+            name: c.name,
+            userId: c.userId?.toString(),
+            id: c.id?.toString()
+        })));
+
+        // ✅ Récupérer les job searchers déjà swipés à gauche par cette entreprise pour CETTE offre
+        let swipedIdsForOffer = new Set();
         try {
-            const token = await AsyncStorage.getItem("userToken");
-            const swiperId = await AsyncStorage.getItem("userId"); // ID de l'entreprise qui swipe
-            if (!token || !swiperId) {
-                console.error("❌ Token ou swiperId manquant !");
-                return;
-            }
-
-            console.log("📡 Chargement des candidats pour :", jobOffer.title);
-
-            // ✅ Récupérer tous les candidats correspondant à l'offre
-            const response = await axios.get(`http://localhost:8080/jobsearchers/matching?jobOfferId=${jobOffer._id}`, {
+            const swipedResponse = await axios.get(`http://localhost:8080/api/swiped/${swiperId}/${jobOffer._id}`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
 
-            let candidates = response.data;
-            console.log("✅ Candidats correspondants avant filtrage :", candidates.map(c => ({
-                name: c.name,
-                userId: c.userId?.toString(),
-                id: c.id?.toString()
-            })));
-
-            // ✅ Récupérer les job searchers déjà swipés par cette entreprise (`swiperId`)
-            let swipedIds = new Set();
-            try {
-                const swipedResponse = await axios.get(`http://localhost:8080/api/swiped/${swiperId}`, {
-                    headers: { Authorization: `Bearer ${token}` },
-                });
-
-                // 🔥 Convertir en Set de strings pour éviter toute confusion de types
-                swipedIds = new Set(swipedResponse.data.map(item => item.swipedId.toString().trim()));
-                console.log("❌ Liste des candidats déjà swipés par l'entreprise :", [...swipedIds]);
-
-            } catch (error) {
-                console.error("⚠️ Erreur lors de la récupération des swipes :", error);
-            }
-
-            console.log("✅ Liste complète des candidats avant filtrage :", candidates.map(c => c.userId?.toString() || c.id?.toString()));
-            console.log("❌ Liste des candidats déjà swipés (normalisée) :", [...swipedIds]);
-
-            // ✅ Filtrage des candidats déjà swipés avec logs détaillés
-            candidates = candidates.filter(candidate => {
-                const candidateId = candidate.userId?.toString() || candidate.id?.toString(); // Toujours en string
-                const isSwiped = swipedIds.has(candidateId);
-
-                if (isSwiped) {
-                    console.log(`❌ Exclusion de ${candidate.name} (ID: ${candidateId})`);
-                } else {
-                    console.log(`✅ Conservation de ${candidate.name} (ID: ${candidateId})`);
-                }
-
-                return !isSwiped;
-            });
-
-            console.log("✅ Liste finale des candidats après filtrage :", candidates.map(c => c.userId?.toString() || c.id?.toString()));
-
-            // ✅ Récupérer les utilisateurs ayant liké cette offre
-            let likedUsers = [];
-            try {
-                const likesResponse = await axios.get(`http://localhost:8080/likes?swipedId=${jobOffer._id}`, {
-                    headers: { Authorization: `Bearer ${token}` },
-                });
-
-                likedUsers = likesResponse.data.map(like => like.swiperId.toString().trim());
-                console.log("💖 Liste des likes normalisée :", likedUsers);
-
-            } catch (error) {
-                console.error("⚠️ Erreur lors de la récupération des likes :", error);
-            }
-
-            // ✅ Ajouter une propriété `hasLikedOffer` et corriger `matchingScore`
-            candidates = candidates.map(candidate => ({
-                ...candidate,
-                hasLikedOffer: likedUsers.includes(candidate.userId ? candidate.userId.toString().trim() : ""),
-                matchingScore: isNaN(candidate.matchingScore) || candidate.matchingScore === null
-                    ? 0
-                    : Math.round(candidate.matchingScore * 100) / 100
-            }));
-
-            // ✅ Trier les candidats : Ceux qui ont liké d'abord, puis ceux avec le meilleur score
-            candidates.sort((a, b) =>
-                (b.hasLikedOffer - a.hasLikedOffer) || (b.matchingScore - a.matchingScore)
+            // 🔥 Filtrer SEULEMENT les swipes à gauche qui proviennent d'une redirection
+            swipedIdsForOffer = new Set(
+                swipedResponse.data
+                    .filter(item => item.direction === "left" && item.isFromRedirection === true)
+                    .map(item => item.swipedId.toString().trim())
             );
 
-            candidates.forEach(c => console.log(`✅ Score final après traitement : ${c.name} - ${c.matchingScore}%`));
-
-            console.log("📌 Liste finale des candidats après tri :", candidates);
-
-            setMatchingJobSearchers([...candidates]);
+            console.log("❌ Liste des candidats déjà swipés à gauche dans la redirection pour cette offre :", [...swipedIdsForOffer]);
 
         } catch (error) {
-            console.error("❌ Erreur lors du chargement des candidats :", error);
-        } finally {
-            setIsLoading(false);
+            console.error("⚠️ Erreur lors de la récupération des swipes :", error);
         }
-    };
+
+        console.log("✅ Liste complète des candidats avant filtrage :", candidates.map(c => c.userId?.toString() || c.id?.toString()));
+        console.log("❌ Liste des candidats déjà swipés (normalisée) :", [...swipedIdsForOffer]);
+
+        // ✅ Filtrage des candidats déjà swipés pour CETTE offre dans la redirection
+        candidates = candidates.filter(candidate => {
+            const candidateId = candidate.userId?.toString() || candidate.id?.toString();
+            const isSwipedForOffer = swipedIdsForOffer.has(candidateId);
+
+            if (isSwipedForOffer) {
+                console.log(`❌ Exclusion de ${candidate.name} (ID: ${candidateId}) - Swipé à gauche dans la redirection pour cette offre`);
+            } else {
+                console.log(`✅ Conservation de ${candidate.name} (ID: ${candidateId})`);
+            }
+
+            return !isSwipedForOffer;
+        });
+
+        console.log("✅ Liste finale des candidats après filtrage :", candidates.map(c => c.userId?.toString() || c.id?.toString()));
+
+        // ✅ Récupérer les utilisateurs ayant liké cette offre
+        let likedUsers = [];
+        try {
+            const likesResponse = await axios.get(`http://localhost:8080/likes?swipedId=${jobOffer._id}`, {
+                headers: { Authorization: `Bearer ${token}` },
+            });
+
+            likedUsers = likesResponse.data.map(like => like.swiperId.toString().trim());
+            console.log("💖 Liste des likes normalisée :", likedUsers);
+
+        } catch (error) {
+            console.error("⚠️ Erreur lors de la récupération des likes :", error);
+        }
+
+        // ✅ Ajouter une propriété `hasLikedOffer` et corriger `matchingScore`
+        candidates = candidates.map(candidate => ({
+            ...candidate,
+            hasLikedOffer: likedUsers.includes(candidate.userId ? candidate.userId.toString().trim() : ""),
+            matchingScore: isNaN(candidate.matchingScore) || candidate.matchingScore === null
+                ? 0
+                : Math.round(candidate.matchingScore * 100) / 100
+        }));
+
+        // ✅ Trier les candidats : Ceux qui ont liké d'abord, puis ceux avec le meilleur score
+        candidates.sort((a, b) =>
+            (b.hasLikedOffer - a.hasLikedOffer) || (b.matchingScore - a.matchingScore)
+        );
+
+        candidates.forEach(c => console.log(`✅ Score final après traitement : ${c.name} - ${c.matchingScore}%`));
+
+        console.log("📌 Liste finale des candidats après tri :", candidates);
+
+        // ✅ Mise à jour de l'état avec la nouvelle liste
+        setMatchingJobSearchers([...candidates]);
+
+    } catch (error) {
+        console.error("❌ Erreur lors du chargement des candidats :", error);
+    } finally {
+        setIsLoading(false);
+    }
+};
 const fetchMatchingCandidatesForCompany = async () => {
     try {
         const token = await AsyncStorage.getItem('userToken');
@@ -151,32 +156,38 @@ const fetchMatchingCandidatesForCompany = async () => {
         let allJobSearchers = response.data;
         console.log("✅ Candidats triés par score :", allJobSearchers);
 
-        // ✅ Récupérer les candidats déjà swipés
+        // ✅ Récupérer les candidats déjà swipés de manière globale (hors redirection)
         let swipedIds = new Set();
         try {
             const swipedResponse = await axios.get(`http://localhost:8080/api/swiped/${companyId}`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
 
-            swipedIds = new Set(swipedResponse.data.map(item => item.swipedId));
-            console.log("❌ Liste des candidats déjà swipés par l'entreprise :", [...swipedIds]);
+            // ✅ Ne filtrer QUE les swipes "left" qui ne viennent PAS d'une redirection
+            swipedIds = new Set(
+                swipedResponse.data
+                    .filter(item => item.direction === "left" && item.isFromRedirection === false)
+                    .map(item => item.swipedId.toString().trim())
+            );
+
+            console.log("❌ Liste des candidats globalement swipés à gauche (hors redirection) :", [...swipedIds]);
 
         } catch (error) {
             console.error("⚠️ Erreur lors de la récupération des swipes :", error);
         }
 
-        // ✅ Filtrer les candidats déjà swipés
+        // ✅ Filtrer les candidats déjà swipés dans l'affichage général
         allJobSearchers = allJobSearchers.filter(candidate => {
             const candidateId = candidate.userId?.toString() || candidate.id?.toString();
-            const isSwiped = swipedIds.has(candidateId);
+            const isSwipedGlobally = swipedIds.has(candidateId);
 
-            if (isSwiped) {
-                console.log(`❌ Exclusion de ${candidate.name} (ID: ${candidateId}) - Déjà swipé par l'entreprise`);
+            if (isSwipedGlobally) {
+                console.log(`❌ Exclusion de ${candidate.name} (ID: ${candidateId}) - Swipé à gauche globalement`);
             } else {
-                console.log(`✅ Garde ${candidate.name} (ID: ${candidateId})`);
+                console.log(`✅ Conservation de ${candidate.name} (ID: ${candidateId})`);
             }
 
-            return !isSwiped;
+            return !isSwipedGlobally;
         });
 
         console.log("✅ Liste finale des candidats après filtrage :", allJobSearchers.map(c => c.userId?.toString() || c.id?.toString()));
@@ -303,6 +314,8 @@ setMatchingJobSearchers(prevState => {
          console.log("🔴 Job Seeker ignoré:", swipedJobSearcher);
          const swipedId = swipedJobSearcher.userId;
          const swiperId = await AsyncStorage.getItem("userId");
+         const jobOfferId = selectedOffer ? selectedOffer._id : null; // Récupérer l'ID de l'offre si sélectionnée
+         const isFromRedirection = !!selectedOffer; // ✅ True si on swipe depuis une redirection
 
          if (!swiperId || !swipedId) {
              console.error("❌ swiperId ou swipedId est manquant !");
@@ -311,7 +324,9 @@ setMatchingJobSearchers(prevState => {
 
          console.log("✅ swiperId envoyé :", swiperId);
          console.log("✅ swipedId envoyé :", swipedId);
+         console.log("✅ jobOfferId envoyé :", jobOfferId);
          const direction = "left";
+         console.log("✅ isFromRedirection :", isFromRedirection);
 
          try {
              const token = await AsyncStorage.getItem('userToken');
@@ -319,19 +334,16 @@ setMatchingJobSearchers(prevState => {
 
              await axios.post(
                  "http://localhost:8080/api/swiped/save",
-                 { swiperId, swipedId, direction },
+                 { swiperId, swipedId, direction, jobOfferId, isFromRedirection }, // Envoi du jobOfferId
                  {
                      headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
                  }
              );
 
              console.log("✅ Swipe à gauche enregistré avec succès !");
-setMatchingJobSearchers(prevState => {
-    const newState = [...prevState]; // Copie du tableau actuel
-    newState.splice(index, 1); // Supprime l'élément correspondant
-    console.log("🆕 Liste après suppression :", newState);
-    return newState;
-});
+
+             setMatchingJobSearchers(prevState => prevState.filter((_, i) => i !== index));
+
 
          } catch (error) {
              console.error('❌ Erreur lors du swipe gauche:', error);
