@@ -73,7 +73,7 @@ const MyOffersPage = () => {
 
                         <TouchableOpacity
                             style={styles.viewCandidatesButton}
-                            onPress={() => navigation.navigate("CompanyHome", { selectedOffer: item })}
+                            onPress={() => navigation.navigate("CompanyRedirectedPage", { selectedOffer: item })}
                         >
 
                             <Text style={styles.buttonText}>Voir les candidats</Text>

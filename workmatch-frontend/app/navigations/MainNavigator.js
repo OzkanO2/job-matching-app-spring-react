@@ -12,7 +12,8 @@ import MyOffersPage from '../pages/offers/MyOffersPage';
 import JobSeekerOnboardingPage from '../pages/onboarding/JobSeekerOnboardingPage';
 import CompanyOnboardingPage from '../pages/onboarding/CompanyOnboardingPage';
 import IndividualHomePage from '../pages/IndividualHomePage';
-import CompanyHomePage from '../pages/CompanyHomePage';
+import CompanyHomePage from '../pages/homepages/CompanyHomePage';
+import CompanyRedirectedPage from '../pages/homepages/CompanyRedirectedPage';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import LikedPage from '../pages/liked/LikedPage';
 import ChatRoom from '../pages/chat/ChatRoom';
@@ -72,6 +73,14 @@ function MainStackNavigator() {
           headerLeft: () => null,
         }}
       />
+      <Stack.Screen
+          name="CompanyRedirectedPage"
+          component={CompanyRedirectedPage}
+          options={{
+            title: 'Home Redirected',
+            headerLeft: () => null,
+          }}
+        />
       <Stack.Screen
         name="ProfilePage"
         component={ProfilePage}
