@@ -280,7 +280,12 @@ const fetchJobSearchers = async () => {
             );
             console.log("🟢 Réponse match :", matchResponse.data);
             console.log("✅ Réponse serveur :", response.data);
-setMatchingJobSearchers(prevState => prevState.filter((_, i) => i !== index));
+setMatchingJobSearchers(prevState => {
+    const newState = [...prevState]; // Copie du tableau actuel
+    newState.splice(index, 1); // Supprime l'élément correspondant
+    console.log("🆕 Liste après suppression :", newState);
+    return newState;
+});
 
         } catch (error) {
             console.error('❌ Erreur lors du swipe:', error);
@@ -321,13 +326,12 @@ setMatchingJobSearchers(prevState => prevState.filter((_, i) => i !== index));
              );
 
              console.log("✅ Swipe à gauche enregistré avec succès !");
-
-             // ✅ Mettre à jour la liste affichée pour supprimer l'élément swipé
-             if (selectedOffer) {
-                 setMatchingJobSearchers(prevState => prevState.filter((_, i) => i !== index));
-             } else {
-                 setJobSearchers(prevState => prevState.filter((_, i) => i !== index));
-             }
+setMatchingJobSearchers(prevState => {
+    const newState = [...prevState]; // Copie du tableau actuel
+    newState.splice(index, 1); // Supprime l'élément correspondant
+    console.log("🆕 Liste après suppression :", newState);
+    return newState;
+});
 
          } catch (error) {
              console.error('❌ Erreur lors du swipe gauche:', error);
@@ -355,7 +359,7 @@ setMatchingJobSearchers(prevState => prevState.filter((_, i) => i !== index));
                             <Text>Loading...</Text>
                         ) : (
                             <Swiper
-                                key={matchingJobSearchers.length} // 🔥 Clé dynamique pour forcer un re-render
+key={matchingJobSearchers.map(c => c.userId).join(",")}
                                 cards={selectedOffer ? matchingJobSearchers : jobSearchers}
                                 renderCard={(jobSearcher) => (
                                     jobSearcher ? (
