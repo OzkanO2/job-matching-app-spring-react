@@ -288,38 +288,52 @@ setMatchingJobSearchers(prevState => prevState.filter((_, i) => i !== index));
     };
 
      const handleSwipeLeft = async (index) => {
-        const swipedJobSearcher = jobSearchers[index];
-        if (!swipedJobSearcher) {
-            console.error("❌ Aucun job searcher trouvé pour cet index.");
-            return;
-        }
-        console.log("🔴 Job Seeker ignoré:", swipedJobSearcher);
-        const swipedId = swipedJobSearcher.userId;
-        const swiperId = await AsyncStorage.getItem("userId");
-        if (!swiperId || !swipedId) {
-            console.error("❌ swiperId ou swipedId est manquant !");
-            return;
-        }
-        console.log("✅ swiperId envoyé :", swiperId);
-        console.log("✅ swipedId envoyé :", swipedId);
-        const direction = "left";
-        try {
-            const token = await AsyncStorage.getItem('userToken');
-            console.log("🔑 Token utilisé pour la requête :", token);
-            await axios.post(
-                "http://localhost:8080/api/swiped/save",
-                { swiperId, swipedId, direction },
-                {
-                    headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
-                }
-            );
-            console.log("✅ Swipe à gauche enregistré avec succès !");
-setMatchingJobSearchers(prevState => prevState.filter((_, i) => i !== index));
+         const swipedJobSearcher = selectedOffer ? matchingJobSearchers[index] : jobSearchers[index];
 
-        } catch (error) {
-            console.error('❌ Erreur lors du swipe gauche:', error);
-        }
-    };
+         if (!swipedJobSearcher) {
+             console.error("❌ Aucun job searcher trouvé pour cet index.");
+             return;
+         }
+
+         console.log("🔴 Job Seeker ignoré:", swipedJobSearcher);
+         const swipedId = swipedJobSearcher.userId;
+         const swiperId = await AsyncStorage.getItem("userId");
+
+         if (!swiperId || !swipedId) {
+             console.error("❌ swiperId ou swipedId est manquant !");
+             return;
+         }
+
+         console.log("✅ swiperId envoyé :", swiperId);
+         console.log("✅ swipedId envoyé :", swipedId);
+         const direction = "left";
+
+         try {
+             const token = await AsyncStorage.getItem('userToken');
+             console.log("🔑 Token utilisé pour la requête :", token);
+
+             await axios.post(
+                 "http://localhost:8080/api/swiped/save",
+                 { swiperId, swipedId, direction },
+                 {
+                     headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+                 }
+             );
+
+             console.log("✅ Swipe à gauche enregistré avec succès !");
+
+             // ✅ Mettre à jour la liste affichée pour supprimer l'élément swipé
+             if (selectedOffer) {
+                 setMatchingJobSearchers(prevState => prevState.filter((_, i) => i !== index));
+             } else {
+                 setJobSearchers(prevState => prevState.filter((_, i) => i !== index));
+             }
+
+         } catch (error) {
+             console.error('❌ Erreur lors du swipe gauche:', error);
+         }
+     };
+
 
 
     return (
