@@ -11,44 +11,35 @@ public class Like {
     private String swiperId;
     private String swipedId;
     private String companyId;
-
     private String offerId;
+    private boolean isFromRedirection;
 
-    public String getOfferId() {
-        return offerId;
-    }
+
     public Like() {}
-    public void setOfferId(String offerId) {
+
+    public Like(String swiperId, String swipedId, String companyId, String offerId, boolean isFromRedirection) {
+        this.swiperId = swiperId;
+        this.swipedId = swipedId;
+        this.companyId = companyId;
         this.offerId = offerId;
+        this.isFromRedirection = isFromRedirection;
     }
+
     public Like(String swiperId, String swipedId, String companyId) {
-        this.swiperId = swiperId;
-        this.swipedId = swipedId;
-        this.companyId = companyId;
+        this(swiperId, swipedId, companyId, "", false);
     }
-
     public Like(String swiperId, String swipedId) {
-        this.swiperId = swiperId;
-        this.swipedId = swipedId;
-        this.companyId = "";
-    }
-    public String getId() {
-        return id;
+        this(swiperId, swipedId, "", "", false);
     }
 
-    public String getSwiperId() {
-        return swiperId;
-    }
+    public String getId() { return id; }
+    public String getSwiperId() { return swiperId; }
+    public String getSwipedId() { return swipedId; }
+    public String getCompanyId() { return companyId; }
+    public String getOfferId() { return offerId; }
+    public boolean isFromRedirection() { return isFromRedirection; }
 
-    public String getSwipedId() {
-        return swipedId;
-    }
-
-    public String getCompanyId() { // ✅ Ajout du getter
-        return companyId;
-    }
-
-    public void setCompanyId(String companyId) { // ✅ Ajout du setter
-        this.companyId = companyId;
-    }
-}
+    public void setCompanyId(String companyId) { this.companyId = companyId; }
+    public void setOfferId(String offerId) { this.offerId = offerId; }
+    public void setIsFromRedirection(boolean isFromRedirection) { this.isFromRedirection = isFromRedirection; }
+                                                                                    }

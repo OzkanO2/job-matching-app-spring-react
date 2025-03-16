@@ -84,18 +84,13 @@ public class MatchController {
     public ResponseEntity<String> swipeJobSearcher(@RequestBody Map<String, String> payload) {
         String swiperId = payload.get("swiperId");
         String swipedId = payload.get("swipedId");
-        String companyId = payload.get("companyId");
+        String companyId = payload.getOrDefault("companyId", "");
 
         if (swiperId == null || swipedId == null) {
             return ResponseEntity.badRequest().body("❌ swiperId et swipedId sont requis.");
         }
 
-        Like savedLike;
-        if (companyId == null || companyId.isEmpty()) {
-            savedLike = likeService.saveLike(swiperId, swipedId);
-        } else {
-            savedLike = likeService.saveLike(swiperId, swipedId, companyId);
-        }
+        Like savedLike = likeService.saveLike(swiperId, swipedId, companyId, "", false); // ✅ Correction
 
         return ResponseEntity.ok("✅ Like enregistré : " + savedLike);
     }

@@ -92,10 +92,10 @@ public class SwipeController {
     }
     @GetMapping("/filteredJobSearchersNormal/{swiperId}")
     public ResponseEntity<List<JobSearcher>> getFilteredJobSearchersNormal(@PathVariable String swiperId) {
-        // ✅ Récupérer les swipes dans l'entrée normale (jobOfferId == "")
-        List<SwipedCard> swipedCards = swipedCardRepository.findBySwiperIdAndJobOfferId(swiperId, "");
+        // ✅ Récupérer TOUS les swipes (left et right) où jobOfferId est vide et isFromRedirection est false
+        List<SwipedCard> swipedCards = swipedCardRepository.findBySwiperIdAndJobOfferIdAndIsFromRedirection(swiperId, "", false);
 
-        // ✅ Extraire les `swipedId` des candidats déjà swipés (gauche ou droite)
+        // ✅ Extraire les `swipedId` des candidats déjà swipés
         List<String> swipedIds = swipedCards.stream()
                 .map(SwipedCard::getSwipedId)
                 .collect(Collectors.toList());
@@ -103,7 +103,7 @@ public class SwipeController {
         // ✅ Récupérer tous les job searchers
         List<JobSearcher> jobSearchers = jobSearcherRepository.findAll();
 
-        // ✅ Filtrer les candidats déjà swipés dans l'entrée normale
+        // ✅ Filtrer les candidats déjà swipés (que ce soit left OU right)
         List<JobSearcher> filteredJobSearchers = jobSearchers.stream()
                 .filter(jobSearcher -> !swipedIds.contains(jobSearcher.getId()))
                 .collect(Collectors.toList());

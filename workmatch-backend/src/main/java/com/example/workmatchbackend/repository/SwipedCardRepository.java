@@ -4,6 +4,7 @@ import com.example.workmatchbackend.model.SwipedCard;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 import java.util.List;
+import org.springframework.data.mongodb.repository.Query;
 
 @Repository
 public interface SwipedCardRepository extends MongoRepository<SwipedCard, String> {
@@ -19,6 +20,8 @@ public interface SwipedCardRepository extends MongoRepository<SwipedCard, String
 
     // Récupérer tous les swipes pour une offre spécifique
     List<SwipedCard> findBySwiperIdAndJobOfferId(String swiperId, String jobOfferId);
+    @Query("{ 'swiperId': ?0, 'jobOfferId': ?1, 'isFromRedirection': ?2 }")
+    List<SwipedCard> findBySwiperIdAndJobOfferIdAndIsFromRedirection(String swiperId, String jobOfferId, boolean isFromRedirection);
 
     // Vérifier un swipe exact (avec direction et offre d'emploi)
     boolean existsBySwiperIdAndSwipedIdAndDirectionAndJobOfferId(String swiperId, String swipedId, String direction, String jobOfferId);

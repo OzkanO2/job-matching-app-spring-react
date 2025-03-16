@@ -220,9 +220,17 @@ const fetchJobSearchers = async () => {
 
         try {
             const token = await AsyncStorage.getItem('userToken');
-            const checkSwipe = await axios.get(`http://localhost:8080/api/swiped/check?swiperId=${swiperId}&swipedId=${swipedId}`, {
+            const checkSwipe = await axios.get(`http://localhost:8080/api/swiped/check`, {
+                params: {
+                    swiperId,
+                    swipedId,
+                    direction,
+                    jobOfferId: jobOfferId || "",  // Assurer que c'est une string valide
+                    isFromRedirection
+                },
                 headers: { Authorization: `Bearer ${token}` },
             });
+
 
             if (checkSwipe.data.exists) {
                 console.log("🟡 Swipe déjà enregistré, pas besoin d'ajouter.");

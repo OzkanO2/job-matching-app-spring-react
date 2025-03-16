@@ -3,11 +3,13 @@ package com.example.workmatchbackend.controller;
 import com.example.workmatchbackend.model.Like;
 import com.example.workmatchbackend.model.JobOffer;
 import com.example.workmatchbackend.repository.LikeRepository;
+import com.example.workmatchbackend.service.LikeService;
 import com.example.workmatchbackend.repository.JobOfferRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.http.HttpStatus; // ✅ Ajout de l'import
+import java.util.Map;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -19,21 +21,30 @@ public class LikeController {
 
     @Autowired
     private LikeRepository likeRepository;
+    @Autowired
+    private LikeService likeService;
 
     @Autowired
     private JobOfferRepository jobOfferRepository;
 
     @PostMapping("/like")
-    public ResponseEntity<String> likeJobOffer(@RequestBody Like like) {
-        boolean alreadyLiked = likeRepository.existsBySwiperIdAndSwipedId(like.getSwiperId(), like.getSwipedId());
+    public ResponseEntity<String> likeJobOffer(@RequestBody Map<String, Object> payload) {
+        String swiperId = (String) payload.get("swiperId");
+        String swipedId = (String) payload.get("swipedId");
+        String companyId = payload.getOrDefault("companyId", "").toString();
+        String offerId = payload.getOrDefault("offerId", "").toString();
+        boolean isFromRedirection = false; // ✅ Toujours false pour CompanyHomePage
+
+        boolean alreadyLiked = likeRepository.existsBySwiperIdAndSwipedId(swiperId, swipedId);
 
         if (alreadyLiked) {
-            return ResponseEntity.badRequest().body("❌ L'utilisateur a déjà liké cette offre.");
+            return ResponseEntity.badRequest().body("❌ Déjà liké.");
         }
 
-        likeRepository.save(like);
+        likeService.saveLike(swiperId, swipedId, companyId, offerId, isFromRedirection); // ✅ Appel correct
         return ResponseEntity.ok("✅ Offre likée avec succès !");
     }
+
     @GetMapping
     public ResponseEntity<List<Like>> getLikesBySwipedId(@RequestParam String swipedId) {
         List<Like> likes = likeRepository.findBySwipedId(swipedId);

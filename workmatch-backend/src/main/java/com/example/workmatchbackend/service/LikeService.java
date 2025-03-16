@@ -29,10 +29,9 @@ public class LikeService {
     @Autowired
     private MatchService matchService;
 
-    public Like saveLike(String swiperId, String swipedId) {
-        return saveLike(swiperId, swipedId, null);
+    public Like saveLike(String swiperId, String swipedId, String companyId) {
+        return saveLike(swiperId, swipedId, companyId, "", false); // ✅ isFromRedirection = false par défaut
     }
-
     public boolean checkMatch(String user1Id, String user2Id) {
         boolean user1LikedUser2 = likeRepository.existsBySwiperIdAndSwipedId(user1Id, user2Id);
         boolean user2LikedUser1 = likeRepository.existsBySwiperIdAndSwipedId(user2Id, user1Id);
@@ -40,26 +39,18 @@ public class LikeService {
         return user1LikedUser2 && user2LikedUser1;
     }
 
-    public Like saveLike(String swiperId, String swipedId, String companyId) {
+    public Like saveLike(String swiperId, String swipedId, String companyId, String offerId, boolean isFromRedirection) {
         System.out.println("📌 [saveLike] swiperId reçu: " + swiperId);
         System.out.println("📌 [saveLike] swipedId reçu: " + swipedId);
         System.out.println("📌 [saveLike] companyId reçu: " + companyId);
+        System.out.println("📌 [saveLike] offerId reçu: " + offerId);
+        System.out.println("📌 [saveLike] isFromRedirection: " + isFromRedirection);
 
-        String foundSwiperId = resolveUserId(swiperId);
-        String foundSwipedId = resolveUserId(swipedId);
-
-        if (foundSwiperId == null) {
-            throw new RuntimeException("❌ Swiper User not found: " + swiperId);
-        }
-
-        System.out.println("📥 foundSwiperId: " + foundSwiperId);
-        System.out.println("📥 foundSwipedId: " + foundSwipedId);
-
-        Like like = new Like(foundSwiperId, foundSwipedId, companyId != null ? companyId : "");
+        Like like = new Like(swiperId, swipedId, companyId, offerId, isFromRedirection);
         likeRepository.save(like);
-        System.out.println("✅ [saveLike] Like enregistré avec ID: " + like.getId());
 
-        matchService.checkAndCreateMatch(foundSwiperId, foundSwipedId, companyId);
+        System.out.println("✅ [saveLike] Like enregistré avec ID: " + like.getId());
+        matchService.checkAndCreateMatch(swiperId, swipedId, companyId);
 
         return like;
     }
