@@ -177,14 +177,13 @@ const fetchMatchingCandidatesForCompany = async () => {
 
             // ✅ CORRECTION ICI : Filtrer uniquement les swipes à gauche avec jobOfferId vide et isFromRedirection=false
             swipedIds = new Set(
-                swipedResponse.data
-                    .filter(item =>
-                        item.direction === "left" &&                // Exclure ceux swipés à gauche
-                        item.isFromRedirection === false &&        // Doit venir de la page normale (pas redirection)
-                        (!item.jobOfferId || item.jobOfferId.trim() === "") // Doit avoir un jobOfferId vide
-                    )
-                    .map(item => item.swipedId.toString().trim())
-            );
+                    swipedResponse.data
+                        .filter(item =>
+                            item.isFromRedirection === false &&  // 📌 Swipe fait depuis l'affichage normal
+                            (!item.jobOfferId || item.jobOfferId.trim() === "") // 📌 Sans jobOfferId
+                        )
+                        .map(item => item.swipedId.toString().trim())
+                );
 
 
             console.log("❌ Liste des candidats déjà swipés selon les critères :", [...swipedIds]);
@@ -202,17 +201,19 @@ console.log("✅ Liste complète des job searchers AVANT filtrage :", allJobSear
         console.log("❌ Liste des candidats swipés globalement à gauche :", [...swipedIds]);
 
         // ✅ Filtrer les candidats pour ne pas afficher ceux qui ont été swipés globalement
+        // ✅ Exclure tous les candidats qui ont été swipés (gauche ou droite) depuis l'affichage normal
         allJobSearchers = allJobSearchers.filter(candidate => {
             const candidateId = candidate.userId?.toString() || candidate.id?.toString();
 
             if (swipedIds.has(candidateId)) {
-                console.log(`❌ Exclusion de ${candidate.name} (ID: ${candidateId}) - Swipé à gauche globalement`);
+                console.log(`❌ Exclusion de ${candidate.name} (ID: ${candidateId}) - Swipé (gauche ou droite) dans l'affichage normal`);
                 return false;
             } else {
                 console.log(`✅ Conservation de ${candidate.name} (ID: ${candidateId})`);
                 return true;
             }
         });
+
 
 
 console.log("✅ Liste des job searchers APRÈS filtrage :", allJobSearchers.map(c => ({
