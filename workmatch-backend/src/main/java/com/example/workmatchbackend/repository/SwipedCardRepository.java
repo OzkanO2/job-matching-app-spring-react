@@ -7,9 +7,24 @@ import java.util.List;
 
 @Repository
 public interface SwipedCardRepository extends MongoRepository<SwipedCard, String> {
+
+    // Récupérer tous les swipes d'un utilisateur
     List<SwipedCard> findBySwiperId(String swiperId);
+
+    // Vérifier si un utilisateur a déjà swipé une personne (peu importe l'offre)
     boolean existsBySwiperIdAndSwipedId(String swiperId, String swipedId);
+
+    // Vérifier si un swipe existe pour une offre spécifique
     boolean existsBySwiperIdAndSwipedIdAndJobOfferId(String swiperId, String swipedId, String jobOfferId);
+
+    // Récupérer tous les swipes pour une offre spécifique
     List<SwipedCard> findBySwiperIdAndJobOfferId(String swiperId, String jobOfferId);
 
+    // Vérifier un swipe exact (avec direction et offre d'emploi)
+    boolean existsBySwiperIdAndSwipedIdAndDirectionAndJobOfferId(String swiperId, String swipedId, String direction, String jobOfferId);
+    boolean existsBySwiperIdAndSwipedIdAndDirectionAndJobOfferIdAndIsFromRedirection(
+            String swiperId, String swipedId, String direction, String jobOfferId, boolean isFromRedirection
+    );
+    // Récupérer uniquement les swipes "left" pour une offre
+    List<SwipedCard> findBySwiperIdAndJobOfferIdAndDirection(String swiperId, String jobOfferId, String direction);
 }
