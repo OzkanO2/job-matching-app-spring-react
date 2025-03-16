@@ -46,14 +46,15 @@ const CompanyRedirectedPage = () => {
 
             console.log("📡 Chargement des candidats pour :", jobOffer.title);
 
-            // ✅ Récupérer tous les candidats correspondant à l'offre
+            // ✅ 1. Récupérer tous les candidats correspondant à l'offre
             const response = await axios.get(`http://localhost:8080/jobsearchers/matching?jobOfferId=${jobOffer._id}`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
 
             let candidates = response.data;
+            console.log("✅ Candidats avant filtrage :", candidates.map(c => c.userId));
 
-            // ✅ Récupérer les job searchers déjà swipés à gauche POUR CETTE OFFRE
+            // ✅ 2. Récupérer les swipes à gauche POUR CETTE OFFRE (isFromRedirection = true)
             let swipedIdsForOffer = new Set();
             try {
                 const swipedResponse = await axios.get(`http://localhost:8080/api/swiped/${swiperId}/${jobOffer._id}`, {
@@ -62,23 +63,55 @@ const CompanyRedirectedPage = () => {
 
                 swipedIdsForOffer = new Set(
                     swipedResponse.data
-                        .filter(item => item.isFromRedirection === true) // ✅ Filtrer ceux liés à cette redirection
+                        .filter(item => item.direction === "left" && item.isFromRedirection === true)
                         .map(item => item.swipedId.toString().trim())
                 );
 
-                console.log("❌ Liste des candidats déjà swipés pour cette offre :", [...swipedIdsForOffer]);
+                console.log("❌ Swipes à gauche pour CETTE OFFRE :", [...swipedIdsForOffer]);
 
             } catch (error) {
-                console.error("⚠️ Erreur lors de la récupération des swipes :", error);
+                console.error("⚠️ Erreur lors de la récupération des swipes pour cette offre :", error);
             }
 
-            // ✅ Filtrage des candidats déjà swipés pour CETTE offre
+            // ✅ 3. Récupérer les swipes à gauche GLOBALEMENT (hors redirection)
+            let globallySwipedLeft = new Set();
+            try {
+                const swipedGlobalResponse = await axios.get(`http://localhost:8080/api/swiped/${swiperId}`, {
+                    headers: { Authorization: `Bearer ${token}` },
+                });
+
+                globallySwipedLeft = new Set(
+                    swipedGlobalResponse.data
+                        .filter(item =>
+                            item.direction === "left" &&
+                            item.isFromRedirection === false &&
+                            (!item.offerId || item.offerId === "")
+                        )
+                        .map(item => item.swipedId.toString().trim())
+                );
+
+                console.log("❌ Swipes à gauche GLOBAUX :", [...globallySwipedLeft]);
+
+            } catch (error) {
+                console.error("⚠️ Erreur lors de la récupération des swipes globaux :", error);
+            }
+
+            // ✅ 4. Filtrer les candidats
             candidates = candidates.filter(candidate => {
                 const candidateId = candidate.userId?.toString() || candidate.id?.toString();
-                return !swipedIdsForOffer.has(candidateId);
+                const isSwipedForOffer = swipedIdsForOffer.has(candidateId);
+                const isSwipedGlobally = globallySwipedLeft.has(candidateId);
+
+                if (isSwipedForOffer || isSwipedGlobally) {
+                    console.log(`❌ Exclusion de ${candidate.name} (ID: ${candidateId}) - Swipé à gauche`);
+                } else {
+                    console.log(`✅ Conservation de ${candidate.name} (ID: ${candidateId})`);
+                }
+
+                return !isSwipedForOffer && !isSwipedGlobally;
             });
 
-            console.log("✅ Liste finale des candidats après filtrage :", candidates.map(c => c.userId?.toString() || c.id?.toString()));
+            console.log("✅ Liste finale des candidats après filtrage :", candidates.map(c => c.userId));
 
             setMatchingJobSearchers([...candidates]);
 
@@ -88,6 +121,7 @@ const CompanyRedirectedPage = () => {
             setIsLoading(false);
         }
     };
+
 
 const fetchMatchingCandidatesForCompany = async () => {
     try {
