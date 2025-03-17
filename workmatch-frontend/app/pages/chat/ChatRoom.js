@@ -25,7 +25,11 @@ const ChatRoom = () => {
         const fetchMatchInfo = async () => {
             try {
                 const storedUserId = await AsyncStorage.getItem('userId');
-                if (!storedUserId || !matchedUserId) return;
+                if (!storedUserId || !matchedUserId) {
+                    console.warn("⚠️ [fetchMatchInfo] userId ou matchedUserId manquant !");
+                    return;
+                }
+                console.log("📡 [fetchMatchInfo] Récupération des raisons du match entre", storedUserId, "et", matchedUserId);
 
                 const token = await AsyncStorage.getItem('userToken');
                 const response = await axios.get(
@@ -33,6 +37,7 @@ const ChatRoom = () => {
                     { headers: { Authorization: `Bearer ${token}` } }
                 );
 
+                console.log("✅ [fetchMatchInfo] Données reçues :", response.data);
                 setMatchInfo(response.data);
             } catch (error) {
                 console.error("❌ Erreur lors de la récupération des raisons du match :", error);

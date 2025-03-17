@@ -129,14 +129,24 @@ public class MatchController {
     public ResponseEntity<Map<String, Object>> getMatchReason(@PathVariable String userId, @PathVariable String matchedUserId) {
         Map<String, Object> matchInfo = new HashMap<>();
 
+        System.out.println("📌 [getMatchReason] Requête reçue pour userId: " + userId + " et matchedUserId: " + matchedUserId);
+
         // 🔹 1. Pourquoi `company` a liké `individual` ?
         List<SwipedCard> swipedCards = swipedCardRepository.findBySwiperIdAndSwipedId(userId, matchedUserId);
-        if (!swipedCards.isEmpty() && swipedCards.get(0).getJobOfferId() != null) {  // ✅ Prendre le premier élément si dispo
-            matchInfo.put("companyReason", "L'entreprise a liké via l'offre : " + swipedCards.get(0).getJobOfferId());
+        System.out.println("🔍 [getMatchReason] Nombre de swipes trouvés pour company -> individual: " + swipedCards.size());
+
+        List<String> jobOffers = swipedCards.stream()
+                .map(SwipedCard::getJobOfferId)
+                .filter(offerId -> offerId != null && !offerId.isEmpty())
+                .collect(Collectors.toList());
+
+        if (!jobOffers.isEmpty()) {
+            System.out.println("✅ [getMatchReason] L'entreprise a liké via les offres : " + String.join(", ", jobOffers));
+            matchInfo.put("companyReason", "L'entreprise a liké via les offres : " + String.join(", ", jobOffers));
         } else {
+            System.out.println("⚠️ [getMatchReason] Aucune offre trouvée pour le swipe !");
             matchInfo.put("companyReason", "L'entreprise a liké directement, sans offre spécifique.");
         }
-
 
         // 🔹 2. Pourquoi `individual` a liké `company` ?
         List<Like> likes = likeRepository.findBySwiperIdAndCompanyId(matchedUserId, userId);
@@ -145,13 +155,17 @@ public class MatchController {
                 .collect(Collectors.toList());
 
         if (!likedOffers.isEmpty()) {
+            System.out.println("✅ [getMatchReason] Le candidat a liké via les offres : " + String.join(", ", likedOffers));
             matchInfo.put("individualReason", "Le candidat a liké l'entreprise via les offres : " + String.join(", ", likedOffers));
         } else {
+            System.out.println("⚠️ [getMatchReason] Le candidat a liké directement !");
             matchInfo.put("individualReason", "Le candidat a liké l'entreprise directement, sans offre spécifique.");
         }
 
+        System.out.println("📊 [getMatchReason] Résultat final envoyé : " + matchInfo);
         return ResponseEntity.ok(matchInfo);
     }
+
 
     @PostMapping("/like")
     public ResponseEntity<?> likeOffer(@RequestBody Map<String, String> payload) {
