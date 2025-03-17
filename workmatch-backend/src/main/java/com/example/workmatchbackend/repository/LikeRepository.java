@@ -19,6 +19,7 @@ public interface LikeRepository extends MongoRepository<Like, String> {
     List<Like> findBySwiperId(String swiperId);
 
     List<Like> findAllBySwiperIdAndCompanyId(String swiperId, String companyId);
+    List<Like> findBySwiperIdAndCompanyId(String swiperId, String companyId);
 
     List<Like> findAllBySwiperId(String swiperId);
 

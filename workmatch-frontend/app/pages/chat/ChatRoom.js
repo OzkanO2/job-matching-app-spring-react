@@ -5,6 +5,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import SockJS from "sockjs-client";
 import Stomp from "stompjs";
+import { ActivityIndicator } from 'react-native';
 
 const ChatRoom = () => {
     const route = useRoute();
@@ -16,6 +17,32 @@ const ChatRoom = () => {
     const [messages, setMessages] = useState([]);
     const [userId, setUserId] = useState(null);
     const [receiverId, setReceiverId] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [matchInfo, setMatchInfo] = useState(null);
+    const {matchedUserId, matchedUserName } = route.params;
+
+    useEffect(() => {
+        const fetchMatchInfo = async () => {
+            try {
+                const storedUserId = await AsyncStorage.getItem('userId');
+                if (!storedUserId || !matchedUserId) return;
+
+                const token = await AsyncStorage.getItem('userToken');
+                const response = await axios.get(
+                    `http://localhost:8080/api/matches/reason/${storedUserId}/${matchedUserId}`,
+                    { headers: { Authorization: `Bearer ${token}` } }
+                );
+
+                setMatchInfo(response.data);
+            } catch (error) {
+                console.error("❌ Erreur lors de la récupération des raisons du match :", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchMatchInfo();
+    }, [matchedUserId]);
 
     useEffect(() => {
         const fetchUserData = async () => {
@@ -113,7 +140,19 @@ const ChatRoom = () => {
             <Button title="Retour" onPress={() => navigation.goBack()} />
 
             <Text style={styles.header}>Conversation avec {username}</Text>
+<Text>💬 Chat avec {matchedUserName}</Text>
 
+            {loading ? (
+                <ActivityIndicator size="large" color="#0000ff" />
+            ) : (
+                <View>
+                    <Text>📌 Pourquoi l'entreprise a liké ?</Text>
+                    <Text>{matchInfo?.companyReason || "Non disponible"}</Text>
+
+                    <Text>📌 Pourquoi le candidat a liké ?</Text>
+                    <Text>{matchInfo?.individualReason || "Non disponible"}</Text>
+                </View>
+            )}
             <FlatList
                 data={messages}
                 keyExtractor={(item, index) => index.toString()}

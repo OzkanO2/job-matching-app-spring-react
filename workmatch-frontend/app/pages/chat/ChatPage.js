@@ -1,14 +1,15 @@
 import React, { useEffect, useState } from 'react';
-import { Button, View, Text, TextInput, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
+import { Button, View, Text, StyleSheet, FlatList, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 
-const ChatPage = () => {
+const ChatPage = ({ route }) => {
     const navigation = useNavigation();
     const [userType, setUserType] = useState('');
     const [userId, setUserId] = useState('');
     const [conversations, setConversations] = useState([]);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         const fetchUserType = async () => {
@@ -26,6 +27,8 @@ const ChatPage = () => {
             try {
                 const token = await AsyncStorage.getItem("userToken");
                 const id = await AsyncStorage.getItem("userId");
+                setLoading(true);
+
                 const response = await axios.get(`http://localhost:8080/api/matches/conversations/${id}`, {
                     headers: { Authorization: `Bearer ${token}` },
                 });
@@ -49,6 +52,8 @@ const ChatPage = () => {
                 setConversations(formattedConversations);
             } catch (error) {
                 console.error("❌ Erreur chargement des conversations :", error);
+            } finally {
+                setLoading(false);
             }
         };
 
@@ -69,22 +74,26 @@ const ChatPage = () => {
 
             <Text style={styles.title}>💬 Conversations</Text>
 
-            <FlatList
-                data={conversations}
-                keyExtractor={(item) => item.conversationId}
-                renderItem={({ item }) => (
-                    <TouchableOpacity
-                        style={styles.conversationItem}
-                        onPress={() => navigation.navigate("ChatRoom", {
-                            conversationId: item.conversationId,
-                            username: item.username
-                        })}
-                    >
-                        <Text style={styles.username}>{item.username}</Text>
-                    </TouchableOpacity>
-                )}
-            />
-
+            {loading ? (
+                <ActivityIndicator size="large" color="#0000ff" />
+            ) : (
+                <FlatList
+                    data={conversations}
+                    keyExtractor={(item) => item.conversationId}
+                    renderItem={({ item }) => (
+                        <TouchableOpacity
+                            style={styles.conversationItem}
+                            onPress={() => navigation.navigate("ChatRoom", {
+                                conversationId: item.conversationId,
+                                matchedUserId: item.receiverId,
+                                matchedUserName: item.username
+                            })}
+                        >
+                            <Text style={styles.username}>{item.username}</Text>
+                        </TouchableOpacity>
+                    )}
+                />
+            )}
         </View>
     );
 };

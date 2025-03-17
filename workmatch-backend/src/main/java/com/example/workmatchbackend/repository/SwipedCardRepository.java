@@ -17,6 +17,7 @@ public interface SwipedCardRepository extends MongoRepository<SwipedCard, String
 
     // Vérifier si un swipe existe pour une offre spécifique
     boolean existsBySwiperIdAndSwipedIdAndJobOfferId(String swiperId, String swipedId, String jobOfferId);
+    List<SwipedCard> findBySwiperIdAndSwipedId(String swiperId, String swipedId);
 
     // Récupérer tous les swipes pour une offre spécifique
     List<SwipedCard> findBySwiperIdAndJobOfferId(String swiperId, String jobOfferId);

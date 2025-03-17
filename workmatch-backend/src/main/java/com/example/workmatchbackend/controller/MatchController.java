@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import com.example.workmatchbackend.service.LikeService;
 import com.example.workmatchbackend.model.Like;
-
+import java.util.Optional;
 import com.example.workmatchbackend.model.User;
 import com.example.workmatchbackend.repository.UserRepository;
 import com.example.workmatchbackend.model.JobOffer;
@@ -19,6 +19,12 @@ import org.springframework.http.ResponseEntity;
 import com.example.workmatchbackend.repository.ConversationRepository;
 import com.example.workmatchbackend.model.Conversation;
 import java.util.List;
+import java.util.HashMap;
+import java.util.stream.Collectors;
+import com.example.workmatchbackend.model.SwipedCard;
+import com.example.workmatchbackend.repository.SwipedCardRepository;
+import com.example.workmatchbackend.repository.LikeRepository;
+
 
 @RestController
 @RequestMapping("/api/matches")
@@ -32,6 +38,11 @@ public class MatchController {
     private UserRepository userRepository;
     @Autowired
     private JobOfferRepository jobOfferRepository;
+    @Autowired
+    private SwipedCardRepository swipedCardRepository;
+
+    @Autowired
+    private LikeRepository likeRepository;
 
     @Autowired
     private ConversationRepository conversationRepository;
@@ -113,6 +124,33 @@ public class MatchController {
 
         Like savedLike = likeService.saveLike(swiperId, swipedId, companyId);
         return ResponseEntity.status(HttpStatus.CREATED).body(savedLike);
+    }
+    @GetMapping("/reason/{userId}/{matchedUserId}")
+    public ResponseEntity<Map<String, Object>> getMatchReason(@PathVariable String userId, @PathVariable String matchedUserId) {
+        Map<String, Object> matchInfo = new HashMap<>();
+
+        // 🔹 1. Pourquoi `company` a liké `individual` ?
+        List<SwipedCard> swipedCards = swipedCardRepository.findBySwiperIdAndSwipedId(userId, matchedUserId);
+        if (!swipedCards.isEmpty() && swipedCards.get(0).getJobOfferId() != null) {  // ✅ Prendre le premier élément si dispo
+            matchInfo.put("companyReason", "L'entreprise a liké via l'offre : " + swipedCards.get(0).getJobOfferId());
+        } else {
+            matchInfo.put("companyReason", "L'entreprise a liké directement, sans offre spécifique.");
+        }
+
+
+        // 🔹 2. Pourquoi `individual` a liké `company` ?
+        List<Like> likes = likeRepository.findBySwiperIdAndCompanyId(matchedUserId, userId);
+        List<String> likedOffers = likes.stream()
+                .map(Like::getSwipedId) // 🔥 `swipedId` est l'ID des offres likées
+                .collect(Collectors.toList());
+
+        if (!likedOffers.isEmpty()) {
+            matchInfo.put("individualReason", "Le candidat a liké l'entreprise via les offres : " + String.join(", ", likedOffers));
+        } else {
+            matchInfo.put("individualReason", "Le candidat a liké l'entreprise directement, sans offre spécifique.");
+        }
+
+        return ResponseEntity.ok(matchInfo);
     }
 
     @PostMapping("/like")
