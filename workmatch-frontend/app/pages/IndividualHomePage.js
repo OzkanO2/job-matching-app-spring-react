@@ -67,33 +67,59 @@ const IndividualHomePage = () => {
 
                 console.log("📜 IDs des offres uniques après filtrage :", uniqueJobOffers.map(o => o._id));
 
-                // 🔹 5. Récupérer les entreprises qui ont déjà swipé l'utilisateur à gauche (hors redirection)
-                const blockedByCompanies = new Set();
+                // 🔹 5. Récupérer les entreprises qui ont déjà swipé l'utilisateur à gauche sur une offre spécifique
+                const blockedByCompaniesForSpecificOffers = new Set();
                 for (const offer of uniqueJobOffers) {
                     const companyId = offer.companyId || offer.company?.id;
                     if (!companyId) continue;
 
                     try {
-const companySwipeResponse = await axios.get(
-            `http://localhost:8080/api/swiped/checkCompanySwipe?companyId=${companyId}&userId=${swiperId}&jobOfferId=${offer._id}`, // ✅ Ajout du jobOfferId
-            { headers: { Authorization: `Bearer ${token}` } }
-        );
+                        const companySwipeResponse = await axios.get(
+                            `http://localhost:8080/api/swiped/checkCompanySwipe?companyId=${companyId}&userId=${swiperId}&jobOfferId=${offer._id}`,
+                            { headers: { Authorization: `Bearer ${token}` } }
+                        );
+
                         if (companySwipeResponse.data.exists) {
                             console.log(`❌ Offre ${offer._id} bloquée : L'entreprise ${companyId} a déjà swipé ce user sur CETTE offre.`);
-                            blockedByCompanies.add(offer._id.toString());
+                            blockedByCompaniesForSpecificOffers.add(offer._id.toString());
                         }
                     } catch (error) {
                         console.error(`⚠️ Erreur lors de la vérification des swipes de la company ${companyId}:`, error);
                     }
                 }
 
-                // 🔹 6. Appliquer le filtre final avant de mettre à jour jobOffers
-                const finalJobOffers = uniqueJobOffers.filter(offer => !blockedByCompanies.has(offer._id.toString()));
+                // 🔹 6. Récupérer les entreprises qui ont swipé l'utilisateur à gauche DANS LA PAGE NORMALE
+                const blockedByCompaniesForAllOffers = new Set();
+                for (const offer of uniqueJobOffers) {
+                    const companyId = offer.companyId || offer.company?.id;
+                    if (!companyId) continue;
 
-                console.log("✅ Liste finale des offres après filtre entreprise :", finalJobOffers);
+                    try {
+                        const companySwipeResponse = await axios.get(
+                            `http://localhost:8080/api/swiped/checkCompanySwipeNormal?companyId=${companyId}&userId=${swiperId}`,
+                            { headers: { Authorization: `Bearer ${token}` } }
+                        );
 
-                // 🔹 7. Mise à jour du state (on garde uniquement les offres non bloquées)
+                        if (companySwipeResponse.data.exists) {
+                            console.log(`❌ Toutes les offres de l'entreprise ${companyId} sont bloquées car elle a déjà swipé ce user.`);
+                            blockedByCompaniesForAllOffers.add(companyId);
+                        }
+                    } catch (error) {
+                        console.error(`⚠️ Erreur lors de la vérification des swipes normaux de la company ${companyId}:`, error);
+                    }
+                }
+
+                // 🔹 7. Appliquer le filtre final avant de setter jobOffers
+                const finalJobOffers = uniqueJobOffers.filter(
+                    offer => !blockedByCompaniesForSpecificOffers.has(offer._id.toString()) &&
+                             !blockedByCompaniesForAllOffers.has(offer.companyId)
+                );
+
+                console.log("✅ Liste finale des offres après TOUS les filtres :", finalJobOffers);
+
+                // 🔹 8. Mise à jour du state (on garde uniquement les offres non bloquées)
                 setJobOffers(finalJobOffers);
+
             } catch (error) {
                 console.error('❌ Error fetching job offers:', error);
             } finally {
