@@ -46,8 +46,7 @@ const CompanyRedirectedPage = () => {
 
             console.log("📡 Chargement des candidats pour :", jobOffer.title);
 
-            // ✅ 1. Récupérer tous les candidats correspondant à l'offre
-            const response = await axios.get(`http://localhost:8080/jobsearchers/matching?jobOfferId=${jobOffer._id}`, {
+            const response = await axios.get(`http://localhost:8080/api/swiped/filteredJobSearchers/${swiperId}/${jobOffer._id}`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
 

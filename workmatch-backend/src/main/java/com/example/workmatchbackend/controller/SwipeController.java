@@ -24,34 +24,49 @@ public class SwipeController {
     @Autowired
     private JobSearcherRepository jobSearcherRepository;
 
-    /**
-     * 📌 Récupérer les candidats filtrés pour une offre d'emploi spécifique.
-     */
     @GetMapping("/filteredJobSearchers/{swiperId}/{jobOfferId}")
     public ResponseEntity<List<JobSearcher>> getFilteredJobSearchers(
             @PathVariable String swiperId,
             @PathVariable String jobOfferId) {
 
-        // Récupérer les swipes "left" pour cette offre
-        List<SwipedCard> swipedCards = swipedCardRepository.findBySwiperIdAndJobOfferIdAndDirection(swiperId, jobOfferId, "left");
+        System.out.println("✅ Début API filteredJobSearchers avec swiperId : " + swiperId + " et jobOfferId : " + jobOfferId);
 
-        // Extraire les `swipedId` (candidats ignorés)
-        List<String> swipedIds = swipedCards.stream()
-                .map(SwipedCard::getSwipedId)
+        // ✅ Récupérer les swipes "left" pour cette offre
+        List<SwipedCard> leftSwipesForOffer = swipedCardRepository.findBySwipedIdAndDirection(jobOfferId, "left");
+
+        // ✅ Extraire les `swiperId` (ceux qui ont swipé cette offre à gauche)
+        List<String> swipedUserIdsForOffer = leftSwipesForOffer.stream()
+                .map(SwipedCard::getSwiperId)  // 🛠 Ici on prend swiperId car c'est l'utilisateur qui a swipé
                 .collect(Collectors.toList());
 
-        // Filtrer les job searchers en excluant ceux qui ont été ignorés
+        System.out.println("❌ Candidats ayant swipé cette offre à gauche (userId) : " + swipedUserIdsForOffer);
+
+        // ✅ Récupérer tous les job searchers
         List<JobSearcher> jobSearchers = jobSearcherRepository.findAll();
+
+        // ✅ Filtrer les candidats
         List<JobSearcher> filteredJobSearchers = jobSearchers.stream()
-                .filter(jobSearcher -> !swipedIds.contains(jobSearcher.getId()))
+                .filter(jobSearcher -> {
+                    String userId = jobSearcher.getUserId().toString();  // 🛠 Convertit ObjectId en String
+                    boolean hasSwipedLeftForOffer = swipedUserIdsForOffer.contains(userId);
+
+                    if (hasSwipedLeftForOffer) {
+                        System.out.println("❌ Exclusion du candidat : " + jobSearcher.getName() + " | ID: " + userId);
+                    } else {
+                        System.out.println("✅ Conservation du candidat : " + jobSearcher.getName() + " | ID: " + userId);
+                    }
+
+                    return !hasSwipedLeftForOffer;
+                })
                 .collect(Collectors.toList());
 
         return ResponseEntity.ok(filteredJobSearchers);
     }
 
+
     /**
-     * 📌 Récupérer les swipes pour une offre spécifique.
-     */
+                 * 📌 Récupérer les swipes pour une offre spécifique.
+                 */
     @GetMapping("/{swiperId}/{jobOfferId}")
     public ResponseEntity<List<SwipedCard>> getSwipedCardsForOffer(
             @PathVariable String swiperId,
