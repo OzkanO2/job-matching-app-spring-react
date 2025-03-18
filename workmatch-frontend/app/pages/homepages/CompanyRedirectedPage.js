@@ -123,13 +123,15 @@ const CompanyRedirectedPage = () => {
                 const isSwipedForOffer = swipedIdsForOffer.has(candidateId);
                 const isSwipedGlobally = globallySwipedLeft.has(candidateId);
 
+                const hasValidScore = candidate.matchingScore > 0;
+
                 if (isSwipedForOffer || isSwipedGlobally) {
                     console.log(`❌ Exclusion de ${candidate.name} (ID: ${candidateId}) - Swipé à gauche`);
                 } else {
                     console.log(`✅ Conservation de ${candidate.name} (ID: ${candidateId})`);
                 }
 
-                return !isSwipedForOffer && !isSwipedGlobally;
+                return !isSwipedForOffer && !isSwipedGlobally && hasValidScore;
             });
 
             console.log("✅ Liste finale des candidats après filtrage :", candidates.map(c => c.userId));
