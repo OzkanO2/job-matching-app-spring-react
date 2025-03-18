@@ -67,7 +67,35 @@ const IndividualHomePage = () => {
 
                 console.log("📜 IDs des offres uniques après filtrage :", uniqueJobOffers.map(o => o._id));
 
-                setJobOffers(uniqueJobOffers);
+                // 🔹 5. Récupérer les entreprises qui ont déjà swipé l'utilisateur à gauche (hors redirection)
+                const blockedByCompanies = new Set();
+                for (const offer of uniqueJobOffers) {
+                    const companyId = offer.companyId || offer.company?.id;
+                    if (!companyId) continue;
+
+                    try {
+                        const companySwipeResponse = await axios.get(
+                            `http://localhost:8080/api/swiped/checkCompanySwipe?companyId=${companyId}&userId=${swiperId}`,
+                            { headers: { Authorization: `Bearer ${token}` } }
+                        );
+
+                        if (companySwipeResponse.data.exists) {
+                            console.log(`❌ Offre bloquée car l'entreprise ${companyId} a déjà swipé ce user.`);
+                            blockedByCompanies.add(offer._id.toString());
+                        }
+                    } catch (error) {
+                        console.error(`⚠️ Erreur lors de la vérification des swipes de la company ${companyId}:`, error);
+                    }
+                }
+
+                // 🔹 6. Appliquer le filtre final AVANT de setter jobOffers
+                const finalJobOffers = uniqueJobOffers.filter(offer => !blockedByCompanies.has(offer._id.toString()));
+
+                console.log("✅ Liste finale des offres après filtre entreprise :", finalJobOffers);
+
+                // 🔹 7. Mise à jour du state (on garde que les offres non bloquées)
+                setJobOffers(finalJobOffers);
+
             } catch (error) {
                 console.error('❌ Error fetching job offers:', error);
             } finally {

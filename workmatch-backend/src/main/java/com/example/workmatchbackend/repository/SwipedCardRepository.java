@@ -27,6 +27,8 @@ public interface SwipedCardRepository extends MongoRepository<SwipedCard, String
     List<SwipedCard> findBySwiperIdAndJobOfferIdAndDirection(String swiperId, String jobOfferId, String direction);
 
     List<SwipedCard> findBySwipedIdAndDirectionAndIsFromRedirection(String swipedId, String direction, boolean isFromRedirection);  // ✅ Ajoute cette ligne
+    @Query("{ 'swiperId': ?0, 'swipedId': ?1, 'direction': 'left', 'jobOfferId': '', 'isFromRedirection': false }")
+    List<SwipedCard> findCompaniesThatSwipedLeft(String companyId, String jobSeekerId);
 
     // Vérifier un swipe exact (avec direction et offre d'emploi)
     boolean existsBySwiperIdAndSwipedIdAndDirectionAndJobOfferId(String swiperId, String swipedId, String direction, String jobOfferId);

@@ -63,6 +63,19 @@ public class SwipeController {
         return ResponseEntity.ok(filteredJobSearchers);
     }
 
+    @GetMapping("/checkCompanySwipe")
+    public ResponseEntity<Map<String, Boolean>> checkCompanySwipe(
+            @RequestParam String companyId,
+            @RequestParam String userId) {
+
+        boolean exists = swipedCardRepository.existsBySwiperIdAndSwipedIdAndDirectionAndJobOfferIdAndIsFromRedirection(
+                companyId, userId, "left", "", false
+        );
+
+        Map<String, Boolean> response = new HashMap<>();
+        response.put("exists", exists);
+        return ResponseEntity.ok(response);
+    }
 
     /**
                  * 📌 Récupérer les swipes pour une offre spécifique.
