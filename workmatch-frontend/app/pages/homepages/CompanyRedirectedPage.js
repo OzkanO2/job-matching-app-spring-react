@@ -53,6 +53,28 @@ const CompanyRedirectedPage = () => {
             let candidates = response.data;
             console.log("✅ Candidats avant filtrage :", candidates.map(c => c.userId));
 
+            const scoreResponse = await axios.get(`http://localhost:8080/jobsearchers/matching?jobOfferId=${jobOffer._id}`, {
+                headers: { Authorization: `Bearer ${token}` },
+            });
+
+            let candidatesWithScores = scoreResponse.data; // ✅ Ajout de la déclaration correcte
+
+
+            candidates = candidates.map(candidate => {
+                const matchingCandidate = candidatesWithScores.find(c => c.userId === candidate.userId);
+                return {
+                    ...candidate,
+                    matchingScore: matchingCandidate ? matchingCandidate.matchingScore : 0
+                };
+            });
+
+            console.log("✅ Candidats après ajout des scores :", candidates.map(c => ({
+                name: c.name,
+                score: c.matchingScore
+            })));
+
+            candidates.sort((a, b) => (b.matchingScore || 0) - (a.matchingScore || 0));
+
             // ✅ 2. Récupérer les swipes à gauche POUR CETTE OFFRE (isFromRedirection = true)
             let swipedIdsForOffer = new Set();
             try {
