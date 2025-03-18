@@ -66,10 +66,11 @@ public class SwipeController {
     @GetMapping("/checkCompanySwipe")
     public ResponseEntity<Map<String, Boolean>> checkCompanySwipe(
             @RequestParam String companyId,
-            @RequestParam String userId) {
+            @RequestParam String userId,
+            @RequestParam String jobOfferId) {  // Ajout de jobOfferId en paramètre
 
         boolean exists = swipedCardRepository.existsBySwiperIdAndSwipedIdAndDirectionAndJobOfferIdAndIsFromRedirection(
-                companyId, userId, "left", "", false
+                companyId, userId, "left", jobOfferId, true  // Correction : jobOfferId != "" et isFromRedirection = true
         );
 
         Map<String, Boolean> response = new HashMap<>();
