@@ -191,7 +191,18 @@ const fetchMatchingCandidatesForCompany = async () => {
         } catch (error) {
             console.error("⚠️ Erreur lors de la récupération des swipes :", error);
         }
+let swipeStats = {};
+        try {
+            const swipeStatsResponse = await axios.get(`http://localhost:8080/api/swiped/company/swipes/${companyId}`, {
+                headers: { Authorization: `Bearer ${token}` },
+            });
 
+            swipeStats = swipeStatsResponse.data;
+            console.log("📊 Swipes des candidats pour les offres de l'entreprise :", swipeStats);
+
+        } catch (error) {
+            console.error("⚠️ Erreur lors de la récupération des statistiques de swipes :", error);
+        }
 console.log("✅ Liste complète des job searchers AVANT filtrage :", allJobSearchers.map(c => ({
             name: c.name,
             userId: c.userId?.toString(),
@@ -202,26 +213,16 @@ console.log("✅ Liste complète des job searchers AVANT filtrage :", allJobSear
 
         // ✅ Filtrer les candidats pour ne pas afficher ceux qui ont été swipés globalement
         // ✅ Exclure tous les candidats qui ont été swipés (gauche ou droite) depuis l'affichage normal
-        allJobSearchers = allJobSearchers.filter(candidate => {
+        allJobSearchers = allJobSearchers.map(candidate => {
             const candidateId = candidate.userId?.toString() || candidate.id?.toString();
+            const swipeData = swipeStats[candidateId] || { left: 0, right: 0 };
 
-            if (swipedIds.has(candidateId)) {
-                console.log(`❌ Exclusion de ${candidate.name} (ID: ${candidateId}) - Swipé (gauche ou droite) dans l'affichage normal`);
-                return false;
-            } else {
-                console.log(`✅ Conservation de ${candidate.name} (ID: ${candidateId})`);
-                return true;
-            }
+            return {
+                ...candidate,
+                swipesLeft: swipeData.left || 0,
+                swipesRight: swipeData.right || 0
+            };
         });
-
-
-
-console.log("✅ Liste des job searchers APRÈS filtrage :", allJobSearchers.map(c => ({
-            name: c.name,
-            userId: c.userId?.toString(),
-            id: c.id?.toString()
-        })));
-        console.log("✅ Liste finale des candidats après filtrage :", allJobSearchers.map(c => c.userId?.toString() || c.id?.toString()));
 
         setJobSearchers([...allJobSearchers]);
 
@@ -486,6 +487,9 @@ const handleSwipeLeft = async (index) => {
                                                     {jobSearcher.matchingScore !== undefined ? jobSearcher.matchingScore.toFixed(2) + "%" : "N/A"}
                                                 </Text>
                                             )}
+                                            <Text>👈 Swipes à gauche : {jobSearcher.swipesLeft} </Text>
+                                            <Text>👉 Swipes à droite : {jobSearcher.swipesRight} </Text>
+
                                         </View>
                                     ) : (
                                         <View style={styles.card}>
