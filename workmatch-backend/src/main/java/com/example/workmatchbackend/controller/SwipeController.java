@@ -9,9 +9,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.HashMap;
+import java.util.Collections;
+import java.util.Set;
 
 import com.example.workmatchbackend.model.JobSearcher;
 import com.example.workmatchbackend.repository.JobSearcherRepository;
+import org.bson.types.ObjectId;
+import com.example.workmatchbackend.model.JobOffer;
+import com.example.workmatchbackend.repository.JobOfferRepository;
+import com.example.workmatchbackend.repository.SwipedCardRepository;
+import com.example.workmatchbackend.model.SwipedCard;
 
 @RestController
 @RequestMapping("/api/swiped")
@@ -23,6 +30,9 @@ public class SwipeController {
 
     @Autowired
     private JobSearcherRepository jobSearcherRepository;
+
+    @Autowired
+    private JobOfferRepository jobOfferRepository;
 
     @GetMapping("/filteredJobSearchers/{swiperId}/{jobOfferId}")
     public ResponseEntity<List<JobSearcher>> getFilteredJobSearchers(
@@ -89,6 +99,42 @@ public class SwipeController {
         Map<String, Boolean> response = new HashMap<>();
         response.put("exists", exists);
         return ResponseEntity.ok(response);
+    }
+    @GetMapping("/company/swipes/{companyId}")
+    public Map<String, Map<String, Integer>> getCandidateSwipeCounts(@PathVariable String companyId) {
+        List<JobOffer> companyOffers = jobOfferRepository.findByCompanyId(new ObjectId(companyId));
+
+        if (companyOffers.isEmpty()) {
+            System.out.println("❌ Aucune offre trouvée pour l'entreprise : " + companyId);
+            return Collections.emptyMap();
+        }
+
+        Set<String> companyOfferIds = companyOffers.stream()
+                .map(offer -> offer.getId().toString())
+                .collect(Collectors.toSet());
+
+        List<SwipedCard> swipes = swipedCardRepository.findAll();
+
+        Map<String, Map<String, Integer>> swipeCounts = new HashMap<>();
+
+        for (SwipedCard swipe : swipes) {
+            if (companyOfferIds.contains(swipe.getSwipedId())) {
+                String swiperId = swipe.getSwiperId();
+
+                swipeCounts.putIfAbsent(swiperId, new HashMap<>());
+                swipeCounts.get(swiperId).putIfAbsent("left", 0);
+                swipeCounts.get(swiperId).putIfAbsent("right", 0);
+
+                if ("left".equals(swipe.getDirection())) {
+                    swipeCounts.get(swiperId).put("left", swipeCounts.get(swiperId).get("left") + 1);
+                } else if ("right".equals(swipe.getDirection())) {
+                    swipeCounts.get(swiperId).put("right", swipeCounts.get(swiperId).get("right") + 1);
+                }
+            }
+        }
+
+        System.out.println("📊 Nombre de swipes trouvés pour chaque candidat : " + swipeCounts);
+        return swipeCounts;
     }
 
     /**

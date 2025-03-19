@@ -38,6 +38,7 @@ const CompanyRedirectedPage = () => {
         try {
             const token = await AsyncStorage.getItem("userToken");
             const swiperId = await AsyncStorage.getItem("userId");
+            const companyId = await AsyncStorage.getItem("userId"); // ✅ ID de l'entreprise connectée
 
             if (!token || !swiperId) {
                 console.error("❌ Token ou swiperId manquant !");
@@ -74,6 +75,37 @@ const CompanyRedirectedPage = () => {
             })));
 
             candidates.sort((a, b) => (b.matchingScore || 0) - (a.matchingScore || 0));
+
+            // ✅ 4. Récupérer les swipes des candidats pour les offres du company
+            let candidateSwipeData = {};
+
+            try {
+                const swipesResponse = await axios.get(`http://localhost:8080/api/swiped/company/swipes/${companyId}`, {
+                    headers: { Authorization: `Bearer ${token}` },
+                });
+
+                candidateSwipeData = swipesResponse.data || {};
+                console.log("📊 Swipes des candidats pour les offres de l'entreprise :", candidateSwipeData);
+            } catch (error) {
+                console.error("⚠️ Erreur lors de la récupération des swipes par candidat :", error);
+            }
+
+            // ✅ 5. Ajouter les swipes des candidats aux données
+            candidates = candidates.map(candidate => {
+                const candidateId = candidate.userId?.toString() || candidate.id?.toString();
+                return {
+                    ...candidate,
+                    swipeLeftCount: candidateSwipeData[candidateId]?.left || 0,
+                    swipeRightCount: candidateSwipeData[candidateId]?.right || 0
+                };
+            });
+
+            console.log("📊 Données finales des candidats après ajout des swipes :", candidates.map(c => ({
+                name: c.name,
+                leftSwipes: c.swipeLeftCount,
+                rightSwipes: c.swipeRightCount
+            })));
+
 
             // ✅ 2. Récupérer les swipes à gauche POUR CETTE OFFRE (isFromRedirection = true)
             let swipedIdsForOffer = new Set();
@@ -420,6 +452,8 @@ key={matchingJobSearchers.map(c => c.userId).join(",")}
                                                     {jobSearcher.matchingScore !== undefined ? jobSearcher.matchingScore.toFixed(2) + "%" : "N/A"}
                                                 </Text>
                                             )}
+                                            <Text>🔄 Swipes sur vos offres: {jobSearcher.swipeRightCount} 👍 | {jobSearcher.swipeLeftCount} 👎</Text>
+
                                         </View>
                                     ) : (
                                         <View style={styles.card}>
