@@ -84,8 +84,6 @@ export default function SignUpPage({ navigation }) {
       email: `${emailPrefix}@${emailDomain}`,
       password,
       userType,
-      companyName: userType === 'COMPANY' ? companyName : null,
-      uniqueNumber: userType === 'COMPANY' ? uniqueNumber : null,
     };
 
     try {
@@ -111,7 +109,12 @@ export default function SignUpPage({ navigation }) {
           await AsyncStorage.setItem('username', userInfo.username);
 
           // 🔹 Rediriger directement vers la page des compétences après l'inscription
+        if (userInfo.userType === 'COMPANY') {
+          navigation.navigate('CompanyOnboardingPage', { userInfo });
+        } else {
           navigation.navigate('JobSeekerOnboardingPage', { userInfo });
+        }
+
         } else {
           Alert.alert('Error', 'Login failed after registration.');
         }
@@ -164,13 +167,6 @@ export default function SignUpPage({ navigation }) {
           {emailPrefixError ? <Text style={styles.errorText}>{emailPrefixError}</Text> : null}
 
           <TextInput placeholder="Password" value={password} onChangeText={setPassword} secureTextEntry style={styles.input} />
-        </>
-      )}
-
-      {userType === 'COMPANY' && (
-        <>
-          <TextInput placeholder="Company Name" value={companyName} onChangeText={setCompanyName} style={styles.input} />
-          <TextInput placeholder="Company Unique Number (SIRET)" value={uniqueNumber} onChangeText={setUniqueNumber} style={styles.input} />
         </>
       )}
 
