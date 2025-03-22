@@ -18,6 +18,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import LikedPage from '../pages/liked/LikedPage';
 import ChatRoom from '../pages/chat/ChatRoom';
 import JobOfferDetails from '../pages/offers/JobOfferDetails';
+import EditOfferPage from '../pages/offers/EditOfferPage';
 
 const Stack = createStackNavigator();
 
@@ -101,6 +102,14 @@ function MainStackNavigator() {
         component={SettingsPage}
         options={{
           title: 'Settings',
+        }}
+      />
+      <Stack.Screen
+        name="EditOfferPage"
+        component={EditOfferPage}
+        options={{
+          headerLeft: () => null,
+          title: "Edit offer",
         }}
       />
       <Stack.Screen

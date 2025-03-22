@@ -70,6 +70,12 @@ const MyOffersPage = () => {
                             <Text style={styles.jobTitle}>{item.title}</Text>
                             <Text style={styles.jobLocation}>{item.location}</Text>
                         </TouchableOpacity>
+<TouchableOpacity
+  style={styles.editOfferButton}
+  onPress={() => navigation.navigate("EditOfferPage", { offer: item })}
+>
+  <Text style={styles.buttonText}>✏️ Modifier</Text>
+</TouchableOpacity>
 
                         <TouchableOpacity
                             style={styles.viewCandidatesButton}
@@ -123,6 +129,14 @@ const styles = StyleSheet.create({
         color: "#888",
         marginTop: 20,
     },
+    editOfferButton: {
+      backgroundColor: "#ffc107",
+      padding: 8,
+      borderRadius: 5,
+      marginTop: 6,
+      alignItems: "center",
+    },
+
 });
 
 export default MyOffersPage;
