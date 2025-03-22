@@ -90,9 +90,9 @@ const validatePassword = (pwd) => {
     if (!(await validateEmail())) {
       return;
     }
-if (!(await validateEmail()) || !validatePassword(password)) {
-    return;
-  }
+    if (!(await validateEmail()) || !validatePassword(password)) {
+        return;
+      }
     const userData = {
       username,
       email: `${emailPrefix}@${emailDomain}`,
@@ -121,6 +121,7 @@ if (!(await validateEmail()) || !validatePassword(password)) {
         if (token) {
           await AsyncStorage.setItem('userToken', `Bearer ${token}`);
           await AsyncStorage.setItem('username', userInfo.username);
+          await AsyncStorage.setItem('userType', userInfo.userType); // ✅ très important
 
           // 🔹 Rediriger directement vers la page des compétences après l'inscription
         if (userInfo.userType === 'COMPANY') {
