@@ -22,6 +22,9 @@ const [category, setCategory] = useState('');
 const [categoryError, setCategoryError] = useState('');
 const [selectedLocations, setSelectedLocations] = useState([]);
 const [locationError, setLocationError] = useState('');
+const [selectedSkills, setSelectedSkills] = useState({});
+const [skillsError, setSkillsError] = useState('');
+const allSkills = ["JavaScript", "React", "Node.js", "Python", "Java", "C#", "Ruby", "Swift"];
 
 const handleLocationToggle = (location) => {
   setSelectedLocations((prevLocations) =>
@@ -30,6 +33,25 @@ const handleLocationToggle = (location) => {
       : [...prevLocations, location]
   );
 };
+const handleSkillToggle = (skill) => {
+  setSelectedSkills((prevSkills) => {
+    const newSkills = { ...prevSkills };
+    if (newSkills[skill]) {
+      delete newSkills[skill];
+    } else {
+      newSkills[skill] = 1;
+    }
+    return newSkills;
+  });
+};
+
+const handleExperienceChange = (skill, value) => {
+  setSelectedSkills((prevSkills) => ({
+    ...prevSkills,
+    [skill]: Math.max(1, prevSkills[skill] + value),
+  }));
+};
+
 
     const validateInputs = () => {
         const titleWithoutSpaces = title.replace(/\s/g, '');
@@ -73,6 +95,13 @@ const handleLocationToggle = (location) => {
         } else {
           setLocationError('');
         }
+        if (Object.keys(selectedSkills).length === 0) {
+          setSkillsError("Veuillez sélectionner au moins une compétence.");
+          isValid = false;
+        } else {
+          setSkillsError('');
+        }
+
 
         return isValid;
       };
@@ -88,6 +117,7 @@ const handleLocationToggle = (location) => {
            Alert.alert("Champs requis", "Merci de remplir tous les champs.");
            return;
          }
+const skills = Object.entries(selectedSkills).map(([name, experience]) => ({ name, experience }));
 
          const newOffer = {
            title,
@@ -99,6 +129,8 @@ const handleLocationToggle = (location) => {
            remote,
            category, // ✅
            locations: selectedLocations, // ✅ Ajouté ici
+           skills, // ✅ ici
+
          };
 
 
@@ -127,7 +159,7 @@ const handleLocationToggle = (location) => {
 console.log("🎯 userInfo dans CompanyOnboardingPage :", userInfo);
 
  return (
-     <View style={styles.container}>
+<ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
        <Text style={styles.headerText}>Bienvenue, {userInfo.username} !</Text>
              <Text style={styles.subText}>Créez votre première offre, vous pourrez en créer d'autres par la suite.</Text>
 
@@ -168,11 +200,11 @@ console.log("🎯 userInfo dans CompanyOnboardingPage :", userInfo);
                  <Text style={styles.label}>Salaire Minimum :</Text>
                  <View style={styles.salaryControls}>
                    <TouchableOpacity onPress={() => setSalaryMin((prev) => Math.max(10000, Math.min(prev - 1000, salaryMax - 1000)))}>
-                     <Ionicons name="remove-circle-outline" size={24} color="#6c757d" />
+                     <Ionicons name="remove-circle-outline" size={20} color="#6c757d" />
                    </TouchableOpacity>
                    <Text style={styles.salaryValue}>{salaryMin} €</Text>
                    <TouchableOpacity onPress={() => setSalaryMin((prev) => Math.min(prev + 1000, salaryMax - 1000))}>
-                     <Ionicons name="add-circle-outline" size={24} color="#6c757d" />
+                     <Ionicons name="add-circle-outline" size={20} color="#6c757d" />
                    </TouchableOpacity>
                  </View>
                </View>
@@ -282,51 +314,80 @@ console.log("🎯 userInfo dans CompanyOnboardingPage :", userInfo);
       ))}
     </View>
 {locationError ? <Text style={styles.errorText}>{locationError}</Text> : null}
+<Text style={styles.label}>Compétences requises :</Text>
+<View style={styles.skillContainer}>
+  {allSkills.map((skill) => (
+    <View key={skill} style={{ alignItems: "center", marginVertical: 8 }}>
+      <TouchableOpacity
+        onPress={() => handleSkillToggle(skill)}
+        style={[styles.skillButton, selectedSkills[skill] && styles.selectedSkill]}
+      >
+        <Text style={[styles.skillText, selectedSkills[skill] && styles.selectedSkillText]}>
+          {skill}
+        </Text>
+      </TouchableOpacity>
+
+      {selectedSkills[skill] && (
+        <View style={styles.experienceContainer}>
+          <TouchableOpacity onPress={() => handleExperienceChange(skill, -1)}>
+            <Ionicons name="remove-circle-outline" size={24} color="#6c757d" />
+          </TouchableOpacity>
+          <Text style={styles.experienceValue}>{selectedSkills[skill]} years</Text>
+          <TouchableOpacity onPress={() => handleExperienceChange(skill, 1)}>
+            <Ionicons name="add-circle-outline" size={24} color="#6c757d" />
+          </TouchableOpacity>
+        </View>
+      )}
+    </View>
+  ))}
+</View>
+{skillsError ? <Text style={styles.errorText}>{skillsError}</Text> : null}
 
              <Button title="Soumettre l'offre" onPress={handleSubmit} />
-           </View>
+           </ScrollView>
    );
 };
 
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    padding: 20,
-    justifyContent: 'center',
+    padding: 12,  paddingBottom: 40, // pour l'espace tout en bas
+
     backgroundColor: '#fff',
   },
   headerText: {
-    fontSize: 20,
+    fontSize: 16,
     fontWeight: 'bold',
-    marginBottom: 10,
+    marginBottom: 6,
     textAlign: 'center',
   },
   subText: {
-    fontSize: 14,
-    marginBottom: 20,
+    fontSize: 12,
+    marginBottom: 10,
     textAlign: 'center',
     color: '#555',
   },
   input: {
     borderWidth: 1,
     borderColor: '#ccc',
-    padding: 10,
-    marginBottom: 8,
-    borderRadius: 5,
+    padding: 8,
+    marginBottom: 6,
+    borderRadius: 4,
+    fontSize: 13,
   },
   inputError: {
     borderColor: 'red',
   },
   errorText: {
     color: 'red',
-    marginBottom: 10,
-    fontSize: 13,
+    marginBottom: 6,
+    fontSize: 12,
   },
   label: {
+    fontSize: 13,
     fontWeight: 'bold',
-    marginTop: 10,
-    marginBottom: 5,
+    marginTop: 8,
+    marginBottom: 4,
   }
 ,salaryContainer: {
    marginTop: 10,
@@ -336,12 +397,12 @@ const styles = StyleSheet.create({
    flexDirection: 'row',
    alignItems: 'center',
    justifyContent: 'center',
-   gap: 10,
+   gap: 8,
  },
  salaryValue: {
-   fontSize: 16,
+   fontSize: 13,
    fontWeight: 'bold',
-   marginHorizontal: 10,
+   marginHorizontal: 6,
  },
 contractContainer: {
   flexDirection: 'row',
@@ -361,6 +422,7 @@ contractSelected: {
   backgroundColor: '#007bff',
 },
 contractText: {
+  fontSize: 12,
   color: '#007bff',
   fontWeight: 'bold',
 },
@@ -391,21 +453,23 @@ locationContainer: {
   marginBottom: 10,
 },
 locationButton: {
-  paddingVertical: 8,
-  paddingHorizontal: 12,
+  paddingVertical: 6,
+  paddingHorizontal: 10,
   borderWidth: 2,
   borderColor: '#28a745',
-  borderRadius: 10,
-  margin: 5,
+  borderRadius: 8,
+  margin: 4,
 },
 selectedLocation: {
   backgroundColor: '#28a745',
 },
 locationText: {
+  fontSize: 12,
   color: '#28a745',
   fontWeight: 'bold',
 },
 selectedLocationText: {
+  fontSize: 12,
   color: 'white',
 },
 headerText: {
@@ -438,7 +502,7 @@ contractButton: {
   paddingHorizontal: 10,
   borderWidth: 2,
   borderColor: '#007bff',
-  borderRadius: 10,
+  borderRadius: 8,
   margin: 4,
 },
 locationButton: {
@@ -448,6 +512,59 @@ locationButton: {
   borderColor: '#28a745',
   borderRadius: 10,
   margin: 4,
+},
+row: {
+  flexDirection: 'row',
+  alignItems: 'center',
+  marginBottom: 10,
+},
+skillRow: {
+  flexDirection: 'row',
+  justifyContent: 'space-between',
+  alignItems: 'center',
+  paddingVertical: 4,
+  paddingHorizontal: 8,
+  backgroundColor: '#f1f1f1',
+  borderRadius: 5,
+  marginTop: 4,
+},
+skillText: {
+  fontSize: 14,
+  color: '#333',
+},
+skillContainer: {
+  marginBottom: 10,
+},
+skillButton: {
+  paddingVertical: 6,
+  paddingHorizontal: 14,
+  borderWidth: 2,
+  borderColor: "#007bff",
+  borderRadius: 8,
+  backgroundColor: "white",
+  marginBottom: 4,
+},
+selectedSkill: {
+  backgroundColor: "#007bff",
+},
+skillText: {
+  fontSize: 13,
+  color: "#007bff",
+},
+selectedSkillText: {
+  fontSize: 13,
+  color: "white",
+  fontWeight: "bold",
+},
+experienceContainer: {
+  flexDirection: "row",
+  alignItems: "center",
+  marginTop: 5,
+},
+experienceValue: {
+  fontSize: 13,
+  fontWeight: "bold",
+  marginHorizontal: 6,
 },
 
 });
