@@ -37,7 +37,7 @@ public class JobOffer {
     private String apiSource;
     private String externalId;
     private boolean companyCertified;
-    private String companyId;
+    private ObjectId companyId;
 
     @NotNull(message = "Employment Type is required")
     private String employmentType;
@@ -132,13 +132,18 @@ public class JobOffer {
     public void setSkills(List<Skill> skills) {
         this.skills = skills;
     }
-    public String getCompanyId() {
-        return companyId;
+    @JsonProperty("userId") // 🔥 Cela force la sérialisation correcte en JSON
+    public String getCompanyIdAsString() {
+        return companyId != null ? companyId.toHexString() : null;
     }
 
-    public void setCompanyId(String companyId) {
+    public ObjectId getCompanyId() {
+        return companyId;
+    }
+    public void setCompanyId(ObjectId companyId) {
         this.companyId = companyId;
     }
+
     public String getExternalId() {
         return externalId;
     }

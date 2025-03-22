@@ -15,6 +15,11 @@ const CompanyOnboardingPage = ({ navigation, route }) => {
 const [salaryMin, setSalaryMin] = useState(30000);
 const [salaryMax, setSalaryMax] = useState(60000);
 const [salaryError, setSalaryError] = useState('');
+const [employmentType, setEmploymentType] = useState('');
+const [employmentTypeError, setEmploymentTypeError] = useState('');
+const [remote, setRemote] = useState(false);
+const [category, setCategory] = useState('');
+const [categoryError, setCategoryError] = useState('');
 
     const validateInputs = () => {
         const titleWithoutSpaces = title.replace(/\s/g, '');
@@ -34,12 +39,24 @@ const [salaryError, setSalaryError] = useState('');
         } else {
           setDescriptionError('');
         }
-if (salaryMin >= salaryMax) {
-  setSalaryError("Le salaire minimum doit être inférieur au salaire maximum.");
-  isValid = false;
-} else {
-  setSalaryError('');
-}
+        if (salaryMin >= salaryMax) {
+          setSalaryError("Le salaire minimum doit être inférieur au salaire maximum.");
+          isValid = false;
+        } else {
+          setSalaryError('');
+        }
+        if (!employmentType) {
+          setEmploymentTypeError("Veuillez sélectionner un type de contrat.");
+          isValid = false;
+        } else {
+          setEmploymentTypeError('');
+        }
+        if (!category) {
+          setCategoryError("Veuillez sélectionner une catégorie.");
+          isValid = false;
+        } else {
+          setCategoryError('');
+        }
 
         return isValid;
       };
@@ -62,6 +79,9 @@ if (salaryMin >= salaryMax) {
            companyId,
            salaryMin,
            salaryMax,
+           employmentType,
+           remote,
+           category, // ✅
          };
 
 
@@ -154,6 +174,73 @@ if (salaryMin >= salaryMax) {
 
                {salaryError ? <Text style={styles.errorText}>{salaryError}</Text> : null}
 
+            <Text style={styles.label}>Type de contrat :</Text>
+            <View style={styles.contractContainer}>
+              {["full_time", "part_time", "internship", "freelance"].map((type) => (
+                <TouchableOpacity
+                  key={type}
+                  style={[
+                    styles.contractButton,
+                    employmentType === type && styles.contractSelected,
+                  ]}
+                  onPress={() => setEmploymentType(type)}
+                >
+                  <Text
+                    style={[
+                      styles.contractText,
+                      employmentType === type && styles.contractTextSelected,
+                    ]}
+                  >
+                    {type.replace('_', ' ').toUpperCase()}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+                </View>
+                {employmentTypeError ? (
+                  <Text style={styles.errorText}>{employmentTypeError}</Text>
+                ) : null}
+                <Text style={styles.label}>Télétravail :</Text>
+                <View style={styles.remoteContainer}>
+                  <TouchableOpacity
+                    style={[styles.remoteButton, remote && styles.remoteSelected]}
+                    onPress={() => setRemote(!remote)}
+                  >
+                    <Text style={styles.remoteButtonText}>
+                      {remote ? "OUI" : "NON"}
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+                <Text style={styles.label}>Catégorie :</Text>
+                <View style={styles.contractContainer}>
+                  {[
+                    "Développement Web",
+                    "Ingénieur DevOps",
+                    "Business Developer",
+                    "Software Developer",
+                    "Data Science",
+                    "Marketing",
+                    "Finance",
+                  ].map((cat) => (
+                    <TouchableOpacity
+                      key={cat}
+                      style={[
+                        styles.contractButton,
+                        category === cat && styles.contractSelected,
+                      ]}
+                      onPress={() => setCategory(cat)}
+                    >
+                      <Text
+                        style={[
+                          styles.contractText,
+                          category === cat && styles.contractTextSelected,
+                        ]}
+                      >
+                        {cat}
+                      </Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+                {categoryError ? <Text style={styles.errorText}>{categoryError}</Text> : null}
 
              <Button title="Soumettre l'offre" onPress={handleSubmit} />
            </View>
@@ -215,6 +302,47 @@ const styles = StyleSheet.create({
    fontWeight: 'bold',
    marginHorizontal: 10,
  },
+contractContainer: {
+  flexDirection: 'row',
+  flexWrap: 'wrap',
+  justifyContent: 'center',
+  marginBottom: 10,
+},
+contractButton: {
+  paddingVertical: 8,
+  paddingHorizontal: 12,
+  borderWidth: 2,
+  borderColor: '#007bff',
+  borderRadius: 10,
+  margin: 5,
+},
+contractSelected: {
+  backgroundColor: '#007bff',
+},
+contractText: {
+  color: '#007bff',
+  fontWeight: 'bold',
+},
+contractTextSelected: {
+  color: 'white',
+},
+remoteContainer: {
+  alignItems: 'center',
+  marginBottom: 15,
+},
+remoteButton: {
+  paddingVertical: 10,
+  paddingHorizontal: 20,
+  borderRadius: 10,
+  backgroundColor: '#ccc',
+},
+remoteSelected: {
+  backgroundColor: '#007bff',
+},
+remoteButtonText: {
+  color: 'white',
+  fontWeight: 'bold',
+},
 
 });
 export default CompanyOnboardingPage;

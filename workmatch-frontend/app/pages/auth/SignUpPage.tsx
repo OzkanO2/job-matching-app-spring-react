@@ -17,6 +17,8 @@ export default function SignUpPage({ navigation }) {
   const [emailError, setEmailError] = useState('');
   const [isEmailPrefixValid, setIsEmailPrefixValid] = useState(true);
   const [emailPrefixError, setEmailPrefixError] = useState('');
+const [isPasswordValid, setIsPasswordValid] = useState(true);
+const [passwordError, setPasswordError] = useState('');
 
   const allowedDomains = ['gmail.com', 'hotmail.com', 'yahoo.com', 'outlook.com', 'protonmail.com'];
 
@@ -67,6 +69,16 @@ export default function SignUpPage({ navigation }) {
     setIsEmailPrefixValid(true);
     return true;
   };
+const validatePassword = (pwd) => {
+  if (pwd.length < 4) {
+    setPasswordError('Password must be at least 4 characters.');
+    setIsPasswordValid(false);
+    return false;
+  }
+  setPasswordError('');
+  setIsPasswordValid(true);
+  return true;
+};
 
   const validateEmail = () => {
     if (!validateEmailPrefix(emailPrefix)) return false;
@@ -78,7 +90,9 @@ export default function SignUpPage({ navigation }) {
     if (!(await validateEmail())) {
       return;
     }
-
+if (!(await validateEmail()) || !validatePassword(password)) {
+    return;
+  }
     const userData = {
       username,
       email: `${emailPrefix}@${emailDomain}`,
@@ -166,7 +180,18 @@ export default function SignUpPage({ navigation }) {
           </View>
           {emailPrefixError ? <Text style={styles.errorText}>{emailPrefixError}</Text> : null}
 
-          <TextInput placeholder="Password" value={password} onChangeText={setPassword} secureTextEntry style={styles.input} />
+            <TextInput
+              placeholder="Password"
+              value={password}
+              onChangeText={(text) => {
+                setPassword(text);
+                validatePassword(text);
+              }}
+              secureTextEntry
+              style={[styles.input, !isPasswordValid && styles.inputError]}
+            />
+            {passwordError ? <Text style={styles.errorText}>{passwordError}</Text> : null}
+
         </>
       )}
 
