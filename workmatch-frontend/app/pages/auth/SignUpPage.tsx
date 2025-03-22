@@ -124,8 +124,12 @@ if (!(await validateEmail()) || !validatePassword(password)) {
 
           // 🔹 Rediriger directement vers la page des compétences après l'inscription
         if (userInfo.userType === 'COMPANY') {
+              console.log("➡️ Redirection vers CompanyOnboardingPage");
+
           navigation.navigate('CompanyOnboardingPage', { userInfo });
         } else {
+              console.log("➡️ Redirection vers JobSeekerOnboardingPage");
+
           navigation.navigate('JobSeekerOnboardingPage', { userInfo });
         }
 

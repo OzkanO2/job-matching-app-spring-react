@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, Alert, TouchableOpacity } from 'react-native';
 import { Ionicons } from "@expo/vector-icons";
+import { View, Text, TextInput, Button, StyleSheet, Alert, TouchableOpacity, ScrollView } from 'react-native';
 
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -20,6 +20,16 @@ const [employmentTypeError, setEmploymentTypeError] = useState('');
 const [remote, setRemote] = useState(false);
 const [category, setCategory] = useState('');
 const [categoryError, setCategoryError] = useState('');
+const [selectedLocations, setSelectedLocations] = useState([]);
+const [locationError, setLocationError] = useState('');
+
+const handleLocationToggle = (location) => {
+  setSelectedLocations((prevLocations) =>
+    prevLocations.includes(location)
+      ? prevLocations.filter((loc) => loc !== location)
+      : [...prevLocations, location]
+  );
+};
 
     const validateInputs = () => {
         const titleWithoutSpaces = title.replace(/\s/g, '');
@@ -57,6 +67,12 @@ const [categoryError, setCategoryError] = useState('');
         } else {
           setCategoryError('');
         }
+        if (selectedLocations.length === 0) {
+          setLocationError("Veuillez sélectionner au moins une ville.");
+          isValid = false;
+        } else {
+          setLocationError('');
+        }
 
         return isValid;
       };
@@ -82,6 +98,7 @@ const [categoryError, setCategoryError] = useState('');
            employmentType,
            remote,
            category, // ✅
+           locations: selectedLocations, // ✅ Ajouté ici
          };
 
 
@@ -107,6 +124,7 @@ const [categoryError, setCategoryError] = useState('');
          Alert.alert("Erreur", "Impossible de créer l'offre.");
        }
      };
+console.log("🎯 userInfo dans CompanyOnboardingPage :", userInfo);
 
  return (
      <View style={styles.container}>
@@ -241,6 +259,29 @@ const [categoryError, setCategoryError] = useState('');
                   ))}
                 </View>
                 {categoryError ? <Text style={styles.errorText}>{categoryError}</Text> : null}
+<Text style={styles.label}>Villes concernées :</Text>
+    <View style={styles.locationContainer}>
+      {["Paris", "Lyon", "Marseille", "Toulouse", "Nice", "Bordeaux", "Lille", "Nantes"].map((city) => (
+        <TouchableOpacity
+          key={city}
+          style={[
+            styles.locationButton,
+            selectedLocations.includes(city) && styles.selectedLocation,
+          ]}
+          onPress={() => handleLocationToggle(city)}
+        >
+          <Text
+            style={[
+              styles.locationText,
+              selectedLocations.includes(city) && styles.selectedLocationText,
+            ]}
+          >
+            {city}
+          </Text>
+        </TouchableOpacity>
+      ))}
+    </View>
+{locationError ? <Text style={styles.errorText}>{locationError}</Text> : null}
 
              <Button title="Soumettre l'offre" onPress={handleSubmit} />
            </View>
@@ -342,6 +383,71 @@ remoteSelected: {
 remoteButtonText: {
   color: 'white',
   fontWeight: 'bold',
+},
+locationContainer: {
+  flexDirection: 'row',
+  flexWrap: 'wrap',
+  justifyContent: 'center',
+  marginBottom: 10,
+},
+locationButton: {
+  paddingVertical: 8,
+  paddingHorizontal: 12,
+  borderWidth: 2,
+  borderColor: '#28a745',
+  borderRadius: 10,
+  margin: 5,
+},
+selectedLocation: {
+  backgroundColor: '#28a745',
+},
+locationText: {
+  color: '#28a745',
+  fontWeight: 'bold',
+},
+selectedLocationText: {
+  color: 'white',
+},
+headerText: {
+  fontSize: 18,
+  fontWeight: 'bold',
+  marginBottom: 6,
+  textAlign: 'center',
+},
+subText: {
+  fontSize: 13,
+  marginBottom: 12,
+  textAlign: 'center',
+  color: '#555',
+},
+input: {
+  borderWidth: 1,
+  borderColor: '#ccc',
+  padding: 8,
+  marginBottom: 8,
+  borderRadius: 5,
+  fontSize: 14,
+},
+salaryValue: {
+  fontSize: 14,
+  fontWeight: 'bold',
+  marginHorizontal: 8,
+},
+contractButton: {
+  paddingVertical: 6,
+  paddingHorizontal: 10,
+  borderWidth: 2,
+  borderColor: '#007bff',
+  borderRadius: 10,
+  margin: 4,
+},
+locationButton: {
+  paddingVertical: 6,
+  paddingHorizontal: 10,
+  borderWidth: 2,
+  borderColor: '#28a745',
+  borderRadius: 10,
+  margin: 4,
 },
 
 });
