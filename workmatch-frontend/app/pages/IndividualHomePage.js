@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, Button, StyleSheet } from 'react-native';
+import { View, Text, Button, StyleSheet, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -258,10 +258,22 @@ const IndividualHomePage = () => {
     return (
          <View style={styles.container}>
              <View style={styles.topButtons}>
-                 <Button title="Profile" onPress={() => navigation.navigate('ProfilePage')} />
-                 <Button title="Main Menu" onPress={() => navigation.navigate('IndividualHome')} />
-                 <Button title="Chat" onPress={() => navigation.navigate('ChatPage')} />
-                 <Button title="My Offers" onPress={() => navigation.navigate('MyOffersPage')} />
+               <TouchableOpacity style={[styles.navButton, { backgroundColor: '#3b82f6' }]} onPress={() => navigation.navigate('ProfilePage')}>
+                 <Text style={styles.navButtonText}>Profile</Text>
+               </TouchableOpacity>
+
+               <TouchableOpacity style={[styles.navButton, { backgroundColor: '#60a5fa' }]} onPress={() => navigation.navigate('IndividualHome')}>
+                 <Text style={styles.navButtonText}>Main Menu</Text>
+               </TouchableOpacity>
+
+               <TouchableOpacity style={[styles.navButton, { backgroundColor: '#93c5fd' }]} onPress={() => navigation.navigate('ChatPage')}>
+                 <Text style={styles.navButtonText}>Chat</Text>
+               </TouchableOpacity>
+
+               <TouchableOpacity style={[styles.navButton, { backgroundColor: '#bfdbfe' }]} onPress={() => navigation.navigate('MyOffersPage')}>
+                 <Text style={styles.navButtonText}>My Offers</Text>
+               </TouchableOpacity>
+
              </View>
 
              <View style={styles.swiperContainer}>
@@ -288,7 +300,7 @@ const IndividualHomePage = () => {
                          onSwipedRight={(cardIndex) => handleSwipeRight(cardIndex)}
                          onSwipedLeft={(cardIndex) => handleSwipeLeft(cardIndex)}
                          cardIndex={0}
-                         backgroundColor={'#f3f3f3'}
+                         backgroundColor={'#0f172a'}
                          stackSize={Math.min(jobOffers.length, 3)}
                          infinite={false}
                      />
@@ -302,40 +314,57 @@ const IndividualHomePage = () => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#fff',
+        backgroundColor: '#0f172a',
     },
     topButtons: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        paddingHorizontal: 10,
-        marginTop: 20,
-        marginBottom: 10,
-        zIndex: 1,
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      justifyContent: 'center',
+      gap: 10,
+      marginBottom: 20,
+    },
+    navButton: {
+      backgroundColor: '#1e3a8a', // un joli bleu futuriste
+      paddingVertical: 10,
+      paddingHorizontal: 16,
+      borderRadius: 12,
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.3,
+      shadowRadius: 4,
+      elevation: 3,
     },
     swiperContainer: {
         flex: 1,
         marginTop: 10,
     },
     card: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        backgroundColor: '#f9f9f9',
-        borderRadius: 10,
-        borderWidth: 1,
-        borderColor: '#ddd',
-        padding: 20,
-        marginHorizontal: 10,
+      height: 440,
+      backgroundColor: '#334155', // gris bleuté foncé
+      borderRadius: 20,
+      padding: 24,
+      justifyContent: 'center',
+      alignItems: 'center',
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 6 },
+      shadowOpacity: 0.25,
+      shadowRadius: 8,
+      elevation: 10,
+      borderWidth: 1,
+      borderColor: '#475569',
     },
-    cardTitle: {
-        fontWeight: 'bold',
-        fontSize: 18,
-        marginBottom: 10,
-    },
+cardTitle: {
+  fontSize: 18,
+  fontWeight: 'bold',
+  color: '#ffffff',
+  marginBottom: 12,
+  textAlign: 'center',
+},
     cardDescription: {
-        fontSize: 14,
-        color: '#555',
-        textAlign: 'center',
+      fontSize: 14,
+      color: '#ffffff',
+      textAlign: 'center',
+      lineHeight: 20,
     },
 });
 

@@ -148,22 +148,22 @@ const validatePassword = (pwd) => {
 
   return (
     <View style={styles.container}>
-      <View style={styles.formBox}>
-        <Text style={{ fontSize: 22, fontWeight: 'bold', marginBottom: 20, textAlign: 'center' }}>Create Account ✍️</Text>
+      <View style={styles.card}>
+        <Text style={styles.title}>Create your account</Text>
 
-        <View style={styles.typeSelector}>
+        <View style={styles.userTypeContainer}>
           <TouchableOpacity
-            style={[styles.typeButton, userType === 'INDIVIDUAL' && styles.typeButtonActive]}
+            style={[styles.userTypeButton, userType === 'INDIVIDUAL' && styles.userTypeActive]}
             onPress={() => setUserType('INDIVIDUAL')}
           >
-            <Text style={[styles.typeText, userType === 'INDIVIDUAL' && styles.typeTextActive]}>Individual</Text>
+            <Text style={[styles.userTypeText, userType === 'INDIVIDUAL' && styles.userTypeTextActive]}>Individual</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
-            style={[styles.typeButton, userType === 'COMPANY' && styles.typeButtonActive]}
+            style={[styles.userTypeButton, userType === 'COMPANY' && styles.userTypeActive]}
             onPress={() => setUserType('COMPANY')}
           >
-            <Text style={[styles.typeText, userType === 'COMPANY' && styles.typeTextActive]}>Company</Text>
+            <Text style={[styles.userTypeText, userType === 'COMPANY' && styles.userTypeTextActive]}>Company</Text>
           </TouchableOpacity>
         </View>
 
@@ -176,20 +176,23 @@ const validatePassword = (pwd) => {
                 setUsername(text);
                 checkUsernameAvailability(text);
               }}
+              placeholderTextColor="#888"
               style={[styles.input, !isUsernameValid && styles.inputError]}
             />
-            {usernameError ? <Text style={styles.errorText}>{usernameError}</Text> : null}
+            {usernameError && <Text style={styles.errorText}>{usernameError}</Text>}
 
-            <View style={styles.emailContainer}>
+            <View style={styles.emailRow}>
               <TextInput
                 placeholder="Email Prefix"
                 value={emailPrefix}
                 onChangeText={(text) => validateEmailPrefix(text)}
+                placeholderTextColor="#888"
                 style={[styles.input, { flex: 1 }, !isEmailPrefixValid && styles.inputError]}
               />
               <Picker
                 selectedValue={emailDomain}
                 style={styles.picker}
+                dropdownIconColor="white"
                 onValueChange={(itemValue) => setEmailDomain(itemValue)}
               >
                 {allowedDomains.map((domain) => (
@@ -197,7 +200,7 @@ const validatePassword = (pwd) => {
                 ))}
               </Picker>
             </View>
-            {emailPrefixError ? <Text style={styles.errorText}>{emailPrefixError}</Text> : null}
+            {emailPrefixError && <Text style={styles.errorText}>{emailPrefixError}</Text>}
 
             <TextInput
               placeholder="Password"
@@ -206,113 +209,126 @@ const validatePassword = (pwd) => {
                 setPassword(text);
                 validatePassword(text);
               }}
+              placeholderTextColor="#888"
               secureTextEntry
               style={[styles.input, !isPasswordValid && styles.inputError]}
             />
-            {passwordError ? <Text style={styles.errorText}>{passwordError}</Text> : null}
+            {passwordError && <Text style={styles.errorText}>{passwordError}</Text>}
+
+            <TouchableOpacity style={styles.signupButton} onPress={handleSignUp}>
+              <Text style={styles.buttonText}>Sign Up</Text>
+            </TouchableOpacity>
           </>
         )}
 
-        {userType !== '' && (
-          <TouchableOpacity style={styles.button} onPress={handleSignUp}>
-            <Text style={styles.buttonText}>Sign Up</Text>
-          </TouchableOpacity>
-        )}
-
-        <TouchableOpacity style={[styles.button, { backgroundColor: '#1abc9c' }]} onPress={() => navigation.navigate('SignIn')}>
-          <Text style={styles.buttonText}>Go to Sign In</Text>
+        <TouchableOpacity style={styles.altButton} onPress={() => navigation.navigate('SignIn')}>
+          <Text style={styles.altButtonText}>Already have an account? Sign In</Text>
         </TouchableOpacity>
       </View>
     </View>
+
   );
 }
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: '#0f172a', // bleu nuit moderne
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#f5f6fa',
-    padding: 16,
-  },
-  formBox: {
-    width: '90%',
-    maxWidth: 400,
-    backgroundColor: 'white',
-    borderRadius: 16,
     padding: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 5,
-    marginBottom: 30,
+  },
+  card: {
+    width: '100%',
+    maxWidth: 380,
+    backgroundColor: '#1e293b',
+    borderRadius: 20,
+    padding: 24,
+    shadowColor: '#00f2fe',
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.2,
+    shadowRadius: 20,
+    elevation: 10,
+  },
+  title: {
+    fontSize: 22,
+    color: '#f8fafc',
+    fontWeight: 'bold',
+    marginBottom: 20,
+    textAlign: 'center',
   },
   input: {
-    height: 45,
-    borderColor: '#ccc',
-    borderWidth: 1,
+    backgroundColor: '#334155',
     borderRadius: 10,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    fontSize: 15,
+    color: '#f1f5f9',
     marginBottom: 12,
-    paddingHorizontal: 12,
-    fontSize: 16,
-    backgroundColor: '#fafafa',
   },
   inputError: {
     borderColor: 'red',
+    borderWidth: 1,
   },
   errorText: {
-    color: 'red',
-    marginBottom: 8,
+    color: '#f87171',
+    fontSize: 12,
+    marginBottom: 10,
   },
-  emailContainer: {
+  emailRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 12,
+    gap: 8,
+    marginBottom: 10,
   },
   picker: {
-    height: 45,
-    width: 150,
-    marginLeft: 10,
-    backgroundColor: '#fafafa',
-  },
-  button: {
-    backgroundColor: '#3498db',
+    backgroundColor: '#334155',
     borderRadius: 10,
-    paddingVertical: 12,
-    paddingHorizontal: 20,
-    marginVertical: 6,
-    width: '100%',
+    height: 45,
+    width: 140,
+    color: 'white',
+  },
+  signupButton: {
+    backgroundColor: '#10b981', // vert futuriste
+    borderRadius: 12,
+    paddingVertical: 14,
     alignItems: 'center',
+    marginTop: 8,
   },
   buttonText: {
-    color: 'white',
+    color: '#f0fdfa',
     fontWeight: 'bold',
     fontSize: 16,
   },
-  typeSelector: {
+  altButton: {
+    marginTop: 14,
+    alignItems: 'center',
+  },
+  altButtonText: {
+    color: '#60a5fa',
+    fontSize: 14,
+  },
+  userTypeContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     marginBottom: 16,
   },
-  typeButton: {
+  userTypeButton: {
     flex: 1,
-    paddingVertical: 10,
-    marginHorizontal: 5,
-    borderRadius: 8,
     borderWidth: 1,
-    borderColor: '#3498db',
+    borderColor: '#3b82f6',
+    borderRadius: 10,
+    paddingVertical: 10,
+    marginHorizontal: 4,
     alignItems: 'center',
   },
-  typeButtonActive: {
-    backgroundColor: '#3498db',
+  userTypeActive: {
+    backgroundColor: '#3b82f6',
   },
-  typeText: {
-    color: '#3498db',
+  userTypeText: {
+    color: '#3b82f6',
     fontWeight: 'bold',
   },
-  typeTextActive: {
-    color: 'white',
+  userTypeTextActive: {
+    color: '#ffffff',
   },
-
 });
