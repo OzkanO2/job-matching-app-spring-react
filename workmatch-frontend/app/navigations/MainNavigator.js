@@ -103,6 +103,7 @@ function MainStackNavigator() {
         name="EditProfilePage"
         component={EditProfilePage}
         options={{
+          headerLeft: () => null,
           title: 'Edit Profile',
         }}
       />

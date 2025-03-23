@@ -312,6 +312,34 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");
         }
     }
+    @PostMapping("/change-password")
+    public ResponseEntity<?> changePassword(@RequestBody Map<String, String> payload) {
+        String username = payload.get("username");
+        String currentPassword = payload.get("currentPassword");
+        String newPassword = payload.get("newPassword");
+
+        if (username == null || currentPassword == null || newPassword == null) {
+            return ResponseEntity.badRequest().body("Champs requis manquants.");
+        }
+
+        if (newPassword.length() != 4) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Le mot de passe doit contenir exactement 4 caractères.");
+        }
+
+        User user = userRepository.findByUsername(username);
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Utilisateur introuvable.");
+        }
+
+        if (!passwordEncoder.matches(currentPassword, user.getPassword())) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Mot de passe actuel incorrect.");
+        }
+
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
+
+        return ResponseEntity.ok("Mot de passe mis à jour avec succès.");
+    }
 
     @PostMapping("/like")
     public ResponseEntity<?> likeOffer(@RequestBody Map<String, String> payload) {
