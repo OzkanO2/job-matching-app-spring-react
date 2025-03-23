@@ -70,7 +70,7 @@ const IndividualHomePage = () => {
                 // 🔹 5. Récupérer les entreprises qui ont déjà swipé l'utilisateur à gauche sur une offre spécifique
                 const blockedByCompaniesForSpecificOffers = new Set();
                 for (const offer of uniqueJobOffers) {
-                    const companyId = offer.companyId || offer.company?.id;
+                    const companyId = offer.companyId?.toString() || offer.company?.id?.toString();
                     if (!companyId) continue;
 
                     try {
@@ -91,7 +91,7 @@ const IndividualHomePage = () => {
                 // 🔹 6. Récupérer les entreprises qui ont swipé l'utilisateur à gauche DANS LA PAGE NORMALE
                 const blockedByCompaniesForAllOffers = new Set();
                 for (const offer of uniqueJobOffers) {
-                    const companyId = offer.companyId || offer.company?.id;
+                const companyId = offer.companyId?.toString() || offer.company?.id?.toString();
                     if (!companyId) continue;
 
                     try {
@@ -144,8 +144,8 @@ const IndividualHomePage = () => {
         console.log("🟢 Job Offer sélectionnée:", swipedJobOffer);
 
         const swipedId = swipedJobOffer._id;
-        const companyId = swipedJobOffer.companyId || swipedJobOffer.company?.id;
         const swiperId = await AsyncStorage.getItem("userId");
+const companyId = swipedJobOffer.companyId?.$oid || swipedJobOffer.companyId || swipedJobOffer.company?.id;
 
         if (!swiperId || !swipedId || !companyId) {
             console.error("❌ swiperId, swipedId ou companyId est manquant !");

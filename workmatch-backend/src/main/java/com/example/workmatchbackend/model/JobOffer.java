@@ -132,8 +132,8 @@ public class JobOffer {
     public void setSkills(List<Skill> skills) {
         this.skills = skills;
     }
-    @JsonProperty("userId") // 🔥 Cela force la sérialisation correcte en JSON
-    public String getCompanyIdAsString() {
+    @JsonProperty("companyId")
+    public String getCompanyIdString() {
         return companyId != null ? companyId.toHexString() : null;
     }
 
