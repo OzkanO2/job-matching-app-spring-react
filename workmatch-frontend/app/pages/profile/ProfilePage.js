@@ -5,6 +5,7 @@ import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage'; // ✅ Correction de l'import d'AsyncStorage
 import { CheckBox } from 'react-native-elements';
 import { Ionicons } from '@expo/vector-icons';
+import { Picker } from '@react-native-picker/picker'; // 🔹 ajoute ça en haut si ce n’est pas déjà fait
 
 const ProfilePage = () => {
     const navigation = useNavigation();
@@ -13,52 +14,55 @@ const ProfilePage = () => {
     const [selectedCategories, setSelectedCategories] = useState([]);
     const [tempSelectedCategories, setTempSelectedCategories] = useState([]);  // 🔹 Stocke les choix temporaires
     const [isLoading, setIsLoading] = useState(true);
-const [skills, setSkills] = useState({});
-const [skillsSuccess, setSkillsSuccess] = useState(false);
+    const [skills, setSkills] = useState({});
+    const [skillsSuccess, setSkillsSuccess] = useState(false);
+    const [selectedLocation, setSelectedLocation] = useState('');
+    const [isRemotePreferred, setIsRemotePreferred] = useState(false);
+    const [remoteSuccess, setRemoteSuccess] = useState(false);
 
-const availableSkills = [
-  "JavaScript", "React", "Node.js", "Python", "Java",
-  "C#", "Ruby", "Swift"
-];
+    const availableSkills = [
+      "JavaScript", "React", "Node.js", "Python", "Java",
+      "C#", "Ruby", "Swift"
+    ];
 
-const toggleSkill = (skillName) => {
-  setSkills((prev) => {
-    const newSkills = { ...prev };
-    if (newSkills[skillName]) {
-      delete newSkills[skillName];
-    } else {
-      newSkills[skillName] = 1;
-    }
-    return newSkills;
-  });
-};
+    const toggleSkill = (skillName) => {
+      setSkills((prev) => {
+        const newSkills = { ...prev };
+        if (newSkills[skillName]) {
+          delete newSkills[skillName];
+        } else {
+          newSkills[skillName] = 1;
+        }
+        return newSkills;
+      });
+    };
 
-const changeExperience = (skillName, amount) => {
-  setSkills((prev) => ({
-    ...prev,
-    [skillName]: Math.max(1, (prev[skillName] || 1) + amount)
-  }));
-};
-const saveSkillsToBackend = async () => {
-  try {
-    const token = await AsyncStorage.getItem('userToken');
-    const userId = await AsyncStorage.getItem('userId');
-    const formattedSkills = Object.keys(skills); // ← just the skill names
+    const changeExperience = (skillName, amount) => {
+      setSkills((prev) => ({
+        ...prev,
+        [skillName]: Math.max(1, (prev[skillName] || 1) + amount)
+      }));
+    };
+    const saveSkillsToBackend = async () => {
+      try {
+        const token = await AsyncStorage.getItem('userToken');
+        const userId = await AsyncStorage.getItem('userId');
+        const formattedSkills = Object.keys(skills); // ← just the skill names
 
-    await axios.put(`http://localhost:8080/jobsearchers/${userId}/updateUser`, {
-      skills: Object.entries(skills).map(([name, experience]) => ({ name, experience }))
-    }, {
-      headers: { Authorization: `Bearer ${token}` }
-    });
+        await axios.put(`http://localhost:8080/jobsearchers/${userId}/updateUser`, {
+          skills: Object.entries(skills).map(([name, experience]) => ({ name, experience }))
+        }, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
 
 
-    setSkillsSuccess(true);
-    setTimeout(() => setSkillsSuccess(false), 3000);
+        setSkillsSuccess(true);
+        setTimeout(() => setSkillsSuccess(false), 3000);
 
-  } catch (err) {
-    console.error("Erreur mise à jour skills", err);
-  }
-};
+      } catch (err) {
+        console.error("Erreur mise à jour skills", err);
+      }
+    };
     const categories = ["Développement Web", "Ingénieur DevOps", "Business Developer", "Software Developer", "Data Science", "Marketing", "Finance"];
 
     const savePreferencesToBackend = async () => {
@@ -86,6 +90,41 @@ const saveSkillsToBackend = async () => {
             console.error("❌ Erreur lors de la sauvegarde des préférences :", error);
         }
     };
+
+const saveLocationToBackend = async () => {
+  try {
+    const token = await AsyncStorage.getItem('userToken');
+    const userId = await AsyncStorage.getItem('userId');
+
+    await axios.put(`http://localhost:8080/jobsearchers/${userId}/updateUser`, {
+      locations: selectedLocation ? [selectedLocation] : []
+    }, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+
+    Alert.alert("✅ Localisation enregistrée !");
+  } catch (err) {
+    console.error("❌ Erreur enregistrement localisation :", err);
+  }
+};
+const saveRemoteToBackend = async () => {
+  try {
+    const token = await AsyncStorage.getItem('userToken');
+    const userId = await AsyncStorage.getItem('userId');
+
+    await axios.put(`http://localhost:8080/jobsearchers/${userId}/updateUser`, {
+      remote: isRemotePreferred
+    }, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+
+    setRemoteSuccess(true);
+    setTimeout(() => setRemoteSuccess(false), 3000); // ✅ Reset après 3 sec
+
+  } catch (err) {
+    console.error("❌ Erreur télétravail:", err);
+  }
+};
 
 
     useEffect(() => {
@@ -238,90 +277,141 @@ const saveSkillsToBackend = async () => {
     }
 
     return (
-<ScrollView contentContainerStyle={styles.scrollContainer} style={styles.scroll}>
-            <View style={styles.topButtons}>
-                <Button title="Profile" onPress={() => navigation.navigate('ProfilePage')} />
-                <Button title="Main Menu" onPress={() => navigation.navigate(userType === 'INDIVIDUAL' ? 'IndividualHome' : 'CompanyHome')} />
-                <Button title="Chat" onPress={() => navigation.navigate('ChatPage')} />
-                <Button title="My Offers" onPress={() => navigation.navigate('MyOffersPage')} />
-                {userType === 'COMPANY' && (
-                    <Button title="Liked Candidates" onPress={() => navigation.navigate('LikedPage')} />
-                )}
-            </View>
-            {userType === 'INDIVIDUAL' && (
-                <View style={styles.categorySection}>
-                    <Text style={styles.sectionTitle}>🔎 Offres recherchées</Text>
-                    <View style={styles.categoriesContainer}>
-                        {categories.map((category) => (
-                            <CheckBox
-                                key={category}
-                                title={category}
-                                checked={selectedCategories.includes(category)}
-                                onPress={() => toggleCategory(category)}
-                                containerStyle={styles.checkboxContainer}
-                                textStyle={styles.checkboxText}
-                                checkedColor="#4CAF50"
-                            />
-                        ))}
-                    </View>
-                    <Button title="Enregistrer les préférences" onPress={savePreferencesToBackend} />
-                </View>
-            )}
-        {userType === 'INDIVIDUAL' && (
-          <View style={{ marginTop: 20 }}>
-            <Text style={styles.sectionTitle}>🛠️ Modifier mes compétences</Text>
+      <ScrollView contentContainerStyle={styles.scrollContainer} style={styles.scroll}>
+        <View style={styles.topButtons}>
+          <Button title="Profile" onPress={() => navigation.navigate('ProfilePage')} />
+          <Button title="Main Menu" onPress={() => navigation.navigate(userType === 'INDIVIDUAL' ? 'IndividualHome' : 'CompanyHome')} />
+          <Button title="Chat" onPress={() => navigation.navigate('ChatPage')} />
+          <Button title="My Offers" onPress={() => navigation.navigate('MyOffersPage')} />
+          {userType === 'COMPANY' && (
+            <Button title="Liked Candidates" onPress={() => navigation.navigate('LikedPage')} />
+          )}
+        </View>
 
-            {availableSkills.map((skill) => (
-              <View key={skill} style={{ alignItems: 'center', marginVertical: 8 }}>
+        {userType === 'INDIVIDUAL' && (
+          <>
+            <View style={styles.categorySection}>
+              <Text style={styles.sectionTitle}>🔎 Offres recherchées</Text>
+              <View style={styles.categoriesContainer}>
+                {categories.map((category) => (
+                  <CheckBox
+                    key={category}
+                    title={category}
+                    checked={selectedCategories.includes(category)}
+                    onPress={() => toggleCategory(category)}
+                    containerStyle={styles.checkboxContainer}
+                    textStyle={styles.checkboxText}
+                    checkedColor="#4CAF50"
+                  />
+                ))}
+              </View>
+              <Button title="Enregistrer les préférences" onPress={savePreferencesToBackend} />
+            </View>
+
+            <View style={{ marginTop: 20 }}>
+              <Text style={styles.sectionTitle}>🛠️ Modifier mes compétences</Text>
+
+              {availableSkills.map((skill) => (
+                <View key={skill} style={{ alignItems: 'center', marginVertical: 8 }}>
+                  <TouchableOpacity
+                    onPress={() => toggleSkill(skill)}
+                    style={[styles.skillButton, skills[skill] && styles.selectedSkill]}
+                  >
+                    <Text style={[styles.skillText, skills[skill] && styles.selectedSkillText]}>
+                      {skill}
+                    </Text>
+                  </TouchableOpacity>
+
+                  {skills[skill] && (
+                    <View style={styles.experienceContainer}>
+                      <TouchableOpacity onPress={() => changeExperience(skill, -1)}>
+                        <Ionicons name="remove-circle-outline" size={24} color="#6c757d" />
+                      </TouchableOpacity>
+                      <Text style={styles.experienceValue}>{skills[skill]} ans</Text>
+                      <TouchableOpacity onPress={() => changeExperience(skill, 1)}>
+                        <Ionicons name="add-circle-outline" size={24} color="#6c757d" />
+                      </TouchableOpacity>
+                    </View>
+                  )}
+                </View>
+              ))}
+
+              <Button title="Modifier mes skills" onPress={saveSkillsToBackend} />
+              {skillsSuccess && (
+                <Text style={{ color: 'green', marginTop: 6 }}>
+                  ✅ Compétences modifiées avec succès !
+                </Text>
+              )}
+            </View>
+
+            <View style={{ marginTop: 20 }}>
+              <Text style={styles.sectionTitle}>📍 Localisation préférée</Text>
+
+              <Picker
+                selectedValue={selectedLocation}
+                onValueChange={(itemValue) => setSelectedLocation(itemValue)}
+                style={{ height: 50, width: '100%', borderColor: '#007bff', borderWidth: 1 }}
+              >
+                <Picker.Item label="Sélectionner une ville" value="" />
+                <Picker.Item label="Paris" value="Paris" />
+                <Picker.Item label="Lyon" value="Lyon" />
+                <Picker.Item label="Marseille" value="Marseille" />
+                <Picker.Item label="Bruxelles" value="Bruxelles" />
+                <Picker.Item label="Liège" value="Liège" />
+              </Picker>
+
+              <Button title="Enregistrer la localisation" onPress={saveLocationToBackend} />
+            </View>
+
+            <View style={{ marginTop: 20 }}>
+              <Text style={styles.sectionTitle}>🏠 Télétravail accepté ?</Text>
+
+              <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 10 }}>
                 <TouchableOpacity
-                  onPress={() => toggleSkill(skill)}
-                  style={[styles.skillButton, skills[skill] && styles.selectedSkill]}
+                  style={[styles.toggleButton, isRemotePreferred && styles.toggleButtonSelected]}
+                  onPress={() => setIsRemotePreferred(true)}
                 >
-                  <Text style={[styles.skillText, skills[skill] && styles.selectedSkillText]}>
-                    {skill}
-                  </Text>
+                  <Text style={isRemotePreferred ? styles.toggleTextSelected : styles.toggleText}>Oui</Text>
                 </TouchableOpacity>
 
-                {skills[skill] && (
-                  <View style={styles.experienceContainer}>
-                    <TouchableOpacity onPress={() => changeExperience(skill, -1)}>
-                      <Ionicons name="remove-circle-outline" size={24} color="#6c757d" />
-                    </TouchableOpacity>
-                    <Text style={styles.experienceValue}>{skills[skill]} ans</Text>
-                    <TouchableOpacity onPress={() => changeExperience(skill, 1)}>
-                      <Ionicons name="add-circle-outline" size={24} color="#6c757d" />
-                    </TouchableOpacity>
-                  </View>
-                )}
+                <TouchableOpacity
+                  style={[styles.toggleButton, !isRemotePreferred && styles.toggleButtonSelected]}
+                  onPress={() => setIsRemotePreferred(false)}
+                >
+                  <Text style={!isRemotePreferred ? styles.toggleTextSelected : styles.toggleText}>Non</Text>
+                </TouchableOpacity>
               </View>
-            ))}
 
-            <Button title="Modifier mes skills" onPress={saveSkillsToBackend} />
-            {skillsSuccess && (
-              <Text style={{ color: 'green', marginTop: 6 }}>
-                ✅ Compétences modifiées avec succès !
-              </Text>
-            )}
-          </View>
+              <Button title="Enregistrer le choix télétravail" onPress={saveRemoteToBackend} />
+
+                {remoteSuccess && (
+                  <Text style={{ color: 'green', marginTop: 6 }}>
+                    ✅ Télétravail enregistré avec succès !
+                  </Text>
+                )}
+
+            </View>
+          </>
         )}
 
-            <View style={styles.content}>
-                <Image source={{ uri: 'https://example.com/photo.jpg' }} style={styles.photo} />
-                <Text style={styles.infoText}>{userInfo.username ?? "Nom indisponible"}</Text>
-                <Text>{userInfo.username}</Text>
-                <Text>{userInfo.email}</Text>
-                <Text>{userInfo.userType}</Text>
-                <Text>Certification: {userInfo.companyCertified ? 'Certified' : 'Not Certified'}</Text>
+        <View style={styles.content}>
+          <Image source={{ uri: 'https://example.com/photo.jpg' }} style={styles.photo} />
+          <Text style={styles.infoText}>{userInfo.username ?? "Nom indisponible"}</Text>
+          <Text>{userInfo.username}</Text>
+          <Text>{userInfo.email}</Text>
+          <Text>{userInfo.userType}</Text>
+          <Text>Certification: {userInfo.companyCertified ? 'Certified' : 'Not Certified'}</Text>
 
-                <Button title="EDIT" onPress={() => navigation.navigate('EditProfilePage')} />
-                <Button title="SETTINGS" onPress={() => navigation.navigate('SettingsPage')} />
-            </View>
-            <View style={styles.footer}>
-                <Button title="SIGN OUT" onPress={handleSignOut} />
-            </View>
-  </ScrollView>
+          <Button title="EDIT" onPress={() => navigation.navigate('EditProfilePage')} />
+          <Button title="SETTINGS" onPress={() => navigation.navigate('SettingsPage')} />
+        </View>
 
+        <View style={styles.footer}>
+          <Button title="SIGN OUT" onPress={handleSignOut} />
+        </View>
+      </ScrollView>
     );
+
 };
 
 const styles = StyleSheet.create({
@@ -424,6 +514,26 @@ bottomActions: {
   borderColor: '#ddd',
   backgroundColor: '#fff',
   gap: 10,
+},
+toggleButton: {
+  padding: 10,
+  marginHorizontal: 10,
+  borderWidth: 2,
+  borderColor: '#007bff',
+  borderRadius: 8,
+  width: 80,
+  alignItems: 'center',
+},
+toggleButtonSelected: {
+  backgroundColor: '#007bff',
+},
+toggleText: {
+  color: '#007bff',
+  fontWeight: 'bold',
+},
+toggleTextSelected: {
+  color: 'white',
+  fontWeight: 'bold',
 },
 
 });
