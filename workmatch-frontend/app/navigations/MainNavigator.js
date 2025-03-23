@@ -19,6 +19,7 @@ import LikedPage from '../pages/liked/LikedPage';
 import ChatRoom from '../pages/chat/ChatRoom';
 import JobOfferDetails from '../pages/offers/JobOfferDetails';
 import EditOfferPage from '../pages/offers/EditOfferPage';
+import ChangePasswordPage from '../pages/profile/ChangePasswordPage';
 
 const Stack = createStackNavigator();
 
@@ -88,6 +89,14 @@ function MainStackNavigator() {
         options={{
           headerLeft: () => null,
           title: 'Profile',
+        }}
+      />
+      <Stack.Screen
+        name="ChangePasswordPage"
+        component={ChangePasswordPage}
+        options={{
+          headerLeft: () => null,
+          title: 'Change Password',
         }}
       />
       <Stack.Screen

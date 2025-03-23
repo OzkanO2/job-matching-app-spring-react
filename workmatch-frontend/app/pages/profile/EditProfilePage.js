@@ -85,6 +85,7 @@ const EditProfilePage = () => {
                 style={styles.input}
             />
             <Button title="Save" onPress={handleSave} />
+            <Button title="Change Password" onPress={() => navigation.navigate('ChangePasswordPage')} />
             <Button title="BACK" onPress={() => navigation.goBack()} />
         </View>
     );
