@@ -111,6 +111,7 @@ function MainStackNavigator() {
         name="SettingsPage"
         component={SettingsPage}
         options={{
+          headerLeft: () => null,
           title: 'Settings',
         }}
       />

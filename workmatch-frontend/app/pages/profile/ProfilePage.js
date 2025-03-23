@@ -203,7 +203,7 @@ const ProfilePage = () => {
                 <Text>Certification: {userInfo.companyCertified ? 'Certified' : 'Not Certified'}</Text>
 
                 <Button title="EDIT" onPress={() => navigation.navigate('EditProfilePage')} />
-                <Button title="SETTINGS" onPress={() => navigation.navigate('Settings')} />
+                <Button title="SETTINGS" onPress={() => navigation.navigate('SettingsPage')} />
             </View>
             <View style={styles.footer}>
                 <Button title="SIGN OUT" onPress={handleSignOut} />

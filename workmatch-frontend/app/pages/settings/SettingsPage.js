@@ -16,11 +16,6 @@ const SettingsPage = () => {
             <View style={styles.header}>
                 <Button title="BACK" onPress={() => navigation.goBack()} />
             </View>
-            <View style={styles.settingsContainer}>
-                <Text style={styles.settingText}>SETTING 1</Text>
-                <Text style={styles.settingText}>SETTING 2</Text>
-                <Text style={styles.settingText}>SETTING 3</Text>
-            </View>
             <View style={styles.actionsContainer}>
                 <Button title="LOGOUT" onPress={() => navigation.navigate('SignIn')} />
                 <Button title="DELETE ACCOUNT" onPress={() => {}} />

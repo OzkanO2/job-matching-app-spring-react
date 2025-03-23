@@ -59,7 +59,6 @@ const EditProfilePage = () => {
 
            const newToken = response.data.token;
            await AsyncStorage.setItem('userToken', `Bearer ${newToken}`);
-
            await AsyncStorage.setItem('username', username);
 
            Alert.alert('Profile updated successfully');
@@ -84,9 +83,13 @@ const EditProfilePage = () => {
                 onChangeText={setEmail}
                 style={styles.input}
             />
+
             <Button title="Save" onPress={handleSave} />
+            <View style={{ height: 10 }} />
             <Button title="Change Password" onPress={() => navigation.navigate('ChangePasswordPage')} />
+            <View style={{ height: 10 }} />
             <Button title="BACK" onPress={() => navigation.goBack()} />
+
         </View>
     );
 };
@@ -106,6 +109,10 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         padding: 10,
         marginBottom: 12,
+    },
+    buttonGroup: {
+        marginTop: 12,
+        gap: 10, // fonctionne avec React Native >= 0.71, sinon utiliser marginBottom sur chaque bouton
     },
 });
 
