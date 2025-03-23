@@ -19,6 +19,19 @@ const ProfilePage = () => {
     const [selectedLocation, setSelectedLocation] = useState('');
     const [isRemotePreferred, setIsRemotePreferred] = useState(false);
     const [remoteSuccess, setRemoteSuccess] = useState(false);
+    const [selectedLocations, setSelectedLocations] = useState([]);
+    const [locationDropdowns, setLocationDropdowns] = useState(1); // au moins 1 visible
+    const [locationSuccess, setLocationSuccess] = useState(false);
+
+    const addLocationDropdown = () => {
+      setLocationDropdowns(prev => prev + 1);
+    };
+
+    const handleLocationChange = (index, value) => {
+      const updated = [...selectedLocations];
+      updated[index] = value;
+      setSelectedLocations(updated);
+    };
 
     const availableSkills = [
       "JavaScript", "React", "Node.js", "Python", "Java",
@@ -43,6 +56,48 @@ const ProfilePage = () => {
         [skillName]: Math.max(1, (prev[skillName] || 1) + amount)
       }));
     };
+
+    const removeLocationAtIndex = (index) => {
+      const updated = [...selectedLocations];
+      updated.splice(index, 1);
+      setSelectedLocations(updated);
+    };
+const saveAllPreferencesToBackend = async () => {
+  try {
+    const token = await AsyncStorage.getItem('userToken');
+    const userId = await AsyncStorage.getItem('userId');
+
+    const headers = {
+      Authorization: `Bearer ${token}`,
+    };
+    const updatedData = {
+      skills: Object.entries(skills).map(([name, experience]) => ({ name, experience })),
+      locations: selectedLocations.filter(loc => loc !== ""),
+      remote: isRemotePreferred
+    };
+    console.log("📦 Payload envoyé :", updatedData);
+
+    // 2. Un seul PUT avec tout en une fois
+    await axios.put(`http://localhost:8080/jobsearchers/${userId}/updateUser`, updatedData, {
+      headers
+    });
+
+    // ✅ Success message
+    setSkillsSuccess(true);
+    setLocationSuccess(true);
+    setRemoteSuccess(true);
+
+    setTimeout(() => {
+      setSkillsSuccess(false);
+      setLocationSuccess(false);
+      setRemoteSuccess(false);
+    }, 3000);
+
+  } catch (err) {
+    console.error("❌ Erreur globale d'enregistrement :", err);
+  }
+};
+
     const saveSkillsToBackend = async () => {
       try {
         const token = await AsyncStorage.getItem('userToken');
@@ -97,16 +152,18 @@ const saveLocationToBackend = async () => {
     const userId = await AsyncStorage.getItem('userId');
 
     await axios.put(`http://localhost:8080/jobsearchers/${userId}/updateUser`, {
-      locations: selectedLocation ? [selectedLocation] : []
+      locations: selectedLocations.filter(loc => loc !== "") // retire les vides
     }, {
       headers: { Authorization: `Bearer ${token}` }
     });
 
-    Alert.alert("✅ Localisation enregistrée !");
+    setLocationSuccess(true);
+    setTimeout(() => setLocationSuccess(false), 3000);
   } catch (err) {
     console.error("❌ Erreur enregistrement localisation :", err);
   }
 };
+
 const saveRemoteToBackend = async () => {
   try {
     const token = await AsyncStorage.getItem('userToken');
@@ -220,16 +277,23 @@ const saveRemoteToBackend = async () => {
               console.log("🎓 Compétences reçues depuis JobSearcher:", jobSearcher.skills);
 
               if (jobSearcher.skills && Array.isArray(jobSearcher.skills)) {
-                const formatted = {};
-                jobSearcher.skills.forEach(skill => {
-                  if (skill.name) {
-                    formatted[skill.name] = skill.experience || 1;
+                  const formatted = {};
+                  jobSearcher.skills.forEach(skill => {
+                    if (skill.name) {
+                      formatted[skill.name] = skill.experience || 1;
+                    }
+                  });
+                  setSkills(formatted);
+                }
+                if (jobSearcher.locations && Array.isArray(jobSearcher.locations)) {
+                    setSelectedLocations(jobSearcher.locations);
                   }
-                });
-                setSkills(formatted);
-              } else {
-                console.warn("⚠️ Aucune compétence trouvée dans JobSearcher.");
-              }
+
+                  // ✅ ICI tu ajoutes :
+                  if (typeof jobSearcher.remote === 'boolean') {
+                    setIsRemotePreferred(jobSearcher.remote);
+                  }
+
             } catch (error) {
               console.error("❌ Erreur lors de la récupération des compétences JobSearcher:", error);
             }
@@ -238,6 +302,15 @@ const saveRemoteToBackend = async () => {
         fetchUserType();
         fetchUserInfo();
     }, [navigation]);
+
+    const updateLocationAtIndex = (index, newValue) => {
+      const updated = [...selectedLocations];
+      updated[index] = newValue;
+      setSelectedLocations(updated);
+    };
+    const addNewLocation = () => {
+      setSelectedLocations([...selectedLocations, ""]);
+    };
 
     const toggleCategory = (category) => {
         let updatedCategories = [...tempSelectedCategories];
@@ -336,32 +409,39 @@ const saveRemoteToBackend = async () => {
                 </View>
               ))}
 
-              <Button title="Modifier mes skills" onPress={saveSkillsToBackend} />
-              {skillsSuccess && (
-                <Text style={{ color: 'green', marginTop: 6 }}>
-                  ✅ Compétences modifiées avec succès !
-                </Text>
-              )}
             </View>
 
             <View style={{ marginTop: 20 }}>
               <Text style={styles.sectionTitle}>📍 Localisation préférée</Text>
 
-              <Picker
-                selectedValue={selectedLocation}
-                onValueChange={(itemValue) => setSelectedLocation(itemValue)}
-                style={{ height: 50, width: '100%', borderColor: '#007bff', borderWidth: 1 }}
-              >
-                <Picker.Item label="Sélectionner une ville" value="" />
-                <Picker.Item label="Paris" value="Paris" />
-                <Picker.Item label="Lyon" value="Lyon" />
-                <Picker.Item label="Marseille" value="Marseille" />
-                <Picker.Item label="Bruxelles" value="Bruxelles" />
-                <Picker.Item label="Liège" value="Liège" />
-              </Picker>
+              {selectedLocations.map((loc, index) => (
+                <View key={index} style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 10 }}>
+                  <Picker
+                    selectedValue={loc}
+                    onValueChange={(value) => updateLocationAtIndex(index, value)}
+                    style={{ flex: 1, height: 50 }}
+                  >
+                    <Picker.Item label="Sélectionner une ville" value="" />
+                    <Picker.Item label="Paris" value="Paris" />
+                    <Picker.Item label="Lyon" value="Lyon" />
+                    <Picker.Item label="Marseille" value="Marseille" />
+                    <Picker.Item label="Bruxelles" value="Bruxelles" />
+                    <Picker.Item label="Liège" value="Liège" />
+                  </Picker>
 
-              <Button title="Enregistrer la localisation" onPress={saveLocationToBackend} />
+                  <TouchableOpacity onPress={() => removeLocationAtIndex(index)} style={{ marginLeft: 10 }}>
+                    <Ionicons name="trash-outline" size={24} color="#dc3545" />
+                  </TouchableOpacity>
+                </View>
+              ))}
+
+
+              <TouchableOpacity onPress={addNewLocation} style={{ marginBottom: 10 }}>
+                <Text style={{ color: '#007bff', textAlign: 'center' }}>+ Ajouter une localisation</Text>
+              </TouchableOpacity>
+
             </View>
+
 
             <View style={{ marginTop: 20 }}>
               <Text style={styles.sectionTitle}>🏠 Télétravail accepté ?</Text>
@@ -381,14 +461,14 @@ const saveRemoteToBackend = async () => {
                   <Text style={!isRemotePreferred ? styles.toggleTextSelected : styles.toggleText}>Non</Text>
                 </TouchableOpacity>
               </View>
-
-              <Button title="Enregistrer le choix télétravail" onPress={saveRemoteToBackend} />
-
-                {remoteSuccess && (
-                  <Text style={{ color: 'green', marginTop: 6 }}>
-                    ✅ Télétravail enregistré avec succès !
-                  </Text>
-                )}
+<View style={{ marginTop: 20 }}>
+  <Button title="💾 Enregistrer mes préférences" onPress={saveAllPreferencesToBackend} />
+  {(skillsSuccess || remoteSuccess || locationSuccess) && (
+    <Text style={{ color: 'green', marginTop: 6 }}>
+      ✅ Préférences mises à jour avec succès !
+    </Text>
+  )}
+</View>
 
             </View>
           </>
