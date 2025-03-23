@@ -43,6 +43,16 @@ public class JobSearcherController {
     public List<JobSearcher> getMatchingCandidatesForCompany(@RequestParam String companyId) {
         return jobSearcherService.findMatchingCandidatesForCompany(companyId);
     }
+    @GetMapping("/{userId}")
+    public ResponseEntity<?> getJobSearcherByUserId(@PathVariable String userId) {
+        Optional<JobSearcher> jobSearcherOptional = jobSearcherService.findByUserId(new ObjectId(userId));
+
+        if (jobSearcherOptional.isPresent()) {
+            return ResponseEntity.ok(jobSearcherOptional.get());
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("JobSearcher non trouvé.");
+        }
+    }
 
     @PutMapping("/{userId}/updateUser")  // ✅ Changement du nom de l'endpoint
     public ResponseEntity<?> updateUser(@PathVariable String userId,

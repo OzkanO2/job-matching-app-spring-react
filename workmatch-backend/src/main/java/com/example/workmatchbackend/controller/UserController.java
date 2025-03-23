@@ -8,6 +8,7 @@ import com.example.workmatchbackend.util.JwtUtil;
 import java.util.Arrays;
 import com.example.workmatchbackend.model.JobSearcher;
 import org.bson.types.ObjectId;
+import com.example.workmatchbackend.model.Skill;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -79,34 +80,21 @@ public class UserController {
     public User createUser(@RequestBody User user) {
         return userService.saveUser(user);
     }
-    @PutMapping("/{userId}/updateSkills")
-    public ResponseEntity<?> updateSkills(@PathVariable String userId, @RequestBody Map<String, List<String>> requestBody) {
-        Optional<User> userOptional = userRepository.findById(userId);
 
-        if (userOptional.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
-        }
-
-        User user = userOptional.get();
-        user.setSkills(requestBody.get("skills"));
-        userRepository.save(user);
-
-        return ResponseEntity.ok("Skills updated successfully!");
-    }
     @PutMapping("/{id}/skills")
-    public ResponseEntity<?> updateUserSkills(@PathVariable String id, @RequestBody List<String> skills) {
+    public ResponseEntity<?> updateUserSkills(@PathVariable String id, @RequestBody List<Skill> skills) {
         Optional<User> optionalUser = userRepository.findById(id);
-
         if (optionalUser.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
         }
 
         User user = optionalUser.get();
-        user.setPreferredCategories(skills); // Stocke les compétences dans la BD
-
+        user.setSkills(skills); // ✅ types compatibles maintenant
         userRepository.save(user);
+
         return ResponseEntity.ok("Skills updated successfully");
     }
+
 
     @GetMapping("/id/{id}")
     public ResponseEntity<?> getUserById(@PathVariable String id) {

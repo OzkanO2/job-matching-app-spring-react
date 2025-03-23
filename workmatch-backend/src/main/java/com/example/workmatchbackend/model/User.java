@@ -15,7 +15,7 @@ public class User {
     private String username;
     private String email;
     private String password;
-    private List<String> skills;
+    private List<Skill> skills;
     private UserType userType;
 
     private List<String> preferredCategories = new ArrayList<>(); // ✅ Assure-toi que l'ArrayList est bien utilisé
@@ -54,11 +54,11 @@ public class User {
         this.password = password;
     }
 
-    public List<String> getSkills() {
+    public List<Skill> getSkills() {
         return skills;
     }
 
-    public void setSkills(List<String> skills) {
+    public void setSkills(List<Skill> skills) {
         this.skills = skills;
     }
 

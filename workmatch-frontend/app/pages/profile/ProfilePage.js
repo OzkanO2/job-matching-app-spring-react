@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { Image, Button, View, Text, StyleSheet, ScrollView } from 'react-native';
+import { Image, Button, View, Text, StyleSheet, ScrollView,TextInput,Alert,TouchableOpacity}from 'react-native';// ✅ AJOUTE CECI } from 'react-native';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage'; // ✅ Correction de l'import d'AsyncStorage
 import { CheckBox } from 'react-native-elements';
+import { Ionicons } from '@expo/vector-icons';
 
 const ProfilePage = () => {
     const navigation = useNavigation();
@@ -12,7 +13,52 @@ const ProfilePage = () => {
     const [selectedCategories, setSelectedCategories] = useState([]);
     const [tempSelectedCategories, setTempSelectedCategories] = useState([]);  // 🔹 Stocke les choix temporaires
     const [isLoading, setIsLoading] = useState(true);
+const [skills, setSkills] = useState({});
+const [skillsSuccess, setSkillsSuccess] = useState(false);
 
+const availableSkills = [
+  "JavaScript", "React", "Node.js", "Python", "Java",
+  "C#", "Ruby", "Swift"
+];
+
+const toggleSkill = (skillName) => {
+  setSkills((prev) => {
+    const newSkills = { ...prev };
+    if (newSkills[skillName]) {
+      delete newSkills[skillName];
+    } else {
+      newSkills[skillName] = 1;
+    }
+    return newSkills;
+  });
+};
+
+const changeExperience = (skillName, amount) => {
+  setSkills((prev) => ({
+    ...prev,
+    [skillName]: Math.max(1, (prev[skillName] || 1) + amount)
+  }));
+};
+const saveSkillsToBackend = async () => {
+  try {
+    const token = await AsyncStorage.getItem('userToken');
+    const userId = await AsyncStorage.getItem('userId');
+    const formattedSkills = Object.keys(skills); // ← just the skill names
+
+    await axios.put(`http://localhost:8080/jobsearchers/${userId}/updateUser`, {
+      skills: Object.entries(skills).map(([name, experience]) => ({ name, experience }))
+    }, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+
+
+    setSkillsSuccess(true);
+    setTimeout(() => setSkillsSuccess(false), 3000);
+
+  } catch (err) {
+    console.error("Erreur mise à jour skills", err);
+  }
+};
     const categories = ["Développement Web", "Ingénieur DevOps", "Business Developer", "Software Developer", "Data Science", "Marketing", "Finance"];
 
     const savePreferencesToBackend = async () => {
@@ -93,36 +139,64 @@ const ProfilePage = () => {
 
 
     useEffect(() => {
-
         const fetchUserType = async () => {
             const type = await AsyncStorage.getItem('userType');
             setUserType(type);
         };
 
-        fetchUserType();
         const fetchUserInfo = async () => {
             const token = await AsyncStorage.getItem('userToken');
             const username = await AsyncStorage.getItem('username');
+            const userId = await AsyncStorage.getItem('userId');
             const type = await AsyncStorage.getItem('userType');
             setUserType(type);
 
             console.log('Token récupéré:', token);
-            console.log('Nom d\'utilisateur récupéré:', username);
+            console.log("Nom d'utilisateur récupéré:", username);
 
-            if (!token || !username) {
-                throw new Error('No token or username found');
+            if (!token || !username || !userId) {
+              throw new Error('❌ Token, username ou userId manquant');
             }
 
             const bearerToken = `${token}`;
-            const response = await axios.get(`http://localhost:8080/users/${username}`, {
-                headers: {
-                    Authorization: bearerToken,
-                },
+
+            // 🔹 Récupération des données User
+            const userResponse = await axios.get(`http://localhost:8080/users/${username}`, {
+              headers: {
+                Authorization: bearerToken,
+              },
             });
 
-            setUserInfo(response.data);
-        };
+            const userData = userResponse.data;
+            setUserInfo(userData);
+            console.log("📥 Infos User:", userData);
 
+            // 🔹 Récupération des compétences depuis JobSearcher
+            try {
+              const jobSearcherRes = await axios.get(`http://localhost:8080/jobsearchers/${userId}`, {
+                headers: { Authorization: bearerToken }
+              });
+
+              const jobSearcher = jobSearcherRes.data;
+              console.log("🎓 Compétences reçues depuis JobSearcher:", jobSearcher.skills);
+
+              if (jobSearcher.skills && Array.isArray(jobSearcher.skills)) {
+                const formatted = {};
+                jobSearcher.skills.forEach(skill => {
+                  if (skill.name) {
+                    formatted[skill.name] = skill.experience || 1;
+                  }
+                });
+                setSkills(formatted);
+              } else {
+                console.warn("⚠️ Aucune compétence trouvée dans JobSearcher.");
+              }
+            } catch (error) {
+              console.error("❌ Erreur lors de la récupération des compétences JobSearcher:", error);
+            }
+          };
+
+        fetchUserType();
         fetchUserInfo();
     }, [navigation]);
 
@@ -164,7 +238,7 @@ const ProfilePage = () => {
     }
 
     return (
-        <View style={styles.container}>
+<ScrollView contentContainerStyle={styles.scrollContainer} style={styles.scroll}>
             <View style={styles.topButtons}>
                 <Button title="Profile" onPress={() => navigation.navigate('ProfilePage')} />
                 <Button title="Main Menu" onPress={() => navigation.navigate(userType === 'INDIVIDUAL' ? 'IndividualHome' : 'CompanyHome')} />
@@ -193,6 +267,43 @@ const ProfilePage = () => {
                     <Button title="Enregistrer les préférences" onPress={savePreferencesToBackend} />
                 </View>
             )}
+        {userType === 'INDIVIDUAL' && (
+          <View style={{ marginTop: 20 }}>
+            <Text style={styles.sectionTitle}>🛠️ Modifier mes compétences</Text>
+
+            {availableSkills.map((skill) => (
+              <View key={skill} style={{ alignItems: 'center', marginVertical: 8 }}>
+                <TouchableOpacity
+                  onPress={() => toggleSkill(skill)}
+                  style={[styles.skillButton, skills[skill] && styles.selectedSkill]}
+                >
+                  <Text style={[styles.skillText, skills[skill] && styles.selectedSkillText]}>
+                    {skill}
+                  </Text>
+                </TouchableOpacity>
+
+                {skills[skill] && (
+                  <View style={styles.experienceContainer}>
+                    <TouchableOpacity onPress={() => changeExperience(skill, -1)}>
+                      <Ionicons name="remove-circle-outline" size={24} color="#6c757d" />
+                    </TouchableOpacity>
+                    <Text style={styles.experienceValue}>{skills[skill]} ans</Text>
+                    <TouchableOpacity onPress={() => changeExperience(skill, 1)}>
+                      <Ionicons name="add-circle-outline" size={24} color="#6c757d" />
+                    </TouchableOpacity>
+                  </View>
+                )}
+              </View>
+            ))}
+
+            <Button title="Modifier mes skills" onPress={saveSkillsToBackend} />
+            {skillsSuccess && (
+              <Text style={{ color: 'green', marginTop: 6 }}>
+                ✅ Compétences modifiées avec succès !
+              </Text>
+            )}
+          </View>
+        )}
 
             <View style={styles.content}>
                 <Image source={{ uri: 'https://example.com/photo.jpg' }} style={styles.photo} />
@@ -208,7 +319,7 @@ const ProfilePage = () => {
             <View style={styles.footer}>
                 <Button title="SIGN OUT" onPress={handleSignOut} />
             </View>
-        </View>
+  </ScrollView>
 
     );
 };
@@ -269,6 +380,52 @@ const styles = StyleSheet.create({
         marginBottom: 36,
         alignItems: 'center',
     },
+    skillButton: {
+      paddingVertical: 6,
+      paddingHorizontal: 14,
+      borderWidth: 2,
+      borderColor: '#007bff',
+      borderRadius: 8,
+      backgroundColor: 'white',
+      marginBottom: 4,
+    },
+    selectedSkill: {
+      backgroundColor: '#007bff',
+    },
+    skillText: {
+      fontSize: 13,
+      color: '#007bff',
+    },
+    selectedSkillText: {
+      fontSize: 13,
+      color: 'white',
+      fontWeight: 'bold',
+    },
+    experienceContainer: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      marginTop: 5,
+    },
+    experienceValue: {
+      fontSize: 13,
+      fontWeight: 'bold',
+      marginHorizontal: 6,
+    },
+scroll: {
+  flex: 1,
+},
+scrollContainer: {
+  paddingBottom: 100,
+  paddingHorizontal: 10,
+},
+bottomActions: {
+  padding: 10,
+  borderTopWidth: 1,
+  borderColor: '#ddd',
+  backgroundColor: '#fff',
+  gap: 10,
+},
+
 });
 
 export default ProfilePage;
