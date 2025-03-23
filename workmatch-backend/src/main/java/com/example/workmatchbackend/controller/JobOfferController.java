@@ -152,5 +152,29 @@ public class JobOfferController {
 
         return ResponseEntity.ok(filteredJobOffers);
     }
+    @PutMapping("/{id}")
+    public ResponseEntity<JobOffer> updateJobOffer(@PathVariable String id, @RequestBody JobOffer updatedOffer) {
+        Optional<JobOffer> existingOfferOpt = jobOfferService.getJobOfferById(id);
+
+        if (existingOfferOpt.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        JobOffer existingOffer = existingOfferOpt.get();
+
+        // Mise à jour des champs
+        existingOffer.setTitle(updatedOffer.getTitle());
+        existingOffer.setDescription(updatedOffer.getDescription());
+        existingOffer.setSalaryMin(updatedOffer.getSalaryMin());
+        existingOffer.setSalaryMax(updatedOffer.getSalaryMax());
+        existingOffer.setEmploymentType(updatedOffer.getEmploymentType());
+        existingOffer.setRemote(updatedOffer.isRemote());
+        existingOffer.setCategory(updatedOffer.getCategory());
+        existingOffer.setLocations(updatedOffer.getLocations());
+        existingOffer.setSkills(updatedOffer.getSkills());
+
+        JobOffer savedOffer = jobOfferService.saveJobOffer(existingOffer);
+        return ResponseEntity.ok(savedOffer);
+    }
 
 }
