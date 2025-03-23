@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Button, Alert, StyleSheet } from 'react-native';
+import { View, Text, TextInput, Button, Alert, StyleSheet, TouchableOpacity } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -148,42 +148,56 @@ const validatePassword = (pwd) => {
 
   return (
     <View style={styles.container}>
-      <Text>Sign Up Page</Text>
-      <Text>Select User Type:</Text>
-      <Button title="Individual" onPress={() => setUserType('INDIVIDUAL')} color={userType === 'INDIVIDUAL' ? 'blue' : 'gray'} />
-      <Button title="Company" onPress={() => setUserType('COMPANY')} color={userType === 'COMPANY' ? 'blue' : 'gray'} />
+      <View style={styles.formBox}>
+        <Text style={{ fontSize: 22, fontWeight: 'bold', marginBottom: 20, textAlign: 'center' }}>Create Account ✍️</Text>
 
-      {userType !== '' && (
-        <>
-          <TextInput
-            placeholder="Username"
-            value={username}
-            onChangeText={(text) => {
-              setUsername(text);
-              checkUsernameAvailability(text);
-            }}
-            style={[styles.input, !isUsernameValid && styles.inputError]}
-          />
-          {usernameError ? <Text style={styles.errorText}>{usernameError}</Text> : null}
+        <View style={styles.typeSelector}>
+          <TouchableOpacity
+            style={[styles.typeButton, userType === 'INDIVIDUAL' && styles.typeButtonActive]}
+            onPress={() => setUserType('INDIVIDUAL')}
+          >
+            <Text style={[styles.typeText, userType === 'INDIVIDUAL' && styles.typeTextActive]}>Individual</Text>
+          </TouchableOpacity>
 
-          <View style={styles.emailContainer}>
+          <TouchableOpacity
+            style={[styles.typeButton, userType === 'COMPANY' && styles.typeButtonActive]}
+            onPress={() => setUserType('COMPANY')}
+          >
+            <Text style={[styles.typeText, userType === 'COMPANY' && styles.typeTextActive]}>Company</Text>
+          </TouchableOpacity>
+        </View>
+
+        {userType !== '' && (
+          <>
             <TextInput
-              placeholder="Email Prefix"
-              value={emailPrefix}
-              onChangeText={(text) => validateEmailPrefix(text)}
-              style={[styles.input, !isEmailPrefixValid && styles.inputError]}
+              placeholder="Username"
+              value={username}
+              onChangeText={(text) => {
+                setUsername(text);
+                checkUsernameAvailability(text);
+              }}
+              style={[styles.input, !isUsernameValid && styles.inputError]}
             />
-            <Picker
-              selectedValue={emailDomain}
-              style={styles.picker}
-              onValueChange={(itemValue) => setEmailDomain(itemValue)}
-            >
-              {allowedDomains.map((domain) => (
-                <Picker.Item key={domain} label={`@${domain}`} value={domain} />
-              ))}
-            </Picker>
-          </View>
-          {emailPrefixError ? <Text style={styles.errorText}>{emailPrefixError}</Text> : null}
+            {usernameError ? <Text style={styles.errorText}>{usernameError}</Text> : null}
+
+            <View style={styles.emailContainer}>
+              <TextInput
+                placeholder="Email Prefix"
+                value={emailPrefix}
+                onChangeText={(text) => validateEmailPrefix(text)}
+                style={[styles.input, { flex: 1 }, !isEmailPrefixValid && styles.inputError]}
+              />
+              <Picker
+                selectedValue={emailDomain}
+                style={styles.picker}
+                onValueChange={(itemValue) => setEmailDomain(itemValue)}
+              >
+                {allowedDomains.map((domain) => (
+                  <Picker.Item key={domain} label={`@${domain}`} value={domain} />
+                ))}
+              </Picker>
+            </View>
+            {emailPrefixError ? <Text style={styles.errorText}>{emailPrefixError}</Text> : null}
 
             <TextInput
               placeholder="Password"
@@ -196,12 +210,19 @@ const validatePassword = (pwd) => {
               style={[styles.input, !isPasswordValid && styles.inputError]}
             />
             {passwordError ? <Text style={styles.errorText}>{passwordError}</Text> : null}
+          </>
+        )}
 
-        </>
-      )}
+        {userType !== '' && (
+          <TouchableOpacity style={styles.button} onPress={handleSignUp}>
+            <Text style={styles.buttonText}>Sign Up</Text>
+          </TouchableOpacity>
+        )}
 
-      {userType !== '' && <Button title="Sign Up" onPress={handleSignUp} />}
-      <Button title="Go to Sign In" onPress={() => navigation.navigate('SignIn')} />
+        <TouchableOpacity style={[styles.button, { backgroundColor: '#1abc9c' }]} onPress={() => navigation.navigate('SignIn')}>
+          <Text style={styles.buttonText}>Go to Sign In</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 }
@@ -211,15 +232,31 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: '#f5f6fa',
     padding: 16,
   },
+  formBox: {
+    width: '90%',
+    maxWidth: 400,
+    backgroundColor: 'white',
+    borderRadius: 16,
+    padding: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 5,
+    marginBottom: 30,
+  },
   input: {
-    height: 40,
-    borderColor: 'gray',
+    height: 45,
+    borderColor: '#ccc',
     borderWidth: 1,
+    borderRadius: 10,
     marginBottom: 12,
-    width: '100%',
-    paddingHorizontal: 8,
+    paddingHorizontal: 12,
+    fontSize: 16,
+    backgroundColor: '#fafafa',
   },
   inputError: {
     borderColor: 'red',
@@ -231,11 +268,51 @@ const styles = StyleSheet.create({
   emailContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    width: '100%',
+    marginBottom: 12,
   },
   picker: {
-    height: 40,
+    height: 45,
     width: 150,
     marginLeft: 10,
+    backgroundColor: '#fafafa',
   },
+  button: {
+    backgroundColor: '#3498db',
+    borderRadius: 10,
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    marginVertical: 6,
+    width: '100%',
+    alignItems: 'center',
+  },
+  buttonText: {
+    color: 'white',
+    fontWeight: 'bold',
+    fontSize: 16,
+  },
+  typeSelector: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 16,
+  },
+  typeButton: {
+    flex: 1,
+    paddingVertical: 10,
+    marginHorizontal: 5,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#3498db',
+    alignItems: 'center',
+  },
+  typeButtonActive: {
+    backgroundColor: '#3498db',
+  },
+  typeText: {
+    color: '#3498db',
+    fontWeight: 'bold',
+  },
+  typeTextActive: {
+    color: 'white',
+  },
+
 });
