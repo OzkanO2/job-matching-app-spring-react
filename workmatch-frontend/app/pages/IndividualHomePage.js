@@ -280,7 +280,7 @@ const companyId = swipedJobOffer.companyId?.$oid || swipedJobOffer.companyId || 
                  {isLoading ? (
                      <Text>Loading...</Text>
                  ) : jobOffers.length === 0 ? (
-                     <Text style={styles.noOffers}>Aucune offre disponible</Text>
+<Text style={styles.noOffers}>Aucune offre disponible</Text>
                  ) : (
                      <Swiper
                          key={jobOffers.length}
@@ -360,12 +360,22 @@ cardTitle: {
   marginBottom: 12,
   textAlign: 'center',
 },
+text1: {
+  color: '#ffffff',
+},
     cardDescription: {
       fontSize: 14,
       color: '#ffffff',
       textAlign: 'center',
       lineHeight: 20,
     },
+    noOffers: {
+      color: '#ffffff',
+      textAlign: 'center',
+      fontSize: 16,
+      marginTop: 20,
+    },
+
 });
 
 export default IndividualHomePage;
