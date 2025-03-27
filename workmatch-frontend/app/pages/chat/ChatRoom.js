@@ -6,6 +6,7 @@ import axios from 'axios';
 import SockJS from "sockjs-client";
 import Stomp from "stompjs";
 import { ActivityIndicator } from 'react-native';
+import { TouchableOpacity } from 'react-native';
 
 const ChatRoom = () => {
     const route = useRoute();
@@ -25,15 +26,21 @@ const ChatRoom = () => {
         const fetchMatchInfo = async () => {
             try {
                 const storedUserId = await AsyncStorage.getItem('userId');
+
                 if (!storedUserId || !matchedUserId) {
                     console.warn("⚠️ [fetchMatchInfo] userId ou matchedUserId manquant !");
                     return;
                 }
-                console.log("📡 [fetchMatchInfo] Récupération des raisons du match entre", storedUserId, "et", matchedUserId);
 
                 const token = await AsyncStorage.getItem('userToken');
+
+                // 🔄 Mettre les IDs dans l'ordre lexicographique
+                const [id1, id2] = [storedUserId, matchedUserId].sort();
+
+                console.log("📡 [fetchMatchInfo] Récupération des raisons du match entre", id1, "et", id2);
+
                 const response = await axios.get(
-                    `http://localhost:8080/api/matches/reason/${storedUserId}/${matchedUserId}`,
+                    `http://localhost:8080/api/matches/reason/${id1}/${id2}`,
                     { headers: { Authorization: `Bearer ${token}` } }
                 );
 
@@ -53,7 +60,7 @@ const ChatRoom = () => {
         const fetchUserData = async () => {
             try {
                 const storedUserId = await AsyncStorage.getItem("userId");
-                const storedReceiverId = route.params.username;
+                const storedReceiverId = route.params.matchedUserId;
 
                 console.log("userId:", storedUserId);
                 console.log("receiverId:", storedReceiverId);
@@ -141,85 +148,141 @@ const ChatRoom = () => {
 
 
     return (
-        <View style={styles.container}>
-            <Button title="Retour" onPress={() => navigation.goBack()} />
+      <View style={styles.container}>
 
-            <Text style={styles.header}>Conversation avec {username}</Text>
-<Text>💬 Chat avec {matchedUserName}</Text>
+        {/* Bouton retour stylé */}
+        <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
+          <Text style={styles.backButtonText}>⬅️ Retour</Text>
+        </TouchableOpacity>
 
-            {loading ? (
-                <ActivityIndicator size="large" color="#0000ff" />
-            ) : (
-                <View>
-                    <Text>📌 Pourquoi l'entreprise a liké ?</Text>
-                    <Text>{matchInfo?.companyReason || "Non disponible"}</Text>
+        {/* Titre */}
+        <Text style={styles.header}>Conversation avec {username}</Text>
+        <Text style={{ color: "#ffffff", textAlign: 'center', marginBottom: 10 }}>
+          💬 Chat avec {matchedUserName}
+        </Text>
 
-                    <Text>📌 Pourquoi le candidat a liké ?</Text>
-                    <Text>{matchInfo?.individualReason || "Non disponible"}</Text>
-                </View>
-            )}
-            <FlatList
-                data={messages}
-                keyExtractor={(item, index) => index.toString()}
-                renderItem={({ item }) => (
-                    <Text style={item.senderId === userId ? styles.sentMessage : styles.receivedMessage}>
-                        {item.content}
-                    </Text>
-                )}
-            />
+        {/* Raison du match */}
+        {loading ? (
+          <ActivityIndicator size="large" color="#3b82f6" />
+        ) : (
+          <View style={styles.matchInfo}>
+            <Text style={styles.matchLabel}>📌 Pourquoi l'entreprise a liké ?</Text>
+            <Text style={styles.matchText}>{matchInfo?.companyReason || "Non disponible"}</Text>
 
-            <TextInput
-                style={styles.input}
-                value={newMessage}
-                onChangeText={setNewMessage}
-                placeholder="Écrire un message..."
-            />
+            <Text style={styles.matchLabel}>📌 Pourquoi le candidat a liké ?</Text>
+            <Text style={styles.matchText}>{matchInfo?.individualReason || "Non disponible"}</Text>
+          </View>
+        )}
 
-            <Button title="Envoyer" onPress={sendMessage} />
-        </View>
+        {/* Liste des messages */}
+        <FlatList
+          data={messages}
+          keyExtractor={(item, index) => index.toString()}
+          renderItem={({ item }) => (
+            <Text style={item.senderId === userId ? styles.sentMessage : styles.receivedMessage}>
+              {item.content}
+            </Text>
+          )}
+        />
+
+        {/* Champ de texte */}
+        <TextInput
+          style={styles.input}
+          value={newMessage}
+          onChangeText={setNewMessage}
+          placeholder="Écrire un message..."
+          placeholderTextColor="#94a3b8"
+        />
+
+        {/* Bouton envoyer stylé */}
+        <TouchableOpacity style={styles.sendButton} onPress={sendMessage}>
+          <Text style={styles.sendButtonText}>📤 Envoyer</Text>
+        </TouchableOpacity>
+      </View>
     );
+
 };
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: "#f9f9f9",
-        padding: 10,
-    },
-    header: {
-        fontSize: 18,
-        fontWeight: "bold",
-        padding: 10,
-        textAlign: "center",
-        backgroundColor: "#007AFF",
-        color: "#fff",
-        borderRadius: 8,
-    },
-    input: {
-        borderWidth: 1,
-        borderColor: "#ccc",
-        padding: 10,
-        borderRadius: 10,
-        marginBottom: 10,
-        backgroundColor: "#fff",
-    },
-    sentMessage: {
-        alignSelf: "flex-end",
-        backgroundColor: "#007AFF",
-        color: "#fff",
-        padding: 8,
-        borderRadius: 10,
-        marginBottom: 5,
-        maxWidth: "80%",
-    },
-    receivedMessage: {
-        alignSelf: "flex-start",
-        backgroundColor: "#E5E5EA",
-        padding: 8,
-        borderRadius: 10,
-        marginBottom: 5,
-        maxWidth: "80%",
-    },
+  container: {
+    flex: 1,
+    backgroundColor: "#0f172a", // fond sombre
+    padding: 10,
+  },
+  header: {
+    fontSize: 18,
+    fontWeight: "bold",
+    padding: 12,
+    textAlign: "center",
+    backgroundColor: "#2563eb", // bleu intense
+    color: "#ffffff",
+    borderRadius: 12,
+    marginBottom: 10,
+  },
+  input: {
+    borderWidth: 1,
+    borderColor: "#475569",
+    backgroundColor: "#1e293b",
+    padding: 12,
+    borderRadius: 10,
+    color: "#ffffff",
+    marginTop: 10,
+  },
+  sentMessage: {
+    alignSelf: "flex-end",
+    backgroundColor: "#3b82f6",
+    color: "#ffffff",
+    padding: 10,
+    borderRadius: 10,
+    marginBottom: 8,
+    maxWidth: "75%",
+  },
+  receivedMessage: {
+    alignSelf: "flex-start",
+    backgroundColor: "#334155",
+    color: "#ffffff",
+    padding: 10,
+    borderRadius: 10,
+    marginBottom: 8,
+    maxWidth: "75%",
+  },
+  matchInfo: {
+    marginBottom: 16,
+    padding: 10,
+    backgroundColor: "#1e293b",
+    borderRadius: 10,
+  },
+  matchLabel: {
+    color: "#93c5fd",
+    fontWeight: "bold",
+    marginBottom: 4,
+  },
+  matchText: {
+    color: "#ffffff",
+    marginBottom: 8,
+  },
+  backButton: {
+    backgroundColor: "#3b82f6",
+    padding: 10,
+    borderRadius: 10,
+    marginBottom: 12,
+  },
+  backButtonText: {
+    color: "#ffffff",
+    fontWeight: "bold",
+    textAlign: "center",
+  },
+  sendButton: {
+    backgroundColor: "#3b82f6",
+    padding: 10,
+    borderRadius: 10,
+    marginTop: 10,
+  },
+  sendButtonText: {
+    color: "#ffffff",
+    fontWeight: "bold",
+    textAlign: "center",
+  },
 });
 
 export default ChatRoom;

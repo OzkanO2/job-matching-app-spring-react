@@ -63,14 +63,29 @@ const ChatPage = ({ route }) => {
     return (
         <View style={styles.container}>
             <View style={styles.topButtons}>
-                <Button title="Profile" onPress={() => navigation.navigate('ProfilePage')} />
-                <Button title="Main Menu" onPress={() => navigation.navigate(userType === 'INDIVIDUAL' ? 'IndividualHome' : 'CompanyHome')} />
-                <Button title="Chat" onPress={() => navigation.navigate('ChatPage')} />
-                <Button title="My Offers" onPress={() => navigation.navigate('MyOffersPage')} />
-                {userType === 'COMPANY' && (
-                    <Button title="Liked Candidates" onPress={() => navigation.navigate('LikedPage')} />
-                )}
+              <TouchableOpacity style={[styles.navButton, { backgroundColor: '#3b82f6' }]} onPress={() => navigation.navigate('ProfilePage')}>
+                <Text style={styles.navButtonText}>Profile</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity style={[styles.navButton, { backgroundColor: '#60a5fa' }]} onPress={() => navigation.navigate(userType === 'INDIVIDUAL' ? 'IndividualHome' : 'CompanyHome')}>
+                <Text style={styles.navButtonText}>Main Menu</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity style={[styles.navButton, { backgroundColor: '#93c5fd' }]} onPress={() => navigation.navigate('ChatPage')}>
+                <Text style={styles.navButtonText}>Chat</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity style={[styles.navButton, { backgroundColor: '#bfdbfe' }]} onPress={() => navigation.navigate('MyOffersPage')}>
+                <Text style={styles.navButtonText}>My Offers</Text>
+              </TouchableOpacity>
+
+              {userType === 'COMPANY' && (
+                <TouchableOpacity style={[styles.navButton, { backgroundColor: '#dbeafe' }]} onPress={() => navigation.navigate('LikedPage')}>
+                  <Text style={styles.navButtonText}>Liked Candidates</Text>
+                </TouchableOpacity>
+              )}
             </View>
+
 
             <Text style={styles.title}>💬 Conversations</Text>
 
@@ -101,29 +116,54 @@ const ChatPage = ({ route }) => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: "#f9f9f9",
+        backgroundColor: "#0f172a", // ancien : "#f9f9f9"
         padding: 10,
     },
+
     topButtons: {
         flexDirection: "row",
         justifyContent: "space-around",
         marginBottom: 10,
     },
     title: {
-        fontSize: 18,
+        fontSize: 20,
         fontWeight: "bold",
+        color: "#ffffff", // 👈 texte blanc
         padding: 10,
+        textAlign: "center",
     },
-    conversationItem: {
-        padding: 15,
-        borderBottomWidth: 1,
-        borderBottomColor: "#ccc",
-        backgroundColor: "#fff",
-    },
+conversationItem: {
+    padding: 15,
+    borderBottomWidth: 1,
+    borderBottomColor: "#475569", // ligne douce gris bleuté
+    backgroundColor: "#1e293b", // fond carte sombre
+    marginBottom: 6,
+    borderRadius: 10,
+},
     username: {
         fontSize: 16,
         fontWeight: "bold",
+        color: "#ffffff", // 👈 texte blanc
     },
+    navButton: {
+      backgroundColor: '#1e3a8a',
+      paddingVertical: 10,
+      paddingHorizontal: 16,
+      borderRadius: 12,
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.3,
+      shadowRadius: 4,
+      elevation: 3,
+      marginHorizontal: 5,
+      marginBottom: 10,
+    },
+    navButtonText: {
+      color: '#ffffff',
+      fontWeight: 'bold',
+      textAlign: 'center',
+    },
+
 });
 
 export default ChatPage;
