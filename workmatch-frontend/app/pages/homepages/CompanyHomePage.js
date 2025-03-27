@@ -5,6 +5,7 @@ import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Swiper from 'react-native-deck-swiper';
 import { useRoute } from '@react-navigation/native';
+import { TouchableOpacity } from 'react-native';
 
 const CompanyHomePage = () => {
     const navigation = useNavigation();
@@ -446,12 +447,32 @@ const handleSwipeLeft = async (index) => {
     return (
         <View style={styles.container}>
                     <View style={styles.topButtons}>
-                        <Button title="Profile" onPress={() => navigation.navigate('ProfilePage')} />
-                        <Button title="Main Menu" onPress={() => navigation.navigate('CompanyHome')} />
-                        <Button title={`Chat ${conversations.length > 0 ? `(${conversations.length})` : ''}`} onPress={() => navigation.navigate('ChatPage')} />
-                        <Button title="My Offers" onPress={() => navigation.navigate('MyOffersPage')} />
-                        {userType === 'COMPANY' && <Button title="Liked Candidates" onPress={() => navigation.navigate('LikedPage')} />}
+                      <TouchableOpacity style={[styles.navButton, { backgroundColor: '#3b82f6' }]} onPress={() => navigation.navigate('ProfilePage')}>
+                        <Text style={styles.navButtonText}>Profile</Text>
+                      </TouchableOpacity>
+
+                      <TouchableOpacity style={[styles.navButton, { backgroundColor: '#60a5fa' }]} onPress={() => navigation.navigate('CompanyHome')}>
+                        <Text style={styles.navButtonText}>Main Menu</Text>
+                      </TouchableOpacity>
+
+                      <TouchableOpacity style={[styles.navButton, { backgroundColor: '#93c5fd' }]} onPress={() => navigation.navigate('ChatPage')}>
+                        <Text style={styles.navButtonText}>
+                          Chat {conversations.length > 0 ? `(${conversations.length})` : ''}
+                        </Text>
+                      </TouchableOpacity>
+
+                      <TouchableOpacity style={[styles.navButton, { backgroundColor: '#bfdbfe' }]} onPress={() => navigation.navigate('MyOffersPage')}>
+                        <Text style={styles.navButtonText}>My Offers</Text>
+                      </TouchableOpacity>
+
+                      {userType === 'COMPANY' && (
+                        <TouchableOpacity style={[styles.navButton, { backgroundColor: '#dbeafe' }]} onPress={() => navigation.navigate('LikedPage')}>
+                          <Text style={styles.navButtonText}>Liked Candidates</Text>
+                        </TouchableOpacity>
+                      )}
                     </View>
+
+
 
                     {selectedOffer && selectedOffer.title && (
                         <Text style={styles.offerTitle}>🔍 Candidats pour : {selectedOffer.title}</Text>
@@ -468,35 +489,26 @@ const handleSwipeLeft = async (index) => {
                                     jobSearcher ? (
                                         <View style={styles.card}>
                                             {jobSearcher.hasLikedOffer && (
-                                                <Text style={styles.likedText}>💖 Cet utilisateur a liké une offre de l'entreprise !</Text>
+                                                <Text style={styles.likedText}>💖 Cet utilisateur a liké une offre !</Text>
                                             )}
-
                                             <Text style={styles.cardTitle}>{jobSearcher.name || 'No name provided'}</Text>
-                                            <Text>📍 Localisation : {jobSearcher.locations?.join(", ") || "Unknown"}</Text>
-                                            <Text>💻 Compétences :
-                                                {jobSearcher.skills?.map(skill => `${skill.name} (${skill.experience} ans)`).join(", ") || "Unknown"}
+                                            <Text style={styles.cardDescription}>📍 {jobSearcher.locations?.join(", ") || "Localisation inconnue"}</Text>
+                                            <Text style={styles.cardDescription}>
+                                                💻 {jobSearcher.skills?.map(skill => `${skill.name} (${skill.experience} ans)`).join(", ") || "Aucune compétence"}
                                             </Text>
-
-                                            {/* ✅ Affichage conditionnel du score avec arrondi à 2 chiffres */}
-                                            {selectedOffer ? (
-                                                <Text>🎯 Score de matching (offre sélectionnée) :
-                                                    {jobSearcher.matchingScore !== undefined ? jobSearcher.matchingScore.toFixed(2) + "%" : "N/A"}
-                                                </Text>
-                                            ) : (
-                                                <Text>🎯 Score de matching (toutes offres) :
-                                                    {jobSearcher.matchingScore !== undefined ? jobSearcher.matchingScore.toFixed(2) + "%" : "N/A"}
-                                                </Text>
-                                            )}
-                                            <Text>👈 Swipes à gauche : {jobSearcher.swipesLeft} </Text>
-                                            <Text>👉 Swipes à droite : {jobSearcher.swipesRight} </Text>
-
+                                            <Text style={styles.cardDescription}>
+                                                🎯 Matching : {jobSearcher.matchingScore?.toFixed(2) || 0}%
+                                            </Text>
+                                            <Text style={styles.cardDescription}>👈 Swipes à gauche : {jobSearcher.swipesLeft}</Text>
+                                            <Text style={styles.cardDescription}>👉 Swipes à droite : {jobSearcher.swipesRight}</Text>
                                         </View>
                                     ) : (
                                         <View style={styles.card}>
-                                            <Text style={styles.cardTitle}>No candidates available</Text>
+                                            <Text style={styles.cardTitle}>Aucun candidat disponible</Text>
                                         </View>
                                     )
                                 )}
+
 
                                 onSwipedRight={(cardIndex) => !disableSwipe && handleSwipeRight(cardIndex)}
                                 onSwipedLeft={(cardIndex) => !disableSwipe && handleSwipeLeft(cardIndex)}
@@ -514,52 +526,64 @@ const handleSwipeLeft = async (index) => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#fff',
-        padding: 10,
+        backgroundColor: '#0f172a',
     },
     topButtons: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        paddingHorizontal: 10,
-        marginTop: 20,
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      justifyContent: 'center',
+      gap: 10,
+      marginBottom: 20,
+    },
+    navButton: {
+      backgroundColor: '#1e3a8a', // un joli bleu futuriste
+      paddingVertical: 10,
+      paddingHorizontal: 16,
+      borderRadius: 12,
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.3,
+      shadowRadius: 4,
+      elevation: 3,
     },
     swiperContainer: {
         flex: 1,
-        marginTop: 20,
+        marginTop: 10,
     },
     card: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        backgroundColor: '#f9f9f9',
-        borderRadius: 10,
-        borderWidth: 1,
-        borderColor: '#ddd',
-        padding: 20,
-        marginHorizontal: 10,
+      height: 440,
+      backgroundColor: '#334155', // gris bleuté foncé
+      borderRadius: 20,
+      padding: 24,
+      justifyContent: 'center',
+      alignItems: 'center',
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 6 },
+      shadowOpacity: 0.25,
+      shadowRadius: 8,
+      elevation: 10,
+      borderWidth: 1,
+      borderColor: '#475569',
     },
-    cardTitle: {
-        fontWeight: 'bold',
-        fontSize: 18,
-        marginBottom: 10,
+    navButtonText: {
+      color: '#ffffff',
+      fontWeight: 'bold',
+      textAlign: 'center',
     },
+
+cardTitle: {
+  fontSize: 18,
+  fontWeight: 'bold',
+  color: '#ffffff',
+  marginBottom: 12,
+  textAlign: 'center',
+},
     cardDescription: {
-        fontSize: 14,
-        color: '#555',
-        textAlign: 'center',
+      fontSize: 14,
+      color: '#ffffff',
+      textAlign: 'center',
+      lineHeight: 20,
     },
-    likedText: {
-        color: "green",
-        fontWeight: "bold",
-        fontSize: 16,
-        marginBottom: 5,
-    },notLikedText: {
-          color: "gray",
-          fontWeight: "bold",
-          fontSize: 14,
-          marginBottom: 5,
-      },
-
-
 });
+
 export default CompanyHomePage;
