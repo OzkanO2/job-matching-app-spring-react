@@ -352,12 +352,26 @@ const saveRemoteToBackend = async () => {
     return (
       <ScrollView contentContainerStyle={styles.scrollContainer} style={styles.scroll}>
         <View style={styles.topButtons}>
-          <Button title="Profile" onPress={() => navigation.navigate('ProfilePage')} />
-          <Button title="Main Menu" onPress={() => navigation.navigate(userType === 'INDIVIDUAL' ? 'IndividualHome' : 'CompanyHome')} />
-          <Button title="Chat" onPress={() => navigation.navigate('ChatPage')} />
-          <Button title="My Offers" onPress={() => navigation.navigate('MyOffersPage')} />
+          <TouchableOpacity style={[styles.navButton, { backgroundColor: '#3b82f6' }]} onPress={() => navigation.navigate('ProfilePage')}>
+            <Text style={styles.navButtonText}>Profile</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity style={[styles.navButton, { backgroundColor: '#60a5fa' }]} onPress={() => navigation.navigate(userType === 'INDIVIDUAL' ? 'IndividualHome' : 'CompanyHome')}>
+            <Text style={styles.navButtonText}>Main Menu</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity style={[styles.navButton, { backgroundColor: '#93c5fd' }]} onPress={() => navigation.navigate('ChatPage')}>
+            <Text style={styles.navButtonText}>Chat</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity style={[styles.navButton, { backgroundColor: '#bfdbfe' }]} onPress={() => navigation.navigate('MyOffersPage')}>
+            <Text style={styles.navButtonText}>My Offers</Text>
+          </TouchableOpacity>
+
           {userType === 'COMPANY' && (
-            <Button title="Liked Candidates" onPress={() => navigation.navigate('LikedPage')} />
+            <TouchableOpacity style={[styles.navButton, { backgroundColor: '#dbeafe' }]} onPress={() => navigation.navigate('LikedPage')}>
+              <Text style={styles.navButtonText}>Liked Candidates</Text>
+            </TouchableOpacity>
           )}
         </View>
 
@@ -476,11 +490,11 @@ const saveRemoteToBackend = async () => {
 
         <View style={styles.content}>
           <Image source={{ uri: 'https://example.com/photo.jpg' }} style={styles.photo} />
-          <Text style={styles.infoText}>{userInfo.username ?? "Nom indisponible"}</Text>
-          <Text>{userInfo.username}</Text>
-          <Text>{userInfo.email}</Text>
-          <Text>{userInfo.userType}</Text>
-          <Text>Certification: {userInfo.companyCertified ? 'Certified' : 'Not Certified'}</Text>
+          <Text style={styles.defaultText}>{userInfo.username ?? "Nom indisponible"}</Text>
+
+          <Text style={styles.defaultText}>{userInfo.email}</Text>
+          <Text style={styles.defaultText}>{userInfo.userType}</Text>
+          <Text style={styles.defaultText}>Certification: {userInfo.companyCertified ? 'Certified' : 'Not Certified'}</Text>
 
           <Button title="EDIT" onPress={() => navigation.navigate('EditProfilePage')} />
           <Button title="SETTINGS" onPress={() => navigation.navigate('SettingsPage')} />
@@ -496,14 +510,16 @@ const saveRemoteToBackend = async () => {
 
 const styles = StyleSheet.create({
     container: {
-        flex: 1,
-        justifyContent: 'space-between',
+      flex: 1,
+      backgroundColor: '#0f172a',
     },
     topButtons: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        paddingHorizontal: 10,
-        marginTop: 20,
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      justifyContent: 'center',
+      gap: 10,
+      marginTop: 20,
+      marginBottom: 20,
     },
     categorySection: {
         marginVertical: 10,
@@ -513,6 +529,7 @@ const styles = StyleSheet.create({
         fontSize: 18,
         fontWeight: 'bold',
         marginBottom: 5,
+        color: '#ffffff',
     },
     categoriesContainer: {
         flexDirection: 'row',
@@ -529,7 +546,7 @@ const styles = StyleSheet.create({
     },
     categoryText: {
         fontSize: 14,
-        color: '#000',
+        color: '#ffffff',
     },
     content: {
         flex: 1,
@@ -544,6 +561,7 @@ const styles = StyleSheet.create({
     infoText: {
         textAlign: 'center',
         marginBottom: 20,
+        color: '#ffffff',
     },
     footer: {
         justifyContent: 'flex-end',
@@ -580,13 +598,20 @@ const styles = StyleSheet.create({
       fontSize: 13,
       fontWeight: 'bold',
       marginHorizontal: 6,
+      color: '#ffffff',
     },
+    defaultText: {
+      color: '#ffffff',
+    }
+,
 scroll: {
   flex: 1,
+  backgroundColor: '#0f172a', // Ajoute cette ligne si absente
 },
 scrollContainer: {
   paddingBottom: 100,
   paddingHorizontal: 10,
+  backgroundColor: '#0f172a', // Ajoute cette ligne si absente
 },
 bottomActions: {
   padding: 10,
@@ -614,6 +639,22 @@ toggleText: {
 toggleTextSelected: {
   color: 'white',
   fontWeight: 'bold',
+},
+navButton: {
+  backgroundColor: '#1e3a8a',
+  paddingVertical: 10,
+  paddingHorizontal: 16,
+  borderRadius: 12,
+  shadowColor: '#000',
+  shadowOffset: { width: 0, height: 2 },
+  shadowOpacity: 0.3,
+  shadowRadius: 4,
+  elevation: 3,
+},
+navButtonText: {
+  color: '#ffffff',
+  fontWeight: 'bold',
+  textAlign: 'center',
 },
 
 });
