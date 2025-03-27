@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet, Button } from 'react-native';
+import { View, Text, StyleSheet, Button ,Linking , TouchableOpacity} from 'react-native';
 
 const JobOfferDetails = ({ route, navigation }) => {
     const { offer } = route.params;
@@ -12,30 +12,58 @@ const JobOfferDetails = ({ route, navigation }) => {
             <Text style={styles.description}>{offer.description}</Text>
             <Text style={styles.detail}>📍 Lieu : {offer.location}</Text>
             <Text style={styles.detail}>💰 Salaire : {offer.salaryMin} - {offer.salaryMax} €</Text>
-            <Text style={styles.detail}>🔗 <a href={offer.url}>Voir l'offre</a></Text>
+<TouchableOpacity onPress={() => Linking.openURL(offer.url)}>
+  <Text style={styles.link}>🔗 Voir l'offre</Text>
+</TouchableOpacity>
         </View>
     );
 };
 
+
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        padding: 10,
-        backgroundColor: "#fff",
+        backgroundColor: '#0f172a',
+        padding: 20,
+    },
+    backButton: {
+        marginBottom: 20,
+        alignSelf: 'flex-start',
+        backgroundColor: '#1e3a8a',
+        paddingVertical: 8,
+        paddingHorizontal: 16,
+        borderRadius: 10,
+    },
+    backButtonText: {
+        color: '#ffffff',
+        fontWeight: 'bold',
     },
     title: {
-        fontSize: 20,
-        fontWeight: "bold",
-        marginBottom: 10,
+        fontSize: 22,
+        fontWeight: 'bold',
+        color: '#ffffff',
+        marginBottom: 12,
+        textAlign: 'center',
     },
     description: {
         fontSize: 16,
-        marginBottom: 10,
+        color: '#cbd5e1',
+        marginBottom: 16,
+        lineHeight: 22,
     },
     detail: {
-        fontSize: 14,
-        marginBottom: 5,
-    }
+        fontSize: 15,
+        color: '#cbd5e1',
+        marginBottom: 10,
+    },
+    link: {
+        color: '#ffffff', // ← blanc maintenant
+        fontWeight: 'bold',
+        marginTop: 20,
+        fontSize: 15,
+        textAlign: 'center',
+    },
+
 });
 
 export default JobOfferDetails;
