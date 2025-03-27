@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Button, View, Text, StyleSheet, TextInput, Alert } from 'react-native';
+import { Button, View, Text, StyleSheet, TextInput,TouchableOpacity , Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -84,35 +84,60 @@ const EditProfilePage = () => {
                 style={styles.input}
             />
 
-            <Button title="Save" onPress={handleSave} />
-            <View style={{ height: 10 }} />
-            <Button title="Change Password" onPress={() => navigation.navigate('ChangePasswordPage')} />
-            <View style={{ height: 10 }} />
-            <Button title="BACK" onPress={() => navigation.goBack()} />
+            <TouchableOpacity style={styles.button} onPress={handleSave}>
+              <Text style={styles.buttonText}>💾 Save</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('ChangePasswordPage')}>
+              <Text style={styles.buttonText}>🔒 Change Password</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity style={styles.button} onPress={() => navigation.goBack()}>
+              <Text style={styles.buttonText}>⬅ Back</Text>
+            </TouchableOpacity>
 
         </View>
     );
 };
-
 const styles = StyleSheet.create({
     container: {
         flex: 1,
+        backgroundColor: '#0f172a',
+        padding: 24,
         justifyContent: 'center',
-        padding: 20,
     },
     label: {
-        fontSize: 16,
-        marginBottom: 8,
+        fontSize: 15,
+        color: '#ffffff',
+        marginBottom: 6,
+        fontWeight: 'bold',
     },
     input: {
-        borderColor: '#ccc',
+        backgroundColor: '#1e293b',
+        color: '#ffffff',
+        borderColor: '#3b82f6',
         borderWidth: 1,
-        padding: 10,
-        marginBottom: 12,
+        borderRadius: 10,
+        paddingHorizontal: 12,
+        paddingVertical: 10,
+        fontSize: 14,
+        marginBottom: 14,
     },
     buttonGroup: {
-        marginTop: 12,
-        gap: 10, // fonctionne avec React Native >= 0.71, sinon utiliser marginBottom sur chaque bouton
+        marginTop: 20,
+        gap: 10,
+    },
+    button: {
+        backgroundColor: '#3b82f6',
+        paddingVertical: 12,
+        borderRadius: 10,
+        marginBottom: 12,
+    },
+    buttonText: {
+        color: '#ffffff',
+        fontWeight: 'bold',
+        textAlign: 'center',
+        fontSize: 16,
     },
 });
 

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button, View, Text, StyleSheet } from 'react-native';
+import { Button, View, Text, StyleSheet,TouchableOpacity  } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 
 const SettingsPage = () => {
@@ -12,35 +12,70 @@ const SettingsPage = () => {
     }, [navigation]);
 
     return (
-        <View style={styles.container}>
-            <View style={styles.header}>
-                <Button title="BACK" onPress={() => navigation.goBack()} />
+            <View style={styles.container}>
+                <View style={styles.header}>
+                    <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
+                        <Text style={styles.backButtonText}>⬅ Retour</Text>
+                    </TouchableOpacity>
+                </View>
+
+                <View style={styles.actionsContainer}>
+                    <TouchableOpacity style={styles.actionButton} onPress={() => navigation.navigate('SignIn')}>
+                        <Text style={styles.actionText}>🚪 Logout</Text>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity style={[styles.actionButton, styles.dangerButton]} onPress={() => {}}>
+                        <Text style={styles.actionText}>🗑️ Supprimer le compte</Text>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity style={styles.actionButton} onPress={() => {}}>
+                        <Text style={styles.actionText}>⏸️ Faire une pause</Text>
+                    </TouchableOpacity>
+                </View>
             </View>
-            <View style={styles.actionsContainer}>
-                <Button title="LOGOUT" onPress={() => navigation.navigate('SignIn')} />
-                <Button title="DELETE ACCOUNT" onPress={() => {}} />
-                <Button title="FAIRE UNE PAUSE" onPress={() => {}} />
-            </View>
-        </View>
-    );
+        );
 };
 
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        justifyContent: 'space-between',
+        backgroundColor: '#0f172a',
         padding: 20,
     },
-    settingsContainer: {
-        marginTop: 20,
+    header: {
+        marginBottom: 20,
     },
-    settingText: {
-        fontSize: 18,
-        marginBottom: 10,
+    backButton: {
+        backgroundColor: '#334155',
+        paddingVertical: 10,
+        paddingHorizontal: 16,
+        borderRadius: 10,
+        alignSelf: 'flex-start',
+    },
+    backButtonText: {
+        color: '#ffffff',
+        fontWeight: 'bold',
+        fontSize: 16,
     },
     actionsContainer: {
-        marginTop: 20,
+        marginTop: 40,
+        gap: 14,
+    },
+    actionButton: {
+        backgroundColor: '#3b82f6',
+        paddingVertical: 12,
+        borderRadius: 12,
+        alignItems: 'center',
+    },
+    dangerButton: {
+        backgroundColor: '#ef4444',
+    },
+    actionText: {
+        color: '#ffffff',
+        fontSize: 16,
+        fontWeight: 'bold',
     },
 });
+
 
 export default SettingsPage;
