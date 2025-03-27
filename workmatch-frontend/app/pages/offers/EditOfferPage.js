@@ -323,16 +323,18 @@ const response = await axios.put(
 
 const styles = StyleSheet.create({
   container: {
-    padding: 12,
+    padding: 16,
     paddingBottom: 40,
-    backgroundColor: '#fff',
+    backgroundColor: '#0f172a',
   },
   input: {
+    backgroundColor: '#1e293b',
+    color: '#fff',
     borderWidth: 1,
-    borderColor: '#ccc',
-    padding: 8,
+    borderColor: '#334155',
+    padding: 10,
     marginBottom: 8,
-    borderRadius: 5,
+    borderRadius: 8,
     fontSize: 14,
   },
   inputError: {
@@ -344,7 +346,8 @@ const styles = StyleSheet.create({
     fontSize: 12,
   },
   label: {
-    fontSize: 13,
+    fontSize: 14,
+    color: '#fff',
     fontWeight: 'bold',
     marginTop: 8,
     marginBottom: 4,
@@ -362,6 +365,7 @@ const styles = StyleSheet.create({
   salaryValue: {
     fontSize: 14,
     fontWeight: 'bold',
+    color: '#fff',
     marginHorizontal: 8,
   },
   contractContainer: {
@@ -374,16 +378,17 @@ const styles = StyleSheet.create({
     paddingVertical: 6,
     paddingHorizontal: 10,
     borderWidth: 2,
-    borderColor: '#007bff',
+    borderColor: '#3b82f6',
     borderRadius: 8,
     margin: 4,
+    backgroundColor: '#1e293b',
   },
   contractSelected: {
-    backgroundColor: '#007bff',
+    backgroundColor: '#3b82f6',
   },
   contractText: {
     fontSize: 12,
-    color: '#007bff',
+    color: '#3b82f6',
     fontWeight: 'bold',
   },
   contractTextSelected: {
@@ -397,10 +402,12 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     paddingHorizontal: 20,
     borderRadius: 10,
-    backgroundColor: '#ccc',
+    backgroundColor: '#1e293b',
+    borderWidth: 2,
+    borderColor: '#60a5fa',
   },
   remoteSelected: {
-    backgroundColor: '#007bff',
+    backgroundColor: '#60a5fa',
   },
   remoteButtonText: {
     color: 'white',
@@ -416,16 +423,17 @@ const styles = StyleSheet.create({
     paddingVertical: 6,
     paddingHorizontal: 10,
     borderWidth: 2,
-    borderColor: '#28a745',
+    borderColor: '#10b981',
     borderRadius: 10,
     margin: 4,
+    backgroundColor: '#1e293b',
   },
   selectedLocation: {
-    backgroundColor: '#28a745',
+    backgroundColor: '#10b981',
   },
   locationText: {
     fontSize: 12,
-    color: '#28a745',
+    color: '#10b981',
     fontWeight: 'bold',
   },
   selectedLocationText: {
@@ -439,17 +447,17 @@ const styles = StyleSheet.create({
     paddingVertical: 6,
     paddingHorizontal: 14,
     borderWidth: 2,
-    borderColor: '#007bff',
+    borderColor: '#3b82f6',
     borderRadius: 8,
-    backgroundColor: 'white',
+    backgroundColor: '#1e293b',
     marginBottom: 4,
   },
   selectedSkill: {
-    backgroundColor: '#007bff',
+    backgroundColor: '#3b82f6',
   },
   skillText: {
     fontSize: 13,
-    color: '#007bff',
+    color: '#3b82f6',
   },
   selectedSkillText: {
     fontSize: 13,
@@ -464,6 +472,7 @@ const styles = StyleSheet.create({
   experienceValue: {
     fontSize: 13,
     fontWeight: 'bold',
+    color: '#fff',
     marginHorizontal: 6,
   },
 });
