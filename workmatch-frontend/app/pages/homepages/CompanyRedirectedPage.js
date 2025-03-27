@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, Button, StyleSheet } from 'react-native';
+import { View, Text, Button, StyleSheet, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -411,12 +411,25 @@ const fetchJobSearchers = async () => {
     return (
         <View style={styles.container}>
                     <View style={styles.topButtons}>
-                        <Button title="Profile" onPress={() => navigation.navigate('ProfilePage')} />
-                        <Button title="Main Menu" onPress={() => navigation.navigate('CompanyHome')} />
-                        <Button title={`Chat ${conversations.length > 0 ? `(${conversations.length})` : ''}`} onPress={() => navigation.navigate('ChatPage')} />
-                        <Button title="My Offers" onPress={() => navigation.navigate('MyOffersPage')} />
-                        {userType === 'COMPANY' && <Button title="Liked Candidates" onPress={() => navigation.navigate('LikedPage')} />}
+                      <TouchableOpacity style={styles.navButton} onPress={() => navigation.navigate('ProfilePage')}>
+                        <Text style={styles.navButtonText}>Profile</Text>
+                      </TouchableOpacity>
+                      <TouchableOpacity style={styles.navButton} onPress={() => navigation.navigate('CompanyHome')}>
+                        <Text style={styles.navButtonText}>Main Menu</Text>
+                      </TouchableOpacity>
+                      <TouchableOpacity style={styles.navButton} onPress={() => navigation.navigate('ChatPage')}>
+                        <Text style={styles.navButtonText}>Chat</Text>
+                      </TouchableOpacity>
+                      <TouchableOpacity style={styles.navButton} onPress={() => navigation.navigate('MyOffersPage')}>
+                        <Text style={styles.navButtonText}>My Offers</Text>
+                      </TouchableOpacity>
+                      {userType === 'COMPANY' && (
+                        <TouchableOpacity style={styles.navButton} onPress={() => navigation.navigate('LikedPage')}>
+                          <Text style={styles.navButtonText}>Liked Candidates</Text>
+                        </TouchableOpacity>
+                      )}
                     </View>
+
 
                     {selectedOffer && selectedOffer.title && (
                         <Text style={styles.offerTitle}>🔍 Candidats pour : {selectedOffer.title}</Text>
@@ -437,22 +450,22 @@ key={matchingJobSearchers.map(c => c.userId).join(",")}
                                             )}
 
                                             <Text style={styles.cardTitle}>{jobSearcher.name || 'No name provided'}</Text>
-                                            <Text>📍 Localisation : {jobSearcher.locations?.join(", ") || "Unknown"}</Text>
-                                            <Text>💻 Compétences :
+                                            <Text style={styles.cardText}>📍 Localisation : {jobSearcher.locations?.join(", ") || "Unknown"}</Text>
+                                            <Text style={styles.cardText}>💻 Compétences :
                                                 {jobSearcher.skills?.map(skill => `${skill.name} (${skill.experience} ans)`).join(", ") || "Unknown"}
                                             </Text>
 
                                             {/* ✅ Affichage conditionnel du score avec arrondi à 2 chiffres */}
                                             {selectedOffer ? (
-                                                <Text>🎯 Score de matching (offre sélectionnée) :
+                                                <Text style={styles.cardText}>🎯 Score de matching (offre sélectionnée) :
                                                     {jobSearcher.matchingScore !== undefined ? jobSearcher.matchingScore.toFixed(2) + "%" : "N/A"}
                                                 </Text>
                                             ) : (
-                                                <Text>🎯 Score de matching (toutes offres) :
+                                                <Text style={styles.cardText}>🎯 Score de matching (toutes offres) :
                                                     {jobSearcher.matchingScore !== undefined ? jobSearcher.matchingScore.toFixed(2) + "%" : "N/A"}
                                                 </Text>
                                             )}
-                                            <Text>🔄 Swipes sur vos offres: {jobSearcher.swipeRightCount} 👍 | {jobSearcher.swipeLeftCount} 👎</Text>
+                                            <Text style={styles.cardText}>🔄 Swipes sur vos offres: {jobSearcher.swipeRightCount} 👍 | {jobSearcher.swipeLeftCount} 👎</Text>
 
                                         </View>
                                     ) : (
@@ -475,54 +488,99 @@ key={matchingJobSearchers.map(c => c.userId).join(",")}
     );
 };
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: '#fff',
-        padding: 10,
-    },
-    topButtons: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        paddingHorizontal: 10,
-        marginTop: 20,
-    },
-    swiperContainer: {
-        flex: 1,
-        marginTop: 20,
-    },
-    card: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        backgroundColor: '#f9f9f9',
-        borderRadius: 10,
-        borderWidth: 1,
-        borderColor: '#ddd',
-        padding: 20,
-        marginHorizontal: 10,
-    },
-    cardTitle: {
-        fontWeight: 'bold',
-        fontSize: 18,
-        marginBottom: 10,
-    },
-    cardDescription: {
-        fontSize: 14,
-        color: '#555',
-        textAlign: 'center',
-    },
-    likedText: {
-        color: "green",
-        fontWeight: "bold",
-        fontSize: 16,
-        marginBottom: 5,
-    },notLikedText: {
-          color: "gray",
-          fontWeight: "bold",
-          fontSize: 14,
-          marginBottom: 5,
-      },
+  container: {
+    flex: 1,
+    backgroundColor: '#0f172a',
+    padding: 10,
+  },
+  topButtons: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+    gap: 10,
+    marginTop: 20,
+    marginBottom: 10,
+  },
+  navButton: {
+    backgroundColor: '#1e3a8a',
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    borderRadius: 12,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 3,
+    margin: 4,
+  },
+  navButtonText: {
+    color: '#ffffff',
+    fontWeight: 'bold',
+    textAlign: 'center',
+  },
+  swiperContainer: {
+    flex: 1,
+    marginTop: 20,
+  },
+  card: {
+    width: 320,
+    maxWidth: '90%',
+    minHeight: 420,
+    backgroundColor: '#1e293b',
+    borderRadius: 20,
+    padding: 24,
+    justifyContent: 'center',
+    alignItems: 'center',
+    alignSelf: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.25,
+    shadowRadius: 8,
+    elevation: 10,
+    borderWidth: 1,
+    borderColor: '#475569',
+  },
 
+  cardTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#ffffff',
+    marginBottom: 12,
+    textAlign: 'center',
+  },
+  cardDescription: {
+    fontSize: 14,
+    color: '#cbd5e1',
+    textAlign: 'center',
+    marginBottom: 6,
+  },
+  likedText: {
+    color: '#10b981',
+    fontWeight: 'bold',
+    fontSize: 16,
+    marginBottom: 8,
+  },
+  notLikedText: {
+    color: 'gray',
+    fontWeight: 'bold',
+    fontSize: 14,
+    marginBottom: 5,
+  },
 
+cardText: {
+  fontSize: 14,
+  color: '#cbd5e1', // gris clair lisible
+  textAlign: 'center',
+  marginBottom: 6,
+  lineHeight: 20,
+},
+  offerTitle: {
+    textAlign: 'center',
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#3b82f6',
+    marginVertical: 10,
+  },
 });
+
 export default CompanyRedirectedPage;
