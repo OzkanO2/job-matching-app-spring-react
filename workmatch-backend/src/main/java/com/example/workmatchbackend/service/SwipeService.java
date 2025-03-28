@@ -36,12 +36,13 @@ public class SwipeService {
     public void deleteAllBySwiperId(String swiperId) {
         swipedCardRepository.deleteBySwiperId(swiperId);
     }
-    public void deleteAllByJobOfferIds(List<String> jobOfferIds) {
-        for (String offerId : jobOfferIds) {
-            swipedCardRepository.deleteByJobOfferId(offerId);
-
+    public void deleteAllByJobOfferIds(List<String> offerIds) {
+        for (String offerId : offerIds) {
+            swipedCardRepository.deleteByJobOfferId(offerId); // Swipes faits pour l'offre
+            swipedCardRepository.deleteBySwipedId(offerId);   // Swipes où l'offre est la cible
         }
     }
+
     public void deleteAllSwipesForCompany(String companyId) {
         // Supprimer les swipes faits par l'entreprise
         swipedCardRepository.deleteBySwiperId(companyId);
@@ -51,4 +52,8 @@ public class SwipeService {
             swipedCardRepository.deleteByJobOfferId(offer.getId());
         }
     }
+    public void deleteSwipesBySwipedId(String swipedId) {
+        swipedCardRepository.deleteBySwipedId(swipedId);
+    }
+
 }
