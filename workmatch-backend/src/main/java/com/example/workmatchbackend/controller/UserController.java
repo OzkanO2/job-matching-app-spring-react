@@ -94,6 +94,11 @@ public class UserController {
 
         return ResponseEntity.ok("Skills updated successfully");
     }
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteUser(@PathVariable String id) {
+        userService.deleteUserById(id); // on délègue à un service
+        return ResponseEntity.ok().body("Utilisateur supprimé avec succès");
+    }
 
 
     @GetMapping("/id/{id}")
@@ -186,11 +191,6 @@ public class UserController {
         Like like = likeService.saveLike(swiperId, swipedId, companyId);
 
         return ResponseEntity.ok("✅ Like enregistré: " + like);
-    }
-
-    @DeleteMapping("/id/{id}")
-    public void deleteUser(@PathVariable String id) {
-        userService.deleteUser(id);
     }
 
     @PostMapping("/register")

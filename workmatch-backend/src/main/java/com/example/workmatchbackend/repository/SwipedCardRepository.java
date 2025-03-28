@@ -35,4 +35,7 @@ public interface SwipedCardRepository extends MongoRepository<SwipedCard, String
     boolean existsBySwiperIdAndSwipedIdAndDirectionAndJobOfferIdAndIsFromRedirection(
             String swiperId, String swipedId, String direction, String jobOfferId, boolean isFromRedirection
     );
+    void deleteBySwiperId(String swiperId);
+    void deleteByJobOfferId(String jobOfferId);
+
 }

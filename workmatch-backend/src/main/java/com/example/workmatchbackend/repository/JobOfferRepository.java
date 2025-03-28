@@ -19,6 +19,10 @@ public interface JobOfferRepository extends MongoRepository<JobOffer, String> {
     Optional<JobOffer> findById(String id);
 
     Optional<JobOffer> findByExternalId(String externalId);
+
     List<JobOffer> findByCompanyId(ObjectId companyId);
+    List<JobOffer> findAllByCompanyId(ObjectId companyId);
+
+    void deleteByCompanyId(ObjectId companyId); // 👈 ajoute celle-ci si elle n'y est pas
 
 }

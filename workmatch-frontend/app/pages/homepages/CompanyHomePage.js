@@ -192,7 +192,7 @@ const fetchMatchingCandidatesForCompany = async () => {
         } catch (error) {
             console.error("⚠️ Erreur lors de la récupération des swipes :", error);
         }
-let swipeStats = {};
+        let swipeStats = {};
         try {
             const swipeStatsResponse = await axios.get(`http://localhost:8080/api/swiped/company/swipes/${companyId}`, {
                 headers: { Authorization: `Bearer ${token}` },
@@ -204,7 +204,7 @@ let swipeStats = {};
         } catch (error) {
             console.error("⚠️ Erreur lors de la récupération des statistiques de swipes :", error);
         }
-console.log("✅ Liste complète des job searchers AVANT filtrage :", allJobSearchers.map(c => ({
+        console.log("✅ Liste complète des job searchers AVANT filtrage :", allJobSearchers.map(c => ({
             name: c.name,
             userId: c.userId?.toString(),
             id: c.id?.toString()
@@ -212,8 +212,6 @@ console.log("✅ Liste complète des job searchers AVANT filtrage :", allJobSear
 
         console.log("❌ Liste des candidats swipés globalement à gauche :", [...swipedIds]);
 
-        // ✅ Filtrer les candidats pour ne pas afficher ceux qui ont été swipés globalement
-        // ✅ Exclure tous les candidats qui ont été swipés (gauche ou droite) depuis l'affichage normal
         allJobSearchers = allJobSearchers.map(candidate => {
             const candidateId = candidate.userId?.toString() || candidate.id?.toString();
             const swipeData = swipeStats[candidateId] || { left: 0, right: 0 };
@@ -225,7 +223,14 @@ console.log("✅ Liste complète des job searchers AVANT filtrage :", allJobSear
             };
         });
 
+        // ✅ FILTRAGE ICI
+        allJobSearchers = allJobSearchers.filter(candidate => {
+          const candidateId = candidate.userId?.toString() || candidate.id?.toString();
+          return !swipedIds.has(candidateId);
+        });
+
         setJobSearchers([...allJobSearchers]);
+
 
     } catch (error) {
         console.error('❌ Erreur lors de la récupération des job searchers:', error);
