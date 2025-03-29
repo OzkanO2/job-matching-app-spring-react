@@ -4,11 +4,14 @@ import com.example.workmatchbackend.model.User;
 import com.example.workmatchbackend.model.Match;
 import com.example.workmatchbackend.repository.UserRepository;
 import com.example.workmatchbackend.repository.MatchRepository;
+import com.example.workmatchbackend.repository.ConversationRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.example.workmatchbackend.repository.JobSearcherRepository; // si utilisé
 import com.example.workmatchbackend.service.JobOfferService;
 import com.example.workmatchbackend.service.SwipeService;
+import com.example.workmatchbackend.service.UserService;
+import com.example.workmatchbackend.model.Conversation;
 
 import java.util.List;
 import java.util.Optional;
@@ -25,6 +28,9 @@ public class UserService {
     public List<User> getAllUsers() {
         return userRepository.findAll();
     }
+
+    @Autowired
+    private ConversationRepository conversationRepository;
 
     public Optional<User> getUserById(String id) {
         return userRepository.findById(id);
@@ -71,6 +77,14 @@ public class UserService {
                 matchRepository.deleteAll(
                         matchRepository.findByIndividualUserIdOrCompanyUserId(id, id)
                 );
+                // 🔥 Supprimer toutes les conversations contenant cet utilisateur
+                List<Conversation> conversationsToDelete = conversationRepository.findByUser1IdOrUser2Id(id, id);
+                if (!conversationsToDelete.isEmpty()) {
+                    conversationRepository.deleteAll(conversationsToDelete);
+                    System.out.println("🗑️ " + conversationsToDelete.size() + " conversation(s) supprimée(s) pour l'utilisateur " + id);
+                } else {
+                    System.out.println("⚠️ Aucune conversation trouvée pour l'utilisateur " + id);
+                }
 
                 userRepository.deleteById(id);
                 System.out.println("✅ Utilisateur supprimé avec toutes ses données !");
