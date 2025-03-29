@@ -11,6 +11,7 @@ import org.bson.types.ObjectId;
 public interface JobSearcherRepository extends MongoRepository<JobSearcher, String> {
     Optional<JobSearcher> findById(String id);
     Optional<JobSearcher> findByUserId(ObjectId userId);
+    void deleteByUserId(ObjectId userId);
 
     @Query(value = "{ '_id': ?0 }", fields = "{ 'userId': 1 }")
     Optional<JobSearcher> findUserIdByJobSearcherId(String jobSearcherId);

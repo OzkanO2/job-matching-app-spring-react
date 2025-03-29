@@ -42,6 +42,9 @@ public class SwipeService {
             swipedCardRepository.deleteBySwipedId(offerId);   // Swipes où l'offre est la cible
         }
     }
+    public void deleteAllBySwipedId(String swipedId) {
+        swipedCardRepository.deleteBySwipedId(swipedId);
+    }
 
     public void deleteAllSwipesForCompany(String companyId) {
         // Supprimer les swipes faits par l'entreprise

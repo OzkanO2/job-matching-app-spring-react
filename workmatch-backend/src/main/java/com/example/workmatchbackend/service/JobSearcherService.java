@@ -23,6 +23,7 @@ import java.util.Set;
 @Service
 public class JobSearcherService {
 
+    @Autowired
     private final JobSearcherRepository jobSearcherRepository;
     private final JobOfferRepository jobOfferRepository;
     private final ObjectMapper objectMapper = new ObjectMapper(); // ✅ Ajoute ici
@@ -45,6 +46,11 @@ public class JobSearcherService {
         this.jobSearcherRepository = jobSearcherRepository;
         this.jobOfferRepository = jobOfferRepository;
         this.likeRepository = likeRepository;
+    }
+    public void deleteByUserId(String userId) {
+        ObjectId objectId = new ObjectId(userId);
+        System.out.println("🔥🔥🔥 JobSearcherService.deleteByUserId CALLED for userId: " + objectId);
+        jobSearcherRepository.deleteByUserId(objectId);
     }
 
 

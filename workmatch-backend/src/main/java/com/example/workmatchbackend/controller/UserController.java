@@ -94,12 +94,17 @@ public class UserController {
 
         return ResponseEntity.ok("Skills updated successfully");
     }
-    @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteUser(@PathVariable String id) {
-        userService.deleteUserById(id); // on délègue à un service
-        return ResponseEntity.ok().body("Utilisateur supprimé avec succès");
+    @DeleteMapping("/user/{id}")
+    public ResponseEntity<String> deleteUser(@PathVariable String id) {
+        userService.deleteUserWithCascade(id);
+        return ResponseEntity.ok("🗑️ Utilisateur supprimé avec cascade.");
     }
 
+    @DeleteMapping("/{id}")
+    public ResponseEntity<String> deleteUserWithCascade(@PathVariable String id) {
+        userService.deleteUserWithCascade(id);
+        return ResponseEntity.ok("✅ Utilisateur supprimé avec cascade !");
+    }
 
     @GetMapping("/id/{id}")
     public ResponseEntity<?> getUserById(@PathVariable String id) {
