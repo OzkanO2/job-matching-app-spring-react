@@ -114,10 +114,15 @@ const CompanyRedirectedPage = () => {
                     headers: { Authorization: `Bearer ${token}` },
                 });
 
-                swipedIdsForOffer = new Set(
+                /*swipedIdsForOffer = new Set(
                     swipedResponse.data
                         .filter(item => item.direction === "left" && item.isFromRedirection === true)
                         .map(item => item.swipedId.toString().trim())
+                );*/
+                swipedIdsForOffer = new Set(
+                  swipedResponse.data
+                    .filter(item => item.isFromRedirection === true)
+                    .map(item => item.swipedId.toString().trim())
                 );
 
                 console.log("❌ Swipes à gauche pour CETTE OFFRE :", [...swipedIdsForOffer]);
