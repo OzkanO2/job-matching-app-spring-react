@@ -12,6 +12,7 @@ import com.example.workmatchbackend.service.JobOfferService;
 import com.example.workmatchbackend.service.SwipeService;
 import com.example.workmatchbackend.service.UserService;
 import com.example.workmatchbackend.model.Conversation;
+import com.example.workmatchbackend.repository.LikeRepository;
 
 import java.util.List;
 import java.util.Optional;
@@ -24,6 +25,9 @@ public class UserService {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private LikeRepository likeRepository;
 
     public List<User> getAllUsers() {
         return userRepository.findAll();
@@ -85,6 +89,7 @@ public class UserService {
                 } else {
                     System.out.println("⚠️ Aucune conversation trouvée pour l'utilisateur " + id);
                 }
+                likeRepository.deleteAllBySwiperIdOrSwipedIdOrCompanyId(id, id, id);
 
                 userRepository.deleteById(id);
                 System.out.println("✅ Utilisateur supprimé avec toutes ses données !");
