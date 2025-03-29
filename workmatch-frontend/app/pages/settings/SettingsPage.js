@@ -64,9 +64,6 @@ const SettingsPage = () => {
         >
           <Text style={styles.actionText}>🗑️ Supprimer le compte</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.actionButton} onPress={() => {}}>
-          <Text style={styles.actionText}>⏸️ Faire une pause</Text>
-        </TouchableOpacity>
       </View>
     </View>
   );
