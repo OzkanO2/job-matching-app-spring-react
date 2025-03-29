@@ -2,8 +2,10 @@ package com.example.workmatchbackend.controller;
 
 import com.example.workmatchbackend.model.Conversation;
 import com.example.workmatchbackend.repository.ConversationRepository;
+import com.example.workmatchbackend.repository.MessageRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.http.ResponseEntity;
 
 import java.util.List;
 import java.util.Optional;
@@ -14,6 +16,8 @@ public class ConversationController {
 
     @Autowired
     private ConversationRepository conversationRepository;
+    @Autowired
+    private MessageRepository messageRepository;
 
     @GetMapping("/{userId}")
     public List<Conversation> getUserConversations(@PathVariable String userId) {
@@ -35,4 +39,13 @@ public class ConversationController {
         System.out.println("📌 Vérification d'existence entre " + user1Id + " et " + user2Id + ": " + exists);
         return exists;
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteConversation(@PathVariable String id) {
+        conversationRepository.deleteById(id);
+        messageRepository.deleteAllByConversationId(id);
+        return ResponseEntity.ok("Conversation supprimée");
+    }
+
+
 }

@@ -96,17 +96,40 @@ const ChatPage = ({ route }) => {
                     data={conversations}
                     keyExtractor={(item) => item.conversationId}
                     renderItem={({ item }) => (
+                      <View style={styles.conversationItem}>
                         <TouchableOpacity
-                            style={styles.conversationItem}
-                            onPress={() => navigation.navigate("ChatRoom", {
-                                conversationId: item.conversationId,
-                                matchedUserId: item.receiverId,
-                                matchedUserName: item.username
-                            })}
+                          style={{ flex: 1 }}
+                          onPress={() => navigation.navigate("ChatRoom", {
+                            conversationId: item.conversationId,
+                            matchedUserId: item.receiverId,
+                            matchedUserName: item.username
+                          })}
                         >
-                            <Text style={styles.username}>{item.username}</Text>
+                          <Text style={styles.username}>{item.username}</Text>
                         </TouchableOpacity>
+
+                        <TouchableOpacity
+                          style={styles.deleteButton}
+                          onPress={async () => {
+                            try {
+                              const token = await AsyncStorage.getItem("userToken");
+                              await axios.delete(`http://localhost:8080/api/conversations/${item.conversationId}`, {
+                                headers: { Authorization: `Bearer ${token}` },
+                              });
+
+                              setConversations(prev =>
+                                prev.filter(c => c.conversationId !== item.conversationId)
+                              );
+                            } catch (err) {
+                              console.error("❌ Erreur suppression conversation :", err);
+                            }
+                          }}
+                        >
+                          <Text style={styles.deleteText}>🗑️</Text>
+                        </TouchableOpacity>
+                      </View>
                     )}
+
                 />
             )}
         </View>
@@ -163,6 +186,17 @@ conversationItem: {
       fontWeight: 'bold',
       textAlign: 'center',
     },
+deleteButton: {
+  padding: 10,
+  backgroundColor: "#dc2626", // rouge
+  borderRadius: 8,
+  marginLeft: 10,
+  alignSelf: "center",
+},
+deleteText: {
+  color: "white",
+  fontWeight: "bold",
+},
 
 });
 

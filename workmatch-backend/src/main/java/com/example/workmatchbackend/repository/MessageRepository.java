@@ -9,5 +9,6 @@ import java.util.List;
 public interface MessageRepository extends MongoRepository<Message, String> {
     List<Message> findByConversationId(String conversationId);
     void deleteAllBySenderIdOrReceiverId(String senderId, String receiverId);
+    void deleteAllByConversationId(String conversationId);
 
 }
