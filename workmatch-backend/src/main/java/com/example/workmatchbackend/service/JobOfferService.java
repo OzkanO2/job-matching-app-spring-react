@@ -17,6 +17,8 @@ import org.bson.types.ObjectId;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
+import com.example.workmatchbackend.repository.LikeRepository;
+import com.example.workmatchbackend.repository.SwipedCardRepository;
 
 @Service
 public class JobOfferService {
@@ -77,4 +79,21 @@ public class JobOfferService {
     public List<JobOffer> fetchJobsFromAdzuna(String country, String what, int resultsPerPage) {
         return List.of();
     }
+    @Autowired
+    private SwipedCardRepository swipedCardRepository;
+
+    @Autowired
+    private LikeRepository likeRepository;
+
+    public void deleteJobOfferAndDependencies(String jobOfferId) {
+        // 1. Supprimer l’offre d’emploi
+        jobOfferRepository.deleteById(jobOfferId);
+
+        // 2. Supprimer les swipes contenant l’offre
+        swipedCardRepository.deleteBySwiperIdOrSwipedIdOrJobOfferId(jobOfferId, jobOfferId, jobOfferId);
+
+        // 3. Supprimer les likes liés à cette offre
+        likeRepository.deleteBySwiperIdOrSwipedIdOrCompanyIdOrOfferId(jobOfferId, jobOfferId, jobOfferId, jobOfferId);
+    }
+
 }

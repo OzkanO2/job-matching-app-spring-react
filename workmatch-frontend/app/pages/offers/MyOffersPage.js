@@ -43,7 +43,17 @@ const MyOffersPage = () => {
             console.error("❌ Erreur lors du chargement des offres :", error);
         }
     };
-
+    const handleDeleteOffer = async (offerId) => {
+        try {
+            const token = await AsyncStorage.getItem("userToken");
+            await axios.delete(`http://localhost:8080/joboffers/${offerId}`, {
+                headers: { Authorization: `Bearer ${token}` },
+            });
+            setJobOffers(prev => prev.filter((offer) => offer._id !== offerId));
+        } catch (error) {
+            console.error("❌ Erreur lors de la suppression de l'offre :", error);
+        }
+    };
     return (
         <View style={styles.container}>
             <View style={styles.topButtons}>
@@ -78,28 +88,47 @@ const MyOffersPage = () => {
                 keyExtractor={(item) => item._id}
                 renderItem={({ item }) => (
                     <View style={styles.jobOfferContainer}>
-                        <TouchableOpacity
-                            style={styles.jobOfferItem}
-                            onPress={() => navigation.navigate("JobOfferDetails", { offer: item })}
-                        >
-                            <Text style={styles.jobTitle}>{item.title}</Text>
-                            <Text style={styles.jobLocation}>{item.location}</Text>
-                        </TouchableOpacity>
-<TouchableOpacity
-  style={styles.editOfferButton}
-  onPress={() => navigation.navigate("EditOfferPage", { offer: item })}
->
-  <Text style={styles.buttonText}>✏️ Modifier</Text>
-</TouchableOpacity>
+                      <TouchableOpacity
+                        style={styles.jobOfferItem}
+                        onPress={() => navigation.navigate("JobOfferDetails", { offer: item })}
+                      >
+                        <Text style={styles.jobTitle}>{item.title}</Text>
+                        <Text style={styles.jobLocation}>{item.location}</Text>
+                      </TouchableOpacity>
 
-                        <TouchableOpacity
-                            style={styles.viewCandidatesButton}
-                            onPress={() => navigation.navigate("CompanyRedirectedPage", { selectedOffer: item })}
-                        >
+                      <TouchableOpacity
+                        style={styles.editOfferButton}
+                        onPress={() => navigation.navigate("EditOfferPage", { offer: item })}
+                      >
+                        <Text style={styles.buttonText}>✏️ Modifier</Text>
+                      </TouchableOpacity>
 
-                            <Text style={styles.buttonText}>Voir les candidats</Text>
-                        </TouchableOpacity>
+                      <TouchableOpacity
+                        style={styles.viewCandidatesButton}
+                        onPress={() => navigation.navigate("CompanyRedirectedPage", { selectedOffer: item })}
+                      >
+                        <Text style={styles.buttonText}>Voir les candidats</Text>
+                      </TouchableOpacity>
+
+                      {/* 🔥 Bouton de suppression */}
+                      <TouchableOpacity
+                        style={styles.deleteButton}
+                        onPress={async () => {
+                          try {
+                            const token = await AsyncStorage.getItem("userToken");
+                            await axios.delete(`http://localhost:8080/joboffers/${item._id}`, {
+                              headers: { Authorization: `Bearer ${token}` },
+                            });
+                            setJobOffers(prev => prev.filter(o => o._id !== item._id));
+                          } catch (err) {
+                            console.error("❌ Erreur suppression offre :", err);
+                          }
+                        }}
+                      >
+                        <Text style={styles.buttonText}>🗑️ Supprimer</Text>
+                      </TouchableOpacity>
                     </View>
+
                 )}
                 ListEmptyComponent={() => <Text style={styles.noDataText}>⚠️ Aucune offre disponible</Text>}
             />
@@ -194,6 +223,13 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     textAlign: 'center',
   },
+deleteButton: {
+  backgroundColor: "#ef4444",
+  padding: 10,
+  borderRadius: 8,
+  alignItems: "center",
+  marginTop: 8,
+},
 
 
 });

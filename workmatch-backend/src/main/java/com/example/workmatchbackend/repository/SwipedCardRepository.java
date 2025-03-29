@@ -38,5 +38,6 @@ public interface SwipedCardRepository extends MongoRepository<SwipedCard, String
     void deleteBySwiperId(String swiperId);
     void deleteByJobOfferId(String jobOfferId);
     void deleteBySwipedId(String swipedId);
+    void deleteBySwiperIdOrSwipedIdOrJobOfferId(String swiperId, String swipedId, String jobOfferId);
 
 }

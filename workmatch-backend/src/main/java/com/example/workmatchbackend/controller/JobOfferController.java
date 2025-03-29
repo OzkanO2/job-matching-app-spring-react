@@ -16,6 +16,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import com.example.workmatchbackend.repository.LikeRepository;
+import com.example.workmatchbackend.repository.SwipedCardRepository;
 
 import java.util.List;
 import java.util.Map;
@@ -75,8 +77,8 @@ public class JobOfferController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteJobOffer(@PathVariable String id) {
-        logger.info("Deleting job offer with ID: {}", id);
-        jobOfferService.deleteJobOffer(id);
+        logger.info("Deleting job offer and its dependencies for ID: {}", id);
+        jobOfferService.deleteJobOfferAndDependencies(id);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
