@@ -3,11 +3,14 @@ package com.example.workmatchbackend.model;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
+
 import java.util.List;
 import javax.persistence.Transient;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.bson.types.ObjectId;
+
 import java.util.ArrayList;
 
 @Document(collection = "jobSearchers")
@@ -25,7 +28,9 @@ public class JobSearcher {
     private int salaryMin;
     private int salaryMax;
     private List<String> locations = new ArrayList<>();
-    public JobSearcher() {}
+
+    public JobSearcher() {
+    }
 
     public JobSearcher(ObjectId userId, String name, String username, String email, List<Skill> skills, int salaryMin, int salaryMax, boolean remote, List<String> locations) {
         this.userId = userId;
@@ -46,6 +51,7 @@ public class JobSearcher {
     @Transient
     @JsonIgnore
     private boolean hasLikedOffer;
+
     public int getSalaryMin() {
         return salaryMin;
     }
@@ -53,6 +59,7 @@ public class JobSearcher {
     public void setSalaryMin(int salaryMin) {
         this.salaryMin = salaryMin;
     }
+
     public int getSalaryMax() {
         return salaryMax;
     }
@@ -65,6 +72,7 @@ public class JobSearcher {
     public void setSalaryMax(int salaryMax) {
         this.salaryMax = salaryMax;
     }
+
     public boolean isHasLikedOffer() {
         return hasLikedOffer;
     }
@@ -72,9 +80,11 @@ public class JobSearcher {
     public void setHasLikedOffer(boolean hasLikedOffer) {
         this.hasLikedOffer = hasLikedOffer;
     }
+
     public boolean isRemote() {
         return remote;
     }
+
     public void setRemote(boolean remote) {
         this.remote = remote;
     }
@@ -95,8 +105,14 @@ public class JobSearcher {
     public void setUserId(ObjectId userId) {
         this.userId = userId;
     }
-    public List<Skill> getSkills() { return skills; }
-    public void setSkills(List<Skill> skills) { this.skills = skills; }
+
+    public List<Skill> getSkills() {
+        return skills;
+    }
+
+    public void setSkills(List<Skill> skills) {
+        this.skills = skills;
+    }
 
     public List<String> getLocations() {
         return locations;

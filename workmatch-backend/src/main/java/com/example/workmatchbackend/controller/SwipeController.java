@@ -5,6 +5,7 @@ import com.example.workmatchbackend.repository.SwipedCardRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -101,6 +102,7 @@ public class SwipeController {
         response.put("exists", exists);
         return ResponseEntity.ok(response);
     }
+
     @GetMapping("/company/swipes/{companyId}")
     public Map<String, Map<String, Integer>> getCandidateSwipeCounts(@PathVariable String companyId) {
         List<JobOffer> companyOffers = jobOfferRepository.findByCompanyId(new ObjectId(companyId));
@@ -170,6 +172,7 @@ public class SwipeController {
         response.put("exists", exists);
         return ResponseEntity.ok(response);
     }
+
     @GetMapping("/filteredJobSearchersNormal/{swiperId}")
     public ResponseEntity<List<JobSearcher>> getFilteredJobSearchersNormal(@PathVariable String swiperId) {
         //Récupérer TOUS les swipes (left et right) où jobOfferId est vide et isFromRedirection est false

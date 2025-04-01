@@ -5,7 +5,9 @@ import com.example.workmatchbackend.repository.UserRepository;
 import com.example.workmatchbackend.repository.JobSearcherRepository;
 import com.example.workmatchbackend.service.UserService;
 import com.example.workmatchbackend.util.JwtUtil;
+
 import java.util.Arrays;
+
 import com.example.workmatchbackend.model.JobSearcher;
 import org.bson.types.ObjectId;
 import com.example.workmatchbackend.model.Skill;
@@ -60,6 +62,7 @@ public class UserController {
         this.likeService = likeService;
         this.matchService = matchService;
     }
+
     @Autowired
     private UserService userService;
 
@@ -95,6 +98,7 @@ public class UserController {
 
         return ResponseEntity.ok("Skills updated successfully");
     }
+
     @DeleteMapping("/user/{id}")
     public ResponseEntity<String> deleteUser(@PathVariable String id) {
         userService.deleteUserWithCascade(id);
@@ -271,6 +275,7 @@ public class UserController {
     public User getUserInfo(@PathVariable String username) {
         return userRepository.findByUsername(username);
     }
+
     @GetMapping("/checkUsername/{username}")
     public ResponseEntity<?> checkUsername(@PathVariable String username) {
         boolean exists = userService.existsByUsername(username);
@@ -297,6 +302,7 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");
         }
     }
+
     @PostMapping("/change-password")
     public ResponseEntity<?> changePassword(@RequestBody Map<String, String> payload) {
         String username = payload.get("username");

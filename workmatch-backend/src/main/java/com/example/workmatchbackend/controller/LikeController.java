@@ -9,7 +9,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.http.HttpStatus; // ✅ Ajout de l'import
+
 import java.util.Map;
+
 import com.example.workmatchbackend.model.JobSearcher;
 import com.example.workmatchbackend.repository.JobSearcherRepository;
 
@@ -66,6 +68,7 @@ public class LikeController {
 
         return ResponseEntity.ok(likedOffers);
     }
+
     @GetMapping("/liked-offers/{userId}")
     public ResponseEntity<List<JobOffer>> getLikedOffersByUser(@PathVariable String userId) {
         List<Like> likes = likeRepository.findBySwiperId(userId);
@@ -82,6 +85,7 @@ public class LikeController {
         boolean exists = likeRepository.existsBySwiperIdAndSwipedId(userId, offerId);
         return ResponseEntity.ok(exists);
     }
+
     @GetMapping("/{swiperId}")
     public ResponseEntity<List<Like>> getLikesByUser(@PathVariable String swiperId) {
         List<Like> likes = likeRepository.findAllBySwiperId(swiperId);
@@ -93,6 +97,7 @@ public class LikeController {
         likeRepository.deleteBySwiperIdAndSwipedId(userId, offerId);
         return ResponseEntity.ok("Like supprimé avec succès !");
     }
+
     @GetMapping("/liked-candidates/{companyId}")
     public ResponseEntity<List<JobSearcher>> getLikedCandidates(@PathVariable String companyId) {
         List<Like> likes = likeRepository.findAllByCompanyId(companyId);

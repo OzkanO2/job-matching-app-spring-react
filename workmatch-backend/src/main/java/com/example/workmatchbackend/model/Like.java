@@ -14,7 +14,8 @@ public class Like {
     private String offerId;
     private boolean isFromRedirection;
 
-    public Like() {}
+    public Like() {
+    }
 
     public Like(String swiperId, String swipedId, String companyId, String offerId, boolean isFromRedirection) {
         this.swiperId = swiperId;
@@ -27,18 +28,44 @@ public class Like {
     public Like(String swiperId, String swipedId, String companyId) {
         this(swiperId, swipedId, companyId, "", false);
     }
+
     public Like(String swiperId, String swipedId) {
         this(swiperId, swipedId, "", "", false);
     }
 
-    public String getId() { return id; }
-    public String getSwiperId() { return swiperId; }
-    public String getSwipedId() { return swipedId; }
-    public String getCompanyId() { return companyId; }
-    public String getOfferId() { return offerId; }
-    public boolean isFromRedirection() { return isFromRedirection; }
+    public String getId() {
+        return id;
+    }
 
-    public void setCompanyId(String companyId) { this.companyId = companyId; }
-    public void setOfferId(String offerId) { this.offerId = offerId; }
-    public void setIsFromRedirection(boolean isFromRedirection) { this.isFromRedirection = isFromRedirection; }
+    public String getSwiperId() {
+        return swiperId;
+    }
+
+    public String getSwipedId() {
+        return swipedId;
+    }
+
+    public String getCompanyId() {
+        return companyId;
+    }
+
+    public String getOfferId() {
+        return offerId;
+    }
+
+    public boolean isFromRedirection() {
+        return isFromRedirection;
+    }
+
+    public void setCompanyId(String companyId) {
+        this.companyId = companyId;
+    }
+
+    public void setOfferId(String offerId) {
+        this.offerId = offerId;
+    }
+
+    public void setIsFromRedirection(boolean isFromRedirection) {
+        this.isFromRedirection = isFromRedirection;
+    }
 }

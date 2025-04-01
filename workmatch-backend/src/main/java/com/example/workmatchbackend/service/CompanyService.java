@@ -41,6 +41,7 @@ public class CompanyService {
     public boolean existsByUniqueNumber(String uniqueNumber) {
         return companyRepository.existsByUniqueNumber(uniqueNumber);
     }
+
     public Company getCompanyByName(String name) {
         return companyRepository.findByName(name);
     }

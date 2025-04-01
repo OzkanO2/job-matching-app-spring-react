@@ -7,8 +7,12 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface CompanyRepository extends MongoRepository<Company, String> {
     Company findByName(String name);
+
     Company findByEmail(String email);
+
     Company findByUsername(String username);
+
     boolean existsByUniqueNumber(String uniqueNumber);
+
     Company findByExternalId(String externalId);
 }

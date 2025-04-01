@@ -9,8 +9,10 @@ import com.example.workmatchbackend.repository.JobOfferRepository;
 import com.example.workmatchbackend.repository.JobSearcherRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
 import java.util.List;
 import java.util.Optional;
+
 import com.example.workmatchbackend.repository.ConversationRepository;
 import com.example.workmatchbackend.model.Conversation;
 
@@ -105,6 +107,7 @@ public class MatchService {
             System.out.println("Aucun like mutuel détecté entre " + swiperId + " et " + swipedId);
         }
     }
+
     public void checkAndCreateMatchAfterCompanyLike(String companyUserId, String candidateUserId) {
         // Est-ce que le candidat a déjà liké une offre de cette entreprise ?
         List<Like> candidateLikes = likeRepository.findAllBySwiperId(candidateUserId);

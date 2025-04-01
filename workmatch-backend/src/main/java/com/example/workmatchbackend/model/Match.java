@@ -17,7 +17,9 @@ public class Match {
         this.companyUserId = companyUserId;
         this.jobOfferId = jobOfferId;
     }
-    public Match() {}
+
+    public Match() {
+    }
 
     public Match(String individualUserId, String companyUserId) {
         this.individualUserId = individualUserId;

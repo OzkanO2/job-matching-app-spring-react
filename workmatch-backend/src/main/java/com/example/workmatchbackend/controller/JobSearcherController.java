@@ -6,7 +6,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpStatus;
+
 import java.util.Optional;
+
 import org.bson.types.ObjectId;
 
 import java.util.List;
@@ -39,10 +41,12 @@ public class JobSearcherController {
         JobSearcher savedJobSearcher = jobSearcherService.saveJobSearcher(jobSearcher);
         return ResponseEntity.ok(savedJobSearcher);
     }
+
     @GetMapping("/matching/company")
     public List<JobSearcher> getMatchingCandidatesForCompany(@RequestParam String companyId) {
         return jobSearcherService.findMatchingCandidatesForCompany(companyId);
     }
+
     @GetMapping("/{userId}")
     public ResponseEntity<?> getJobSearcherByUserId(@PathVariable String userId) {
         Optional<JobSearcher> jobSearcherOptional = jobSearcherService.findByUserId(new ObjectId(userId));

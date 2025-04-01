@@ -109,6 +109,7 @@ public class JobOfferController {
         matchService.saveMatch(match.getIndividualUserId(), match.getCompanyUserId(), match.getJobOfferId());
         return ResponseEntity.ok("Match enregistré avec succès.");
     }
+
     @GetMapping("/company/{companyId}")
     public ResponseEntity<List<JobOffer>> getJobOffersByCompany(@PathVariable String companyId) {
         logger.info("Requête reçue pour récupérer les offres de l'entreprise avec companyId: {}", companyId);
@@ -130,6 +131,7 @@ public class JobOfferController {
         matchService.saveMatch(match.getIndividualUserId(), match.getCompanyUserId(), match.getJobOfferId());
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
+
     @GetMapping("/user/{userId}")
     public ResponseEntity<List<JobOffer>> getJobOffersForUser(@PathVariable String userId) {
         Optional<User> userOptional = userRepository.findById(userId);

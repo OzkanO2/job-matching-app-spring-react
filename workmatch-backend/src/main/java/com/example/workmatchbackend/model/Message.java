@@ -16,7 +16,8 @@ public class Message {
     private String content;
     private Instant timestamp;
 
-    public Message() {}
+    public Message() {
+    }
 
     public Message(String conversationId, String senderId, String receiverId, String content, Instant timestamp) {
         this.conversationId = conversationId;

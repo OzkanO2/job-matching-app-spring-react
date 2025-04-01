@@ -14,10 +14,14 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import javax.persistence.Transient;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import java.util.Comparator;
+
 import com.example.workmatchbackend.repository.LikeRepository;
 import com.example.workmatchbackend.model.Like;
+
 import java.util.Set;
 
 @Service
@@ -36,9 +40,11 @@ public class JobSearcherService {
     public double getMatchingScore() {
         return matchingScore;
     }
+
     public void setMatchingScore(double matchingScore) {
         this.matchingScore = matchingScore;
     }
+
     @Autowired
     public JobSearcherService(JobSearcherRepository jobSearcherRepository,
                               JobOfferRepository jobOfferRepository,
@@ -47,6 +53,7 @@ public class JobSearcherService {
         this.jobOfferRepository = jobOfferRepository;
         this.likeRepository = likeRepository;
     }
+
     public void deleteByUserId(String userId) {
         ObjectId objectId = new ObjectId(userId);
         System.out.println("JobSearcherService.deleteByUserId CALLED for userId: " + objectId);
@@ -236,6 +243,7 @@ public class JobSearcherService {
         if (isRemote) return true;
         return jobSearcher.getLocations().stream().anyMatch(requiredLocations::contains);
     }
+
     public Optional<JobSearcher> findByUserId(ObjectId userId) {
         return jobSearcherRepository.findByUserId(userId);
     }

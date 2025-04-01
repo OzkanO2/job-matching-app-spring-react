@@ -4,8 +4,10 @@ import com.example.workmatchbackend.model.SwipedCard;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.example.workmatchbackend.repository.SwipedCardRepository;  // ✅ Bon repository
+
 import java.util.List;
 import java.util.stream.Collectors;
+
 import com.example.workmatchbackend.repository.JobOfferRepository;
 import com.example.workmatchbackend.model.JobOffer;
 import org.bson.types.ObjectId;
@@ -33,6 +35,7 @@ public class SwipeService {
             System.out.println("Swipe déjà enregistré pour cette offre.");
         }
     }
+
     public void deleteAllBySwiperId(String swiperId) {
         swipedCardRepository.deleteBySwiperId(swiperId);
     }

@@ -18,6 +18,7 @@ import com.example.workmatchbackend.model.UserType;
 
 import java.util.List;
 import java.util.Optional;
+
 import com.example.workmatchbackend.model.JobOffer;
 
 @Service
@@ -110,6 +111,7 @@ public class UserService {
             e.printStackTrace();
         }
     }
+
     @Autowired
     private JobSearcherService jobSearcherService;
 

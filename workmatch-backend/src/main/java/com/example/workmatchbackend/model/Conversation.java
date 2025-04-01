@@ -2,6 +2,7 @@ package com.example.workmatchbackend.model;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,9 +20,23 @@ public class Conversation {
         this.messages = new ArrayList<>();
     }
 
-    public String getId() { return id; }
-    public String getUser1Id() { return user1Id; }
-    public String getUser2Id() { return user2Id; }
-    public List<String> getMessages() { return messages; }
-    public void addMessage(String message) { this.messages.add(message); }
+    public String getId() {
+        return id;
+    }
+
+    public String getUser1Id() {
+        return user1Id;
+    }
+
+    public String getUser2Id() {
+        return user2Id;
+    }
+
+    public List<String> getMessages() {
+        return messages;
+    }
+
+    public void addMessage(String message) {
+        this.messages.add(message);
+    }
 }

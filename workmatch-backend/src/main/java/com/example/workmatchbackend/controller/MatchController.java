@@ -6,21 +6,27 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import com.example.workmatchbackend.service.LikeService;
 import com.example.workmatchbackend.model.Like;
+
 import java.util.Optional;
+
 import com.example.workmatchbackend.model.User;
 import com.example.workmatchbackend.repository.UserRepository;
 import com.example.workmatchbackend.model.JobOffer;
 import com.example.workmatchbackend.repository.JobOfferRepository;
+
 import java.util.Map;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import com.example.workmatchbackend.repository.ConversationRepository;
 import com.example.workmatchbackend.model.Conversation;
+
 import java.util.List;
 import java.util.HashMap;
 import java.util.stream.Collectors;
+
 import com.example.workmatchbackend.model.SwipedCard;
 import com.example.workmatchbackend.repository.SwipedCardRepository;
 import com.example.workmatchbackend.repository.LikeRepository;
@@ -123,6 +129,7 @@ public class MatchController {
         Like savedLike = likeService.saveLike(swiperId, swipedId, companyId);
         return ResponseEntity.status(HttpStatus.CREATED).body(savedLike);
     }
+
     @GetMapping("/reason/{userId}/{matchedUserId}")
     public ResponseEntity<Map<String, Object>> getMatchReason(@PathVariable String userId, @PathVariable String matchedUserId) {
         Map<String, Object> matchInfo = new HashMap<>();
@@ -218,6 +225,7 @@ public class MatchController {
 
         return ResponseEntity.ok("Pas encore de match, conversation non créée.");
     }
+
     @PostMapping("/simple-company-match-check")
     public ResponseEntity<String> simpleCompanyMatchCheck(@RequestBody Map<String, String> body) {
         String companyUserId = body.get("companyUserId");

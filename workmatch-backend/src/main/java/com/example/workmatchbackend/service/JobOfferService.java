@@ -9,14 +9,18 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+
 import java.util.List;
 import java.util.Optional;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.bson.types.ObjectId;
+
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
+
 import com.example.workmatchbackend.repository.LikeRepository;
 import com.example.workmatchbackend.repository.SwipedCardRepository;
 
@@ -33,6 +37,7 @@ public class JobOfferService {
     public JobOfferService(JobOfferRepository jobOfferRepository) {
         this.jobOfferRepository = jobOfferRepository;
     }
+
     public List<JobOffer> getAllJobOffers() {
         return jobOfferRepository.findAll();
     }
@@ -62,6 +67,7 @@ public class JobOfferService {
     public JobOffer findByExternalId(String externalId) {
         return jobOfferRepository.findByExternalId(externalId).orElse(null);
     }
+
     public List<JobOffer> getJobOffersByCompanyId(String companyId) {
         logger.info("Recherche des offres pour companyId: {}", companyId);
 
@@ -76,9 +82,11 @@ public class JobOfferService {
             return List.of();
         }
     }
+
     public List<JobOffer> fetchJobsFromAdzuna(String country, String what, int resultsPerPage) {
         return List.of();
     }
+
     @Autowired
     private SwipedCardRepository swipedCardRepository;
 

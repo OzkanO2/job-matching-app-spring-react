@@ -7,9 +7,11 @@ import org.bson.types.ObjectId;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.util.List;
 import java.time.LocalDate;
 import java.util.ArrayList;
+
 import org.springframework.data.mongodb.core.mapping.Field;
 
 @Document(collection = "jobOffers")
@@ -47,7 +49,8 @@ public class JobOffer {
 
     private List<Skill> skills;
 
-    public JobOffer() {}
+    public JobOffer() {
+    }
 
     public String getId() {
         return id;
@@ -72,8 +75,14 @@ public class JobOffer {
     public void setDescription(String description) {
         this.description = description;
     }
-    public List<String> getLocations() { return locations; }
-    public void setLocations(List<String> locations) { this.locations = locations; }
+
+    public List<String> getLocations() {
+        return locations;
+    }
+
+    public void setLocations(List<String> locations) {
+        this.locations = locations;
+    }
 
     public String getUrl() {
         return url;

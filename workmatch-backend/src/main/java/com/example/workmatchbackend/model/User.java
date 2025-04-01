@@ -20,7 +20,8 @@ public class User {
 
     private List<String> preferredCategories = new ArrayList<>();
 
-    public User() {}
+    public User() {
+    }
 
     public String getId() {
         return id;

@@ -10,10 +10,12 @@ import com.fasterxml.jackson.databind.JsonNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
+
 import java.time.LocalDate;
 
 import java.util.ArrayList;
 import java.util.List;
+
 @Service
 public class AdzunaJobService {
 
