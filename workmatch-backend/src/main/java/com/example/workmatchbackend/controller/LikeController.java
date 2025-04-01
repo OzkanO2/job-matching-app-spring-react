@@ -10,6 +10,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.http.HttpStatus; // ✅ Ajout de l'import
 import java.util.Map;
+import com.example.workmatchbackend.model.JobSearcher;
+import com.example.workmatchbackend.repository.JobSearcherRepository;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -26,6 +28,8 @@ public class LikeController {
 
     @Autowired
     private JobOfferRepository jobOfferRepository;
+    @Autowired
+    private JobSearcherRepository jobSearcherRepository;
 
     @PostMapping("/like")
     public ResponseEntity<String> likeJobOffer(@RequestBody Map<String, Object> payload) {
@@ -89,4 +93,20 @@ public class LikeController {
         likeRepository.deleteBySwiperIdAndSwipedId(userId, offerId);
         return ResponseEntity.ok("✅ Like supprimé avec succès !");
     }
+    @GetMapping("/liked-candidates/{companyId}")
+    public ResponseEntity<List<JobSearcher>> getLikedCandidates(@PathVariable String companyId) {
+        List<Like> likes = likeRepository.findAllByCompanyId(companyId);
+
+        List<String> jobSearcherIds = likes.stream()
+                .map(Like::getSwipedId)
+                .distinct()
+                .collect(Collectors.toList());
+
+        List<JobSearcher> jobSearchers = jobSearcherRepository.findAll().stream()
+                .filter(js -> jobSearcherIds.contains(js.getUserId().toHexString()))
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(jobSearchers);
+    }
+
 }

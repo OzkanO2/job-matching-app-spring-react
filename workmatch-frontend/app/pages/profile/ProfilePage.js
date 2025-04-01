@@ -364,19 +364,29 @@ const saveRemoteToBackend = async () => {
             <Text style={styles.navButtonText}>Chat</Text>
           </TouchableOpacity>
 
+          {userType === 'INDIVIDUAL' && (
+            <TouchableOpacity style={[styles.navButton, { backgroundColor: '#dbeafe' }]} onPress={() => navigation.navigate('LikedOffersPage')}>
+              <Text style={styles.navButtonText}>Liked Offers</Text>
+            </TouchableOpacity>
+          )}
+
           {userType === 'COMPANY' && (
-              <TouchableOpacity style={[styles.navButton, { backgroundColor: '#dbeafe' }]} onPress={() => navigation.navigate('LikedPage')}>
+            <>
+
+              <TouchableOpacity style={[styles.navButton, { backgroundColor: '#c7d2fe' }]} onPress={() => navigation.navigate('MyOffersPage')}>
+                <Text style={styles.navButtonText}>My Offers</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.navButton, { backgroundColor: '#dbeafe' }]}
+                onPress={() => navigation.navigate('LikedCandidatesPage')}
+              >
                 <Text style={styles.navButtonText}>Liked Candidates</Text>
               </TouchableOpacity>
-            )}
 
-            {userType === 'INDIVIDUAL' && (
-              <TouchableOpacity style={[styles.navButton, { backgroundColor: '#dbeafe' }]} onPress={() => navigation.navigate('LikedOffersPage')}>
-                <Text style={styles.navButtonText}>Liked Offers</Text>
-              </TouchableOpacity>
-            )}
-
+            </>
+          )}
         </View>
+
 
         {userType === 'INDIVIDUAL' && (
           <>

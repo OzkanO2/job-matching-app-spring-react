@@ -74,7 +74,7 @@ const MyOffersPage = () => {
               </TouchableOpacity>
 
               {userType === 'COMPANY' && (
-                <TouchableOpacity style={[styles.navButton, { backgroundColor: '#dbeafe' }]} onPress={() => navigation.navigate('LikedPage')}>
+                <TouchableOpacity style={[styles.navButton, { backgroundColor: '#dbeafe' }]} onPress={() => navigation.navigate('LikedCandidatesPage')}>
                   <Text style={styles.navButtonText}>Liked Candidates</Text>
                 </TouchableOpacity>
               )}

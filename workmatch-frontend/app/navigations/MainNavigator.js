@@ -15,13 +15,14 @@ import IndividualHomePage from '../pages/IndividualHomePage';
 import CompanyHomePage from '../pages/homepages/CompanyHomePage';
 import CompanyRedirectedPage from '../pages/homepages/CompanyRedirectedPage';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import LikedPage from '../pages/liked/LikedPage';
 import ChatRoom from '../pages/chat/ChatRoom';
 import JobOfferDetails from '../pages/offers/JobOfferDetails';
 import EditOfferPage from '../pages/offers/EditOfferPage';
 import ChangePasswordPage from '../pages/profile/ChangePasswordPage';
 import LikedOffersPage from '../pages/liked/LikedOffersPage';
 import LikedOfferDetailsPage from '../pages/liked/LikedOfferDetailsPage';
+import LikedCandidatesPage from '../pages/liked/LikedCandidatesPage';
+import LikedCandidateDetailsPage from '../pages/liked/LikedCandidateDetailsPage';
 
 const Stack = createStackNavigator();
 
@@ -166,11 +167,19 @@ function MainStackNavigator() {
         }}
       />
       <Stack.Screen
-        name="LikedPage"
-        component={LikedPage}
+        name="LikedCandidatesPage"
+        component={LikedCandidatesPage}
         options={{
           headerLeft: () => null,
-          title: 'LikedPage',
+          title: 'Liked Candidates',
+        }}
+      />
+      <Stack.Screen
+        name="LikedCandidateDetailsPage"
+        component={LikedCandidateDetailsPage}
+        options={{
+          headerLeft: () => null,
+          title: 'Détail du Candidat',
         }}
       />
       <Stack.Screen

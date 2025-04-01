@@ -63,37 +63,56 @@ const ChatPage = ({ route }) => {
     return (
         <View style={styles.container}>
             <View style={styles.topButtons}>
-              <TouchableOpacity style={[styles.navButton, { backgroundColor: '#3b82f6' }]} onPress={() => navigation.navigate('ProfilePage')}>
+              <TouchableOpacity
+                style={[styles.navButton, { backgroundColor: '#3b82f6' }]}
+                onPress={() => navigation.navigate('ProfilePage')}
+              >
                 <Text style={styles.navButtonText}>Profile</Text>
               </TouchableOpacity>
 
-              <TouchableOpacity style={[styles.navButton, { backgroundColor: '#60a5fa' }]} onPress={() => navigation.navigate(userType === 'INDIVIDUAL' ? 'IndividualHome' : 'CompanyHome')}>
+              <TouchableOpacity
+                style={[styles.navButton, { backgroundColor: '#60a5fa' }]}
+                onPress={() =>
+                  navigation.navigate(userType === 'INDIVIDUAL' ? 'IndividualHome' : 'CompanyHome')
+                }
+              >
                 <Text style={styles.navButtonText}>Main Menu</Text>
               </TouchableOpacity>
 
-              <TouchableOpacity style={[styles.navButton, { backgroundColor: '#93c5fd' }]} onPress={() => navigation.navigate('ChatPage')}>
+              <TouchableOpacity
+                style={[styles.navButton, { backgroundColor: '#93c5fd' }]}
+                onPress={() => navigation.navigate('ChatPage')}
+              >
                 <Text style={styles.navButtonText}>Chat</Text>
               </TouchableOpacity>
 
-              {userType === 'COMPANY' && (
-                <TouchableOpacity style={[styles.navButton, { backgroundColor: '#dbeafe' }]} onPress={() => navigation.navigate('LikedPage')}>
-                  <Text style={styles.navButtonText}>Liked Candidates</Text>
-                </TouchableOpacity>
-              )}
-
               {userType === 'INDIVIDUAL' && (
-                <TouchableOpacity style={[styles.navButton, { backgroundColor: '#dbeafe' }]} onPress={() => navigation.navigate('LikedOffersPage')}>
+                <TouchableOpacity
+                  style={[styles.navButton, { backgroundColor: '#bfdbfe' }]}
+                  onPress={() => navigation.navigate('LikedOffersPage')}
+                >
                   <Text style={styles.navButtonText}>Liked Offers</Text>
                 </TouchableOpacity>
               )}
 
               {userType === 'COMPANY' && (
-                <TouchableOpacity style={[styles.navButton, { backgroundColor: '#dbeafe' }]} onPress={() => navigation.navigate('LikedPage')}>
-                  <Text style={styles.navButtonText}>Liked Candidates</Text>
-                </TouchableOpacity>
+                <>
+                  <TouchableOpacity
+                    style={[styles.navButton, { backgroundColor: '#bfdbfe' }]}
+                    onPress={() => navigation.navigate('MyOffersPage')}
+                  >
+                    <Text style={styles.navButtonText}>My Offers</Text>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity
+                    style={[styles.navButton, { backgroundColor: '#dbeafe' }]}
+                    onPress={() => navigation.navigate('LikedCandidatesPage')}
+                  >
+                    <Text style={styles.navButtonText}>Liked Candidates</Text>
+                  </TouchableOpacity>
+                </>
               )}
             </View>
-
 
             <Text style={styles.title}>💬 Conversations</Text>
 

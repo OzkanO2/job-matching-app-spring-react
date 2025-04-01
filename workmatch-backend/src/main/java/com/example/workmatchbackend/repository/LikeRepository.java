@@ -23,6 +23,7 @@ public interface LikeRepository extends MongoRepository<Like, String> {
     void deleteAllBySwiperIdOrSwipedIdOrCompanyId(String swiperId, String swipedId, String companyId);
 
     List<Like> findAllBySwiperId(String swiperId);
+    List<Like> findAllByCompanyId(String companyId);
 
     void deleteBySwiperIdAndSwipedId(String swiperId, String swipedId);
     void deleteBySwiperIdOrSwipedIdOrCompanyIdOrOfferId(String swiperId, String swipedId, String companyId, String offerId);
