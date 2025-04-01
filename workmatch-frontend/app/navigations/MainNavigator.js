@@ -21,6 +21,7 @@ import JobOfferDetails from '../pages/offers/JobOfferDetails';
 import EditOfferPage from '../pages/offers/EditOfferPage';
 import ChangePasswordPage from '../pages/profile/ChangePasswordPage';
 import LikedOffersPage from '../pages/liked/LikedOffersPage';
+import LikedOfferDetailsPage from '../pages/liked/LikedOfferDetailsPage';
 
 const Stack = createStackNavigator();
 
@@ -114,6 +115,14 @@ function MainStackNavigator() {
         options={{
           headerLeft: () => null,
           title: 'Settings',
+        }}
+      />
+      <Stack.Screen
+        name="LikedOfferDetailsPage"
+        component={LikedOfferDetailsPage}
+        options={{
+          headerLeft: () => null,
+          title: 'Details of the offer',
         }}
       />
       <Stack.Screen

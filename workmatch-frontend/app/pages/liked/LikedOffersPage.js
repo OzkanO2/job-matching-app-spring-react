@@ -35,7 +35,7 @@ const LikedOffersPage = () => {
   const renderOffer = ({ item }) => (
     <TouchableOpacity
       style={styles.offerCard}
-      onPress={() => navigation.navigate('JobOfferDetails', { offer: item })}
+      onPress={() => navigation.navigate('LikedOfferDetailsPage', { offer: item })}
     >
       <Text style={styles.offerTitle}>{item.title}</Text>
       <Text style={styles.offerDetails}>{item.description?.slice(0, 100)}...</Text>
