@@ -103,5 +103,33 @@ public class MatchService {
             System.out.println("⚠️ Aucun like mutuel détecté entre " + swiperId + " et " + swipedId);
         }
     }
+    public void checkAndCreateMatchAfterCompanyLike(String companyUserId, String candidateUserId) {
+        // Est-ce que le candidat a déjà liké une offre de cette entreprise ?
+        List<Like> candidateLikes = likeRepository.findAllBySwiperId(candidateUserId);
+
+        boolean hasLikedCompany = candidateLikes.stream()
+                .anyMatch(like -> like.getCompanyId().equals(companyUserId));
+
+        if (hasLikedCompany) {
+            // Vérifie si le match existe déjà
+            boolean matchExists = matchRepository.existsByIndividualUserIdAndCompanyUserId(candidateUserId, companyUserId);
+            if (!matchExists) {
+                Match match = new Match(candidateUserId, companyUserId);
+                matchRepository.save(match);
+                System.out.println("✅ Nouveau match créé entre " + candidateUserId + " et " + companyUserId);
+            }
+
+            // Vérifie si la conversation existe déjà
+            boolean convExists = conversationRepository.existsByUser1IdAndUser2Id(candidateUserId, companyUserId)
+                    || conversationRepository.existsByUser1IdAndUser2Id(companyUserId, candidateUserId);
+
+            if (!convExists) {
+                conversationRepository.save(new Conversation(candidateUserId, companyUserId));
+                System.out.println("💬 Conversation créée !");
+            }
+        } else {
+            System.out.println("⚠️ Pas encore de like du candidat vers l'entreprise.");
+        }
+    }
 
 }

@@ -360,6 +360,22 @@ const handleSwipeRight = async (index) => {
         );
 
         console.log("💖 Like enregistré avec succès.");
+        // ✅ Appel simple de match check
+        await axios.post(
+          "http://localhost:8080/api/matches/simple-company-match-check",
+          {
+            candidateUserId: swipedId,
+            companyUserId: swiperId
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json"
+            }
+          }
+        );
+
+        console.log("🤝 Match check déclenché !");
 
         // ✅ Mise à jour de la liste après suppression de la carte swipée
         setMatchingJobSearchers(prevState => {

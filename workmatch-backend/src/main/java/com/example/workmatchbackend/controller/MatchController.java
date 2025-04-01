@@ -220,4 +220,17 @@ public class MatchController {
 
         return ResponseEntity.ok("⚠️ Pas encore de match, conversation non créée.");
     }
+    @PostMapping("/simple-company-match-check")
+    public ResponseEntity<String> simpleCompanyMatchCheck(@RequestBody Map<String, String> body) {
+        String companyUserId = body.get("companyUserId");
+        String candidateUserId = body.get("candidateUserId");
+
+        if (companyUserId == null || candidateUserId == null) {
+            return ResponseEntity.badRequest().body("❌ Champs manquants");
+        }
+
+        matchService.checkAndCreateMatchAfterCompanyLike(companyUserId, candidateUserId);
+        return ResponseEntity.ok("✅ Match check exécuté.");
+    }
+
 }
