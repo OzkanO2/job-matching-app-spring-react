@@ -25,6 +25,18 @@ const CompanyOnboardingPage = ({ navigation, route }) => {
     const [selectedSkills, setSelectedSkills] = useState({});
     const [skillsError, setSkillsError] = useState('');
     const allSkills = ["JavaScript", "React", "Node.js", "Python", "Java", "C#", "Ruby", "Swift"];
+    const availableLocations = [
+      "Paris, France",
+      "Lyon, France",
+      "Marseille, France",
+      "Bruxelles, Belgium",
+      "Liège, Belgium",
+      "New York, USA",
+      "Los Angeles, USA",
+      "London, UK",
+      "Montreal, Canada",
+      "Bangkok, Thailand"
+    ];
 
     const handleLocationToggle = (location) => {
       setSelectedLocations((prevLocations) =>
@@ -290,31 +302,34 @@ const CompanyOnboardingPage = ({ navigation, route }) => {
                 {categoryError ? <Text style={styles.errorText}>{categoryError}</Text> : null}
                 <Text style={styles.label}>Villes concernées :</Text>
                     <View style={styles.locationContainer}>
-                      {["Paris", "Lyon", "Marseille", "Toulouse", "Nice", "Bordeaux", "Lille", "Nantes"].map((city) => (
-                        <TouchableOpacity
-                          key={city}
-                          style={[
-                            styles.locationButton,
-                            selectedLocations.includes(city) && styles.selectedLocation,
-                          ]}
-                          onPress={() => handleLocationToggle(city)}
-                        >
-                          <Text
+                      {availableLocations.map((city) => (
+                          <TouchableOpacity
+                            key={city}
                             style={[
-                              styles.locationText,
-                              selectedLocations.includes(city) && styles.selectedLocationText,
+                              styles.locationButton,
+                              selectedLocations.includes(city) && styles.selectedLocation,
                             ]}
+                            onPress={() => handleLocationToggle(city)}
                           >
-                            {city}
-                          </Text>
-                        </TouchableOpacity>
-                      ))}
+                            <Text
+                              style={[
+                                styles.locationText,
+                                selectedLocations.includes(city) && styles.selectedLocationText,
+                              ]}
+                            >
+                              {city}
+                            </Text>
+                          </TouchableOpacity>
+                        ))}
                     </View>
                     {locationError ? <Text style={styles.errorText}>{locationError}</Text> : null}
+
                     <Text style={styles.label}>Compétences requises :</Text>
+
                     <View style={styles.skillContainer}>
                       {allSkills.map((skill) => (
                         <View key={skill} style={{ alignItems: "center", marginVertical: 8 }}>
+
                           <TouchableOpacity
                             onPress={() => handleSkillToggle(skill)}
                             style={[styles.skillButton, selectedSkills[skill] && styles.selectedSkill]}
@@ -345,32 +360,21 @@ const CompanyOnboardingPage = ({ navigation, route }) => {
    );
 };
 
-
 const styles = StyleSheet.create({
   container: {
-    padding: 12,  paddingBottom: 40,
-
-    backgroundColor: '#fff',
-  },
-  headerText: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    marginBottom: 6,
-    textAlign: 'center',
-  },
-  subText: {
-    fontSize: 12,
-    marginBottom: 10,
-    textAlign: 'center',
-    color: '#555',
+    padding: 16,
+    paddingBottom: 40,
+    backgroundColor: '#0f172a',
   },
   input: {
+    backgroundColor: '#1e293b',
+    color: '#fff',
     borderWidth: 1,
-    borderColor: '#ccc',
-    padding: 8,
-    marginBottom: 6,
-    borderRadius: 4,
-    fontSize: 13,
+    borderColor: '#334155',
+    padding: 10,
+    marginBottom: 8,
+    borderRadius: 8,
+    fontSize: 14,
   },
   inputError: {
     borderColor: 'red',
@@ -381,188 +385,149 @@ const styles = StyleSheet.create({
     fontSize: 12,
   },
   label: {
-    fontSize: 13,
+    fontSize: 14,
+    color: '#fff',
     fontWeight: 'bold',
     marginTop: 8,
     marginBottom: 4,
-  }
-,salaryContainer: {
-   marginTop: 10,
-   marginBottom: 10,
- },
- salaryControls: {
-   flexDirection: 'row',
-   alignItems: 'center',
-   justifyContent: 'center',
-   gap: 8,
- },
- salaryValue: {
-   fontSize: 13,
-   fontWeight: 'bold',
-   marginHorizontal: 6,
- },
-contractContainer: {
-  flexDirection: 'row',
-  flexWrap: 'wrap',
-  justifyContent: 'center',
-  marginBottom: 10,
-},
-contractButton: {
-  paddingVertical: 8,
-  paddingHorizontal: 12,
-  borderWidth: 2,
-  borderColor: '#007bff',
-  borderRadius: 10,
-  margin: 5,
-},
-contractSelected: {
-  backgroundColor: '#007bff',
-},
-contractText: {
-  fontSize: 12,
-  color: '#007bff',
-  fontWeight: 'bold',
-},
-contractTextSelected: {
-  color: 'white',
-},
-remoteContainer: {
-  alignItems: 'center',
-  marginBottom: 15,
-},
-remoteButton: {
-  paddingVertical: 10,
-  paddingHorizontal: 20,
-  borderRadius: 10,
-  backgroundColor: '#ccc',
-},
-remoteSelected: {
-  backgroundColor: '#007bff',
-},
-remoteButtonText: {
-  color: 'white',
-  fontWeight: 'bold',
-},
-locationContainer: {
-  flexDirection: 'row',
-  flexWrap: 'wrap',
-  justifyContent: 'center',
-  marginBottom: 10,
-},
-locationButton: {
-  paddingVertical: 6,
-  paddingHorizontal: 10,
-  borderWidth: 2,
-  borderColor: '#28a745',
-  borderRadius: 8,
-  margin: 4,
-},
-selectedLocation: {
-  backgroundColor: '#28a745',
-},
-locationText: {
-  fontSize: 12,
-  color: '#28a745',
-  fontWeight: 'bold',
-},
-selectedLocationText: {
-  fontSize: 12,
-  color: 'white',
-},
-headerText: {
-  fontSize: 18,
-  fontWeight: 'bold',
-  marginBottom: 6,
-  textAlign: 'center',
-},
-subText: {
-  fontSize: 13,
-  marginBottom: 12,
-  textAlign: 'center',
-  color: '#555',
-},
-input: {
-  borderWidth: 1,
-  borderColor: '#ccc',
-  padding: 8,
-  marginBottom: 8,
-  borderRadius: 5,
-  fontSize: 14,
-},
-salaryValue: {
-  fontSize: 14,
-  fontWeight: 'bold',
-  marginHorizontal: 8,
-},
-contractButton: {
-  paddingVertical: 6,
-  paddingHorizontal: 10,
-  borderWidth: 2,
-  borderColor: '#007bff',
-  borderRadius: 8,
-  margin: 4,
-},
-locationButton: {
-  paddingVertical: 6,
-  paddingHorizontal: 10,
-  borderWidth: 2,
-  borderColor: '#28a745',
-  borderRadius: 10,
-  margin: 4,
-},
-row: {
-  flexDirection: 'row',
-  alignItems: 'center',
-  marginBottom: 10,
-},
-skillRow: {
-  flexDirection: 'row',
-  justifyContent: 'space-between',
-  alignItems: 'center',
-  paddingVertical: 4,
-  paddingHorizontal: 8,
-  backgroundColor: '#f1f1f1',
-  borderRadius: 5,
-  marginTop: 4,
-},
-skillText: {
-  fontSize: 14,
-  color: '#333',
-},
-skillContainer: {
-  marginBottom: 10,
-},
-skillButton: {
-  paddingVertical: 6,
-  paddingHorizontal: 14,
-  borderWidth: 2,
-  borderColor: "#007bff",
-  borderRadius: 8,
-  backgroundColor: "white",
-  marginBottom: 4,
-},
-selectedSkill: {
-  backgroundColor: "#007bff",
-},
-skillText: {
-  fontSize: 13,
-  color: "#007bff",
-},
-selectedSkillText: {
-  fontSize: 13,
-  color: "white",
-  fontWeight: "bold",
-},
-experienceContainer: {
-  flexDirection: "row",
-  alignItems: "center",
-  marginTop: 5,
-},
-experienceValue: {
-  fontSize: 13,
-  fontWeight: "bold",
-  marginHorizontal: 6,
-},
+  },
+  salaryContainer: {
+    marginTop: 10,
+    marginBottom: 10,
+  },
+  salaryControls: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+  },
+  salaryValue: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: '#fff',
+    marginHorizontal: 8,
+  },
+  contractContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+    marginBottom: 10,
+  },
+  contractButton: {
+    paddingVertical: 6,
+    paddingHorizontal: 10,
+    borderWidth: 2,
+    borderColor: '#3b82f6',
+    borderRadius: 8,
+    margin: 4,
+    backgroundColor: '#1e293b',
+  },
+  contractSelected: {
+    backgroundColor: '#3b82f6',
+  },
+  contractText: {
+    fontSize: 12,
+    color: '#3b82f6',
+    fontWeight: 'bold',
+  },
+  contractTextSelected: {
+    color: 'white',
+  },
+  remoteContainer: {
+    alignItems: 'center',
+    marginBottom: 15,
+  },
+  remoteButton: {
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 10,
+    backgroundColor: '#1e293b',
+    borderWidth: 2,
+    borderColor: '#60a5fa',
+  },
+  remoteSelected: {
+    backgroundColor: '#60a5fa',
+  },
+  remoteButtonText: {
+    color: 'white',
+    fontWeight: 'bold',
+  },
+  locationContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+    marginBottom: 10,
+  },
+  locationButton: {
+    paddingVertical: 6,
+    paddingHorizontal: 10,
+    borderWidth: 2,
+    borderColor: '#10b981',
+    borderRadius: 10,
+    margin: 4,
+    backgroundColor: '#1e293b',
+  },
+  selectedLocation: {
+    backgroundColor: '#10b981',
+  },
+  locationText: {
+    fontSize: 12,
+    color: '#10b981',
+    fontWeight: 'bold',
+  },
+  selectedLocationText: {
+    fontSize: 12,
+    color: 'white',
+  },
+  skillContainer: {
+    marginBottom: 10,
+  },
+  skillButton: {
+    paddingVertical: 6,
+    paddingHorizontal: 14,
+    borderWidth: 2,
+    borderColor: '#3b82f6',
+    borderRadius: 8,
+    backgroundColor: '#1e293b',
+    marginBottom: 4,
+  },
+  selectedSkill: {
+    backgroundColor: '#3b82f6',
+  },
+  skillText: {
+    fontSize: 13,
+    color: '#3b82f6',
+  },
+  selectedSkillText: {
+    fontSize: 13,
+    color: 'white',
+    fontWeight: 'bold',
+  },
+  experienceContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 5,
+  },
+  experienceValue: {
+    fontSize: 13,
+    fontWeight: 'bold',
+    color: '#fff',
+    marginHorizontal: 6,
+  },
+  headerText: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 6,
+    textAlign: 'center',
+    color: '#fff', // ✅ couleur blanche
+  },
+  subText: {
+    fontSize: 13,
+    marginBottom: 12,
+    textAlign: 'center',
+    color: '#fff', // ✅ couleur blanche
+  },
 
 });
+
 export default CompanyOnboardingPage;

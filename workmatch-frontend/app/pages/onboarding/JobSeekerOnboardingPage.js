@@ -12,7 +12,23 @@ const JobSeekerOnboardingPage = ({ navigation, route }) => {
   // Liste des compétences possibles
   const allSkills = ["JavaScript", "React", "Node.js", "Python", "Java", "C#", "Ruby", "Swift"];
 
-  const availableLocations = ["Paris", "Lyon", "Marseille", "Toulouse", "Nice", "Bordeaux", "Lille", "Nantes"];
+  const availableLocations = [
+    "Paris, France",
+    "Lyon, France",
+    "Bruxelles, Belgium",
+    "New York, USA",
+    "Los Angeles, USA",
+    "Toronto, Canada",
+    "Montreal, Canada",
+    "Bangkok, Thailand",
+    "Tokyo, Japan",
+    "Berlin, Germany",
+    "Lisbon, Portugal",
+    "Madrid, Spain",
+    "Rome, Italy",
+    "Sydney, Australia",
+    "Melbourne, Australia"
+  ];
 
   // État pour stocker les compétences sélectionnées et leur expérience
   const [selectedSkills, setSelectedSkills] = useState({});
@@ -171,7 +187,8 @@ const [salaryMin, setSalaryMin] = useState(30000);
             </Text>
           </TouchableOpacity>
         )}
-      /><Text style={styles.title}>Select Your Salary Range:</Text>
+      />
+      <Text style={styles.title}>Select Your Salary Range:</Text>
               <View style={styles.salaryContainer}>
                 <Text>Min Salary:</Text>
                 <TouchableOpacity onPress={() => handleSalaryChange("min", -1000)}>

@@ -5,7 +5,21 @@ import { Ionicons } from '@expo/vector-icons';
 import { View, Text, TextInput, Button, StyleSheet, Alert, ScrollView, TouchableOpacity } from 'react-native';
 
 const allSkills = ["JavaScript", "React", "Node.js", "Python", "Java", "C#", "Ruby", "Swift"];
-const allCities = ["Paris", "Lyon", "Marseille", "Toulouse", "Nice", "Bordeaux", "Lille", "Nantes"];
+const allCities = [
+  "Paris, France",
+  "Lyon, France",
+  "Marseille, France",
+  "Toulouse, France",
+  "Nice, France",
+  "Bordeaux, France",
+  "Bruxelles, Belgium",
+  "Liège, Belgium",
+  "New York, USA",
+  "Los Angeles, USA",
+  "London, UK",
+  "Montreal, Canada",
+  "Bangkok, Thailand"
+];
 const allCategories = [
   "Développement Web",
   "Ingénieur DevOps",
@@ -276,6 +290,7 @@ const EditOfferPage = ({ route, navigation }) => {
           </TouchableOpacity>
         ))}
       </View>
+
       {locationError ? <Text style={styles.errorText}>{locationError}</Text> : null}
 
       <Text style={styles.label}>Compétences requises :</Text>
