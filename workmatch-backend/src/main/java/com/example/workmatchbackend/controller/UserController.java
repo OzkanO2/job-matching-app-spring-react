@@ -45,6 +45,7 @@ public class UserController {
     public UserController(MatchService matchService) {
         this.matchService = matchService;
     }
+
     @Autowired
     public UserController(UserService userService,
                           JwtUtil jwtUtil,
@@ -89,7 +90,7 @@ public class UserController {
         }
 
         User user = optionalUser.get();
-        user.setSkills(skills); // ✅ types compatibles maintenant
+        user.setSkills(skills); //types compatibles maintenant
         userRepository.save(user);
 
         return ResponseEntity.ok("Skills updated successfully");
@@ -97,13 +98,13 @@ public class UserController {
     @DeleteMapping("/user/{id}")
     public ResponseEntity<String> deleteUser(@PathVariable String id) {
         userService.deleteUserWithCascade(id);
-        return ResponseEntity.ok("🗑️ Utilisateur supprimé avec cascade.");
+        return ResponseEntity.ok("Utilisateur supprimé avec cascade.");
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteUserWithCascade(@PathVariable String id) {
         userService.deleteUserWithCascade(id);
-        return ResponseEntity.ok("✅ Utilisateur supprimé avec cascade !");
+        return ResponseEntity.ok("Utilisateur supprimé avec cascade !");
     }
 
     @GetMapping("/id/{id}")
@@ -111,13 +112,13 @@ public class UserController {
         Optional<User> userOptional = userService.getUserById(id);
 
         if (userOptional.isEmpty()) {
-            System.out.println("❌ Utilisateur non trouvé !");
+            System.out.println("Utilisateur non trouvé !");
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Utilisateur non trouvé");
         }
 
         User user = userOptional.get();
 
-        System.out.println("📡 Données utilisateur envoyées : " + user.getPreferredCategories());
+        System.out.println("Données utilisateur envoyées : " + user.getPreferredCategories());
 
         return ResponseEntity.ok(user);
     }
@@ -175,8 +176,6 @@ public class UserController {
         }
     }
 
-
-
     @PostMapping("/like-job-offer")
     public ResponseEntity<?> likeJobOffer(@RequestBody Map<String, String> payload) {
 
@@ -185,24 +184,24 @@ public class UserController {
         String companyId = payload.get("companyId");
 
         if (swiperId == null || swipedId == null || companyId == null) {
-            return ResponseEntity.badRequest().body("❌ swiperId, swipedId et companyId sont requis.");
+            return ResponseEntity.badRequest().body("swiperId, swipedId et companyId sont requis.");
         }
 
-        System.out.println("📥 Requête reçue avec:");
-        System.out.println("🔹 swiperId: " + swiperId);
-        System.out.println("🔹 swipedId: " + swipedId);
-        System.out.println("🔹 companyId: " + companyId);
+        System.out.println("Requête reçue avec:");
+        System.out.println("swiperId: " + swiperId);
+        System.out.println("swipedId: " + swipedId);
+        System.out.println("companyId: " + companyId);
 
         Like like = likeService.saveLike(swiperId, swipedId, companyId);
 
-        return ResponseEntity.ok("✅ Like enregistré: " + like);
+        return ResponseEntity.ok("Like enregistré: " + like);
     }
 
     @PostMapping("/register")
     public ResponseEntity<?> registerUser(@RequestBody User user) {
         System.out.println("Registering user: " + user.getEmail());
 
-        // ✅ Vérification du format de l'email
+        //Vérification du format de l'email
         List<String> allowedDomains = Arrays.asList("gmail.com", "hotmail.com", "yahoo.com", "outlook.com", "protonmail.com");
         String email = user.getEmail();
         if (!email.contains("@") || email.split("@").length != 2) {
@@ -214,32 +213,31 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Allowed domains are: " + String.join(", ", allowedDomains));
         }
 
-        // ✅ Vérifier si l'email existe déjà
+        //Vérifier si l'email existe déjà
         if (userService.existsByEmail(user.getEmail())) {
             return ResponseEntity.status(HttpStatus.CONFLICT).body("Email already in use.");
         }
 
-        // ✅ Hachage du mot de passe
+        //Hachage du mot de passe
         user.setPassword(passwordEncoder.encode(user.getPassword()));
 
-        // ✅ Sauvegarde de l'utilisateur
+        //Sauvegarde de l'utilisateur
         User savedUser = userService.saveUser(user);
 
-        // **Créer un JobSearcher si l'utilisateur est un INDIVIDUAL**
-        // **Créer un JobSearcher si l'utilisateur est un INDIVIDUAL**
+        //Créer un JobSearcher si l'utilisateur est un INDIVIDUAL
         if (savedUser.getUserType() == UserType.INDIVIDUAL) {
             ObjectId userIdObject;
             try {
-                userIdObject = new ObjectId(savedUser.getId()); // ✅ Conversion propre de String à ObjectId
+                userIdObject = new ObjectId(savedUser.getId()); //Conversion propre de String à ObjectId
             } catch (IllegalArgumentException e) {
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                         .body("Erreur : Impossible de convertir l'ID utilisateur en ObjectId.");
             }
 
             JobSearcher jobSearcher = new JobSearcher(
-                    userIdObject, // ✅ Passe l'ObjectId
-                    savedUser.getUsername(), // ✅ Nom
-                    savedUser.getUsername(), // ✅ Username = Nom
+                    userIdObject,
+                    savedUser.getUsername(),
+                    savedUser.getUsername(),
                     savedUser.getEmail(),
                     new ArrayList<>(),
                     0,
@@ -249,13 +247,10 @@ public class UserController {
             );
 
             jobSearcherRepository.save(jobSearcher);
-            System.out.println("✅ JobSearcher créé avec userId: " + userIdObject.toHexString());
+            System.out.println("JobSearcher créé avec userId: " + userIdObject.toHexString());
         }
-
-
         return ResponseEntity.status(HttpStatus.CREATED).body(savedUser);
     }
-
 
     @PostMapping("/updateUserType")
     public ResponseEntity<?> updateUserType(@RequestBody User user) {
@@ -271,9 +266,6 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
         }
     }
-
-
-
 
     @GetMapping("/{username}")
     public User getUserInfo(@PathVariable String username) {
@@ -342,13 +334,12 @@ public class UserController {
 
         if (swiperId == null || swipedId == null || companyId == null) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body("❌ swiperId, swipedId et companyId sont requis.");
+                    .body("swiperId, swipedId et companyId sont requis.");
         }
 
         Like savedLike = likeService.saveLike(swiperId, swipedId, companyId);
         return ResponseEntity.status(HttpStatus.CREATED).body(savedLike);
     }
-
 
     @GetMapping("/matches/{userId}")
     public List<Match> getMatchesForUser(@PathVariable String userId) {
@@ -359,9 +350,6 @@ public class UserController {
     @PostMapping("/logout")
     public ResponseEntity<?> logoutUser(@RequestBody Map<String, String> tokenMap) {
         String token = tokenMap.get("token");
-
-        // Optionnel : Ajouter le token à une liste de révocation ou à un cache pour le rendre invalide
-        // revokeToken(token); // Implémentez cette méthode pour invalider le token (par exemple, stocker dans une base de données)
 
         return ResponseEntity.ok("Successfully logged out");
     }
@@ -376,24 +364,23 @@ public class UserController {
 
         User user = userOptional.get();
 
-        if (user.getUserType() == UserType.COMPANY) { // ✅ Comparaison correcte avec enum
+        if (user.getUserType() == UserType.COMPANY) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Les entreprises ne peuvent pas modifier leurs préférences !");
         }
 
         List<String> newCategories = requestBody.get("preferredCategories");
 
-        System.out.println("📡 Mise à jour des préférences pour l'utilisateur ID : " + userId);
-        System.out.println("📂 Nouvelles catégories avant mise à jour : " + newCategories);
+        System.out.println("Mise à jour des préférences pour l'utilisateur ID : " + userId);
+        System.out.println("Nouvelles catégories avant mise à jour : " + newCategories);
 
         user.setPreferredCategories(newCategories);
         userRepository.save(user);
 
-        System.out.println("✅ Préférences mises à jour en base !");
+        System.out.println("Préférences mises à jour en base !");
 
         User updatedUser = userRepository.findById(userId).orElse(null);
-        System.out.println("🔍 Vérification après mise à jour : " + (updatedUser != null ? updatedUser.getPreferredCategories() : "Utilisateur introuvable"));
+        System.out.println("Vérification après mise à jour : " + (updatedUser != null ? updatedUser.getPreferredCategories() : "Utilisateur introuvable"));
 
         return ResponseEntity.ok("Préférences mises à jour avec succès !");
     }
-
 }

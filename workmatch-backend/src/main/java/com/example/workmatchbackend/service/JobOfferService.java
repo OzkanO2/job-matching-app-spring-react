@@ -63,16 +63,16 @@ public class JobOfferService {
         return jobOfferRepository.findByExternalId(externalId).orElse(null);
     }
     public List<JobOffer> getJobOffersByCompanyId(String companyId) {
-        logger.info("🔍 Recherche des offres pour companyId: {}", companyId);
+        logger.info("Recherche des offres pour companyId: {}", companyId);
 
         try {
             ObjectId companyObjectId = new ObjectId(companyId);
             List<JobOffer> jobOffers = jobOfferRepository.findByCompanyId(companyObjectId);
 
-            logger.info("📊 Nombre d'offres trouvées : {}", jobOffers.size());
+            logger.info("Nombre d'offres trouvées : {}", jobOffers.size());
             return jobOffers;
         } catch (IllegalArgumentException e) {
-            logger.error("❌ Format incorrect pour companyId : {}", companyId, e);
+            logger.error("Format incorrect pour companyId : {}", companyId, e);
             return List.of();
         }
     }
@@ -86,13 +86,13 @@ public class JobOfferService {
     private LikeRepository likeRepository;
 
     public void deleteJobOfferAndDependencies(String jobOfferId) {
-        // 1. Supprimer l’offre d’emploi
+        //Supprimer l’offre d’emploi
         jobOfferRepository.deleteById(jobOfferId);
 
-        // 2. Supprimer les swipes contenant l’offre
+        //Supprimer les swipes contenant l’offre
         swipedCardRepository.deleteBySwiperIdOrSwipedIdOrJobOfferId(jobOfferId, jobOfferId, jobOfferId);
 
-        // 3. Supprimer les likes liés à cette offre
+        //Supprimer les likes liés à cette offre
         likeRepository.deleteBySwiperIdOrSwipedIdOrCompanyIdOrOfferId(jobOfferId, jobOfferId, jobOfferId, jobOfferId);
     }
 

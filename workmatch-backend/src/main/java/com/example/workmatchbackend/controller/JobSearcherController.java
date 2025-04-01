@@ -54,36 +54,36 @@ public class JobSearcherController {
         }
     }
 
-    @PutMapping("/{userId}/updateUser")  // ✅ Changement du nom de l'endpoint
+    @PutMapping("/{userId}/updateUser")
     public ResponseEntity<?> updateUser(@PathVariable String userId,
                                         @RequestBody JobSearcher jobSearcher) {
         System.out.println("📥 Requête reçue pour mettre à jour l'utilisateur : " + userId);
 
-        // ✅ Vérifier si le JobSearcher existe
+        //Vérifier si le JobSearcher existe
         Optional<JobSearcher> existingJobSearcher = jobSearcherService.findByUserId(new ObjectId(userId));
 
         if (existingJobSearcher.isPresent()) {
             JobSearcher updatedJobSearcher = existingJobSearcher.get();
 
-            // ✅ Mise à jour des skills
+            //Mise à jour des skills
             updatedJobSearcher.setSkills(jobSearcher.getSkills());
 
-            // ✅ Mise à jour du remote (true / false)
+            //Mise à jour du remote (true / false)
             updatedJobSearcher.setRemote(jobSearcher.isRemote());
 
-            // ✅ Mise à jour des villes sélectionnées
+            //Mise à jour des villes sélectionnées
             updatedJobSearcher.setLocations(jobSearcher.getLocations());
 
             if (jobSearcher.getSalaryMin() > jobSearcher.getSalaryMax()) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                        .body("❌ Erreur: Le salaire minimum ne peut pas être supérieur au salaire maximum !");
+                        .body("Erreur: Le salaire minimum ne peut pas être supérieur au salaire maximum !");
             }
             updatedJobSearcher.setSalaryMin(jobSearcher.getSalaryMin());
             updatedJobSearcher.setSalaryMax(jobSearcher.getSalaryMax());
 
-            // ✅ Sauvegarde en base de données
+            //Sauvegarde en base de données
             jobSearcherService.saveJobSearcher(updatedJobSearcher);
-            System.out.println("✅ Utilisateur mis à jour avec succès !");
+            System.out.println("Utilisateur mis à jour avec succès !");
 
             return ResponseEntity.ok(updatedJobSearcher);
         } else {

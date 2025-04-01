@@ -34,7 +34,7 @@ public class LikeService {
     private MatchService matchService;
 
     public Like saveLike(String swiperId, String swipedId, String companyId) {
-        return saveLike(swiperId, swipedId, companyId, "", false); // ✅ isFromRedirection = false par défaut
+        return saveLike(swiperId, swipedId, companyId, "", false);
     }
     public boolean checkMatch(String user1Id, String user2Id) {
         boolean user1LikedUser2 = likeRepository.existsBySwiperIdAndSwipedId(user1Id, user2Id);
@@ -54,16 +54,16 @@ public class LikeService {
     }
 
     public Like saveLike(String swiperId, String swipedId, String companyId, String offerId, boolean isFromRedirection) {
-        System.out.println("📌 [saveLike] swiperId reçu: " + swiperId);
-        System.out.println("📌 [saveLike] swipedId reçu: " + swipedId);
-        System.out.println("📌 [saveLike] companyId reçu: " + companyId);
-        System.out.println("📌 [saveLike] offerId reçu: " + offerId);
-        System.out.println("📌 [saveLike] isFromRedirection: " + isFromRedirection);
+        System.out.println("swiperId reçu: " + swiperId);
+        System.out.println("swipedId reçu: " + swipedId);
+        System.out.println("companyId reçu: " + companyId);
+        System.out.println("offerId reçu: " + offerId);
+        System.out.println("isFromRedirection: " + isFromRedirection);
 
         Like like = new Like(swiperId, swipedId, companyId, offerId, isFromRedirection);
         likeRepository.save(like);
 
-        System.out.println("✅ [saveLike] Like enregistré avec ID: " + like.getId());
+        System.out.println("Like enregistré avec ID: " + like.getId());
         matchService.checkAndCreateMatch(swiperId, swipedId, companyId);
 
         return like;
@@ -71,7 +71,6 @@ public class LikeService {
 
     private String resolveUserId(String id) {
         Optional<JobSearcher> jobSearcher = jobSearcherRepository.findById(id);
-        return jobSearcher.map(js -> js.getUserId().toHexString()).orElse(id); // ✅ Conversion propre
+        return jobSearcher.map(js -> js.getUserId().toHexString()).orElse(id);
     }
-
 }

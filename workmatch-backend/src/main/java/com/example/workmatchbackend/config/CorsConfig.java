@@ -14,10 +14,10 @@ public class CorsConfig {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/**") // Autorise toutes les routes
-                        .allowedOrigins("*") // ⚠️ Autoriser tous les domaines
+                        .allowedOrigins("*") // Autorise tous les domaines
                         .allowedMethods("*")  // Autorise tous les types de requêtes (GET, POST, PUT, DELETE, etc.)
                         .allowedHeaders("*")  // Autorise tous les headers
-                        .allowCredentials(false); // ❌ On désactive les credentials pour éviter le conflit avec "*"
+                        .allowCredentials(false); // On désactive les credentials pour éviter le conflit avec "*"
             }
         };
     }

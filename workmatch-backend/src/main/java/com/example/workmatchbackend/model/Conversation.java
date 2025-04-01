@@ -19,7 +19,6 @@ public class Conversation {
         this.messages = new ArrayList<>();
     }
 
-    // ✅ Getters et Setters
     public String getId() { return id; }
     public String getUser1Id() { return user1Id; }
     public String getUser2Id() { return user2Id; }

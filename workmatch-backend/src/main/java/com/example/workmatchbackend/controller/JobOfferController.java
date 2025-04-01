@@ -45,7 +45,7 @@ public class JobOfferController {
     private UserRepository userRepository;
 
     @Autowired
-    private JobOfferRepository jobOfferRepository; // ✅ Injection correcte du repository
+    private JobOfferRepository jobOfferRepository;
 
     @Autowired
     private MatchService matchService;
@@ -68,7 +68,7 @@ public class JobOfferController {
         logger.info("Creating a new job offer.");
 
         if (jobOffer.getCreatedAt() == null) {
-            jobOffer.setCreatedAt(LocalDate.now()); // ✅ Ajout d'une date de création si absente
+            jobOffer.setCreatedAt(LocalDate.now());
         }
 
         JobOffer savedJobOffer = jobOfferService.saveJobOffer(jobOffer);
@@ -84,14 +84,14 @@ public class JobOfferController {
 
     @PostMapping("/like")
     public ResponseEntity<?> likeOffer(@RequestBody Map<String, String> payload) {
-        System.out.println("📩 Requête reçue : " + payload);
+        System.out.println("Requête reçue : " + payload);
 
         String swiperId = payload.get("swiperId");
         String swipedId = payload.get("swipedId");
         String companyId = payload.get("companyId");
 
         if (swiperId == null || swipedId == null || companyId == null) {
-            return ResponseEntity.badRequest().body("❌ swiperId, swipedId et companyId sont requis.");
+            return ResponseEntity.badRequest().body("swiperId, swipedId et companyId sont requis.");
         }
 
         Like savedLike = likeService.saveLike(swiperId, swipedId, companyId);
@@ -107,18 +107,18 @@ public class JobOfferController {
     @PostMapping("/match/save")
     public ResponseEntity<String> saveMatch(@RequestBody Match match) {
         matchService.saveMatch(match.getIndividualUserId(), match.getCompanyUserId(), match.getJobOfferId());
-        return ResponseEntity.ok("✅ Match enregistré avec succès.");
+        return ResponseEntity.ok("Match enregistré avec succès.");
     }
     @GetMapping("/company/{companyId}")
     public ResponseEntity<List<JobOffer>> getJobOffersByCompany(@PathVariable String companyId) {
-        logger.info("📌 Requête reçue pour récupérer les offres de l'entreprise avec companyId: {}", companyId);
+        logger.info("Requête reçue pour récupérer les offres de l'entreprise avec companyId: {}", companyId);
 
         List<JobOffer> jobOffers = jobOfferService.getJobOffersByCompanyId(companyId);
 
         if (jobOffers.isEmpty()) {
-            logger.warn("⚠️ Aucune offre trouvée pour companyId: {}", companyId);
+            logger.warn("⚠Aucune offre trouvée pour companyId: {}", companyId);
         } else {
-            logger.info("✅ {} offres trouvées pour companyId: {}", jobOffers.size(), companyId);
+            logger.info("{} offres trouvées pour companyId: {}", jobOffers.size(), companyId);
         }
 
         return ResponseEntity.ok(jobOffers);
@@ -154,6 +154,7 @@ public class JobOfferController {
 
         return ResponseEntity.ok(filteredJobOffers);
     }
+
     @PutMapping("/{id}")
     public ResponseEntity<JobOffer> updateJobOffer(@PathVariable String id, @RequestBody JobOffer updatedOffer) {
         Optional<JobOffer> existingOfferOpt = jobOfferService.getJobOfferById(id);

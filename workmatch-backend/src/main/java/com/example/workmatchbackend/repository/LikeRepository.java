@@ -15,7 +15,7 @@ public interface LikeRepository extends MongoRepository<Like, String> {
     boolean existsBySwiperIdAndOfferId(String swiperId, String offerId);
 
     Optional<Like> findBySwiperIdAndSwipedId(String swiperId, String swipedId);
-    List<Like> findBySwipedId(String swipedId); // Récupère les likes par swipedId
+    List<Like> findBySwipedId(String swipedId);
     List<Like> findBySwiperId(String swiperId);
 
     List<Like> findAllBySwiperIdAndCompanyId(String swiperId, String companyId);
@@ -27,5 +27,4 @@ public interface LikeRepository extends MongoRepository<Like, String> {
 
     void deleteBySwiperIdAndSwipedId(String swiperId, String swipedId);
     void deleteBySwiperIdOrSwipedIdOrCompanyIdOrOfferId(String swiperId, String swipedId, String companyId, String offerId);
-
 }

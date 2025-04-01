@@ -4,7 +4,7 @@ public class Skill {
     private String name;
     private int experience;
 
-    public Skill() {} // Nécessaire pour la désérialisation JSON
+    public Skill() {}
 
     public Skill(String name, int experience) {
         this.name = name;

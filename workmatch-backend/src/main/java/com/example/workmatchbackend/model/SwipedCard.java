@@ -10,8 +10,8 @@ public class SwipedCard {
     private String swiperId;
     private String swipedId;
     private String direction;
-    private String jobOfferId; // Ajout du champ
-    private boolean isFromRedirection; // ✅ Nouveau champ
+    private String jobOfferId;
+    private boolean isFromRedirection;
 
     public SwipedCard(String swiperId, String swipedId, String direction, String jobOfferId, boolean isFromRedirection) {
         this.swiperId = swiperId;

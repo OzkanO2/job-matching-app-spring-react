@@ -41,6 +41,7 @@ public class JobOffer {
 
     @NotNull(message = "Employment Type is required")
     private String employmentType;
+
     @Field(name = "createdAt")
     private LocalDate createdAt;
 
@@ -132,6 +133,7 @@ public class JobOffer {
     public void setSkills(List<Skill> skills) {
         this.skills = skills;
     }
+
     @JsonProperty("companyId")
     public String getCompanyIdString() {
         return companyId != null ? companyId.toHexString() : null;
@@ -140,6 +142,7 @@ public class JobOffer {
     public ObjectId getCompanyId() {
         return companyId;
     }
+
     public void setCompanyId(ObjectId companyId) {
         this.companyId = companyId;
     }

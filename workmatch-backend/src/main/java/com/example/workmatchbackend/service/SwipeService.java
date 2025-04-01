@@ -14,7 +14,7 @@ import org.bson.types.ObjectId;
 public class SwipeService {
 
     @Autowired
-    private SwipedCardRepository swipedCardRepository;  // ✅ Injection correcte
+    private SwipedCardRepository swipedCardRepository;
     @Autowired
     private JobOfferRepository jobOfferRepository;
 
@@ -28,20 +28,22 @@ public class SwipeService {
 
         if (!exists) {
             swipedCardRepository.save(swipe);
-            System.out.println("✅ Swipe enregistré avec succès !");
+            System.out.println("Swipe enregistré avec succès !");
         } else {
-            System.out.println("🟡 Swipe déjà enregistré pour cette offre.");
+            System.out.println("Swipe déjà enregistré pour cette offre.");
         }
     }
     public void deleteAllBySwiperId(String swiperId) {
         swipedCardRepository.deleteBySwiperId(swiperId);
     }
+
     public void deleteAllByJobOfferIds(List<String> offerIds) {
         for (String offerId : offerIds) {
             swipedCardRepository.deleteByJobOfferId(offerId); // Swipes faits pour l'offre
             swipedCardRepository.deleteBySwipedId(offerId);   // Swipes où l'offre est la cible
         }
     }
+
     public void deleteAllBySwipedId(String swipedId) {
         swipedCardRepository.deleteBySwipedId(swipedId);
     }
@@ -55,8 +57,8 @@ public class SwipeService {
             swipedCardRepository.deleteByJobOfferId(offer.getId());
         }
     }
+
     public void deleteSwipesBySwipedId(String swipedId) {
         swipedCardRepository.deleteBySwipedId(swipedId);
     }
-
 }

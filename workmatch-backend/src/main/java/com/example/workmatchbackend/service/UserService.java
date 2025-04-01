@@ -48,6 +48,7 @@ public class UserService {
     public User saveUser(User user) {
         return userRepository.save(user);
     }
+
     @Autowired
     private SwipeService swipeService;
 
@@ -65,9 +66,11 @@ public class UserService {
     public boolean existsByEmail(String email) {
         return userRepository.existsByEmail(email);
     }
+
     public Optional<User> getUserByUsername(String username) {
         return Optional.ofNullable(userRepository.findByUsername(username));
     }
+
     public void deleteCompanyUserById(String id) {
         try {
             Optional<User> optionalUser = userRepository.findById(id);
@@ -82,30 +85,29 @@ public class UserService {
 
                 jobOfferService.deleteAllByCompanyId(user.getId());
 
-                // 🔥 AJOUT ICI : suppression des matchs
                 matchRepository.deleteAll(
                         matchRepository.findByIndividualUserIdOrCompanyUserId(id, id)
                 );
-                // 🔥 Supprimer toutes les conversations contenant cet utilisateur
+
                 List<Conversation> conversationsToDelete = conversationRepository.findByUser1IdOrUser2Id(id, id);
                 if (!conversationsToDelete.isEmpty()) {
                     conversationRepository.deleteAll(conversationsToDelete);
-                    System.out.println("🗑️ " + conversationsToDelete.size() + " conversation(s) supprimée(s) pour l'utilisateur " + id);
+                    System.out.println(conversationsToDelete.size() + " conversation(s) supprimée(s) pour l'utilisateur " + id);
                 } else {
-                    System.out.println("⚠️ Aucune conversation trouvée pour l'utilisateur " + id);
+                    System.out.println("Aucune conversation trouvée pour l'utilisateur " + id);
                 }
-                // 🔥 Supprimer tous les messages liés à cet utilisateur
+                //Supprimer tous les messages liés à cet utilisateur
                 messageRepository.deleteAllBySenderIdOrReceiverId(id, id);
-                System.out.println("🗑️ Messages supprimés où l'utilisateur est sender ou receiver.");
+                System.out.println("Messages supprimés où l'utilisateur est sender ou receiver.");
 
                 likeRepository.deleteAllBySwiperIdOrSwipedIdOrCompanyId(id, id, id);
 
                 userRepository.deleteById(id);
-                System.out.println("✅ Utilisateur supprimé avec toutes ses données !");
+                System.out.println("Utilisateur supprimé avec toutes ses données !");
             }
         } catch (Exception e) {
-            System.out.println("❌ Erreur lors de la suppression de l'utilisateur : " + e.getMessage());
-            e.printStackTrace(); // 👉 très important pour voir la vraie erreur dans la console
+            System.out.println("Erreur lors de la suppression de l'utilisateur : " + e.getMessage());
+            e.printStackTrace();
         }
     }
     @Autowired
@@ -117,45 +119,46 @@ public class UserService {
             if (optionalUser.isPresent()) {
                 User user = optionalUser.get();
 
-                System.out.println("➡️ Début suppression INDIVIDUAL user : " + id);
+                System.out.println("Début suppression INDIVIDUAL user : " + id);
 
-// AVANT le call
+                //AVANT le call
                 System.out.println("⛏️  Appel jobSearcherService.deleteByUserId()...");
-                jobSearcherService.deleteByUserId(user.getId()); // ObjectId logique
-                System.out.println("✅ Fin suppression jobSearcher");
+                jobSearcherService.deleteByUserId(user.getId());
+                System.out.println("Fin suppression jobSearcher");
 
-                // 🔥 Supprimer les swipes
+                //Supprimer les swipes
                 swipedCardService.deleteAllBySwiperId(id);
                 swipedCardService.deleteAllBySwipedId(id); // ajoute cette méthode dans SwipeService si besoin
 
-                // 🔥 Supprimer les likes
+                //Supprimer les likes
                 likeRepository.deleteAllBySwiperIdOrSwipedIdOrCompanyId(id, id, null);
 
-                // 🔥 Supprimer les matchs
+                //Supprimer les matchs
                 matchRepository.deleteAll(
                         matchRepository.findByIndividualUserIdOrCompanyUserId(id, id)
                 );
 
-                // 🔥 Supprimer les conversations
+                //Supprimer les conversations
                 List<Conversation> conversationsToDelete = conversationRepository.findByUser1IdOrUser2Id(id, id);
                 if (!conversationsToDelete.isEmpty()) {
                     conversationRepository.deleteAll(conversationsToDelete);
                     System.out.println("🗑️ " + conversationsToDelete.size() + " conversation(s) supprimée(s) pour l'utilisateur " + id);
                 }
 
-                // 🔥 Supprimer les messages
+                //Supprimer les messages
                 messageRepository.deleteAllBySenderIdOrReceiverId(id, id);
-                System.out.println("🗑️ Messages supprimés où l'utilisateur est sender ou receiver.");
+                System.out.println("Messages supprimés où l'utilisateur est sender ou receiver.");
 
-                // 🔥 Supprimer le User
+                //Supprimer le User
                 userRepository.deleteById(id);
-                System.out.println("✅ Utilisateur INDIVIDUAL supprimé avec toutes ses données !");
+                System.out.println("Utilisateur INDIVIDUAL supprimé avec toutes ses données !");
             }
         } catch (Exception e) {
-            System.out.println("❌ Erreur lors de la suppression de l'utilisateur INDIVIDUAL : " + e.getMessage());
+            System.out.println("Erreur lors de la suppression de l'utilisateur INDIVIDUAL : " + e.getMessage());
             e.printStackTrace();
         }
     }
+
     public void deleteUserWithCascade(String id) {
         Optional<User> optionalUser = userRepository.findById(id);
         if (optionalUser.isPresent()) {
@@ -166,10 +169,10 @@ public class UserService {
             } else if (user.getUserType().equals(UserType.COMPANY)) {
                 deleteCompanyUserById(id);
             } else {
-                System.out.println("❌ Type d'utilisateur inconnu !");
+                System.out.println("Type d'utilisateur inconnu !");
             }
         } else {
-            System.out.println("❌ Utilisateur introuvable !");
+            System.out.println("Utilisateur introuvable !");
         }
     }
 
@@ -181,10 +184,9 @@ public class UserService {
 
         if (!matchesToDelete.isEmpty()) {
             matchRepository.deleteAll(matchesToDelete);
-            System.out.println("🗑️ " + matchesToDelete.size() + " match(s) supprimé(s) pour l'utilisateur " + userId);
+            System.out.println(matchesToDelete.size() + " match(s) supprimé(s) pour l'utilisateur " + userId);
         } else {
-            System.out.println("⚠️ Aucun match trouvé à supprimer pour l'utilisateur " + userId);
+            System.out.println("Aucun match trouvé à supprimer pour l'utilisateur " + userId);
         }
     }
-
 }

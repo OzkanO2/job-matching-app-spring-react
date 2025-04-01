@@ -36,7 +36,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
         String authorizationHeader = request.getHeader("Authorization");
 
         if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
-            System.out.println("🚨 JWT Token manquant ou mal formé !");
+            System.out.println("JWT Token manquant ou mal formé !");
             filterChain.doFilter(request, response);
             return;
         }
@@ -57,7 +57,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
                 }
             }
         } catch (Exception e) {
-            System.out.println("⚠️ Erreur JWT : " + e.getMessage());
+            System.out.println("Erreur JWT : " + e.getMessage());
         }
 
         filterChain.doFilter(request, response);

@@ -10,7 +10,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import org.bson.types.ObjectId;
 import java.util.ArrayList;
 
-@Document(collection = "jobSearchers") // Assurez-vous que le nom de la collection est correct.
+@Document(collection = "jobSearchers")
 public class JobSearcher {
     @Id
     private ObjectId id;
@@ -30,7 +30,7 @@ public class JobSearcher {
     public JobSearcher(ObjectId userId, String name, String username, String email, List<Skill> skills, int salaryMin, int salaryMax, boolean remote, List<String> locations) {
         this.userId = userId;
         this.name = name;
-        this.username = username; // ✅ Ajout du username
+        this.username = username;
         this.email = email;
         this.skills = skills;
         this.salaryMin = salaryMin;
@@ -39,8 +39,7 @@ public class JobSearcher {
         this.locations = locations;
     }
 
-
-    @Transient // Ce champ ne sera PAS stocké en base
+    @Transient
     @JsonIgnore
     private double matchingScore;
 
@@ -53,10 +52,12 @@ public class JobSearcher {
 
     public void setSalaryMin(int salaryMin) {
         this.salaryMin = salaryMin;
-    }public int getSalaryMax() {
+    }
+    public int getSalaryMax() {
         return salaryMax;
     }
-    @JsonProperty("userId") // 🔥 Cela force la sérialisation correcte en JSON
+
+    @JsonProperty("userId")
     public String getUserIdAsString() {
         return userId != null ? userId.toHexString() : null;
     }
@@ -81,11 +82,11 @@ public class JobSearcher {
     public ObjectId getUserId() {
         return userId;
     }
-    @JsonProperty("matchingScore") // 🔥 S'assure que le score est inclus dans la réponse JSON
+
+    @JsonProperty("matchingScore")
     public double getMatchingScore() {
         return matchingScore;
     }
-
 
     public void setMatchingScore(double matchingScore) {
         this.matchingScore = matchingScore;

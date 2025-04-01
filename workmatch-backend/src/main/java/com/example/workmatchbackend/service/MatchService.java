@@ -25,8 +25,10 @@ public class MatchService {
 
     @Autowired
     private JobOfferRepository jobOfferRepository;
+
     @Autowired
     private ConversationRepository conversationRepository;
+
     @Autowired
     private JobSearcherRepository jobSearcherRepository;
 
@@ -37,7 +39,7 @@ public class MatchService {
     public void saveMatch(String swiperId, String swipedId, String offerId) {
         Match match = new Match(swiperId, swipedId, offerId);
         matchRepository.save(match);
-        System.out.println("✅ Match enregistré entre " + swiperId + " et " + swipedId + " pour l'offre " + offerId);
+        System.out.println("Match enregistré entre " + swiperId + " et " + swipedId + " pour l'offre " + offerId);
     }
 
     private String resolveUserId(String swipedId) {
@@ -46,13 +48,13 @@ public class MatchService {
     }
 
     public boolean checkIfMatchExists(String userId1, String userId2) {
-        System.out.println("📌 checkIfMatchExists() appelé !");
-        System.out.println("➡️ Vérification du match entre " + userId1 + " et " + userId2);
+        System.out.println("checkIfMatchExists() appelé !");
+        System.out.println("Vérification du match entre " + userId1 + " et " + userId2);
 
         boolean matchExists = matchRepository.existsByIndividualUserIdAndCompanyUserId(userId1, userId2) ||
                 matchRepository.existsByIndividualUserIdAndCompanyUserId(userId2, userId1);
 
-        System.out.println("📌 Match existe dans la BDD ? " + matchExists);
+        System.out.println("Match existe dans la BDD ? " + matchExists);
         return matchExists;
     }
 
@@ -62,7 +64,7 @@ public class MatchService {
         String companyUserId = null;
 
         if (companyId == null || companyId.isEmpty()) {
-            // 🔍 On regarde si le jobseeker (swipedId) a liké une offre de la company (swiperId)
+            //On regarde si le jobseeker (swipedId) a liké une offre de la company (swiperId)
             List<Like> likesByJobSeeker = likeRepository.findAllBySwiperId(swipedId);
             isMutualLike = likesByJobSeeker.stream()
                     .anyMatch(like -> swiperId.equals(like.getCompanyId())); // match sur companyId
@@ -72,7 +74,7 @@ public class MatchService {
                 companyUserId = swiperId;
             }
         } else {
-            // 🔍 Ici on vérifie si la company (companyId) a liké ce jobseeker (swiperId)
+            //Ici on vérifie si la company (companyId) a liké ce jobseeker (swiperId)
             Optional<Like> companyLike = likeRepository.findBySwiperIdAndSwipedId(companyId, swiperId);
             if (companyLike.isPresent()) {
                 isMutualLike = true;
@@ -88,7 +90,7 @@ public class MatchService {
             if (!matchExists) {
                 Match match = new Match(individualUserId, companyUserId);
                 matchRepository.save(match);
-                System.out.println("✅ Match créé entre " + individualUserId + " et " + companyUserId);
+                System.out.println("Match créé entre " + individualUserId + " et " + companyUserId);
             }
 
             boolean conversationExists = conversationRepository.existsByUser1IdAndUser2Id(individualUserId, companyUserId) ||
@@ -97,10 +99,10 @@ public class MatchService {
             if (!conversationExists) {
                 Conversation conversation = new Conversation(individualUserId, companyUserId);
                 conversationRepository.save(conversation);
-                System.out.println("✅ Conversation créée entre " + individualUserId + " et " + companyUserId);
+                System.out.println("Conversation créée entre " + individualUserId + " et " + companyUserId);
             }
         } else {
-            System.out.println("⚠️ Aucun like mutuel détecté entre " + swiperId + " et " + swipedId);
+            System.out.println("Aucun like mutuel détecté entre " + swiperId + " et " + swipedId);
         }
     }
     public void checkAndCreateMatchAfterCompanyLike(String companyUserId, String candidateUserId) {
@@ -116,7 +118,7 @@ public class MatchService {
             if (!matchExists) {
                 Match match = new Match(candidateUserId, companyUserId);
                 matchRepository.save(match);
-                System.out.println("✅ Nouveau match créé entre " + candidateUserId + " et " + companyUserId);
+                System.out.println("Nouveau match créé entre " + candidateUserId + " et " + companyUserId);
             }
 
             // Vérifie si la conversation existe déjà
@@ -125,11 +127,10 @@ public class MatchService {
 
             if (!convExists) {
                 conversationRepository.save(new Conversation(candidateUserId, companyUserId));
-                System.out.println("💬 Conversation créée !");
+                System.out.println("Conversation créée !");
             }
         } else {
-            System.out.println("⚠️ Pas encore de like du candidat vers l'entreprise.");
+            System.out.println("Pas encore de like du candidat vers l'entreprise.");
         }
     }
-
 }

@@ -23,6 +23,6 @@ public interface JobOfferRepository extends MongoRepository<JobOffer, String> {
     List<JobOffer> findByCompanyId(ObjectId companyId);
     List<JobOffer> findAllByCompanyId(ObjectId companyId);
 
-    void deleteByCompanyId(ObjectId companyId); // 👈 ajoute celle-ci si elle n'y est pas
+    void deleteByCompanyId(ObjectId companyId);
 
 }

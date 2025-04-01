@@ -18,7 +18,7 @@ public class User {
     private List<Skill> skills;
     private UserType userType;
 
-    private List<String> preferredCategories = new ArrayList<>(); // ✅ Assure-toi que l'ArrayList est bien utilisé
+    private List<String> preferredCategories = new ArrayList<>();
 
     public User() {}
 

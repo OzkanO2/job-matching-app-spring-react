@@ -11,7 +11,6 @@ public class ChatRoom {
     private List<User> participants;
     private List<Message> messages;
 
-    // Getters and Setters
     public String getId() {
         return id;
     }

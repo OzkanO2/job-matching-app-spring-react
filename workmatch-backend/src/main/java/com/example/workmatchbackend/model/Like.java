@@ -14,7 +14,6 @@ public class Like {
     private String offerId;
     private boolean isFromRedirection;
 
-
     public Like() {}
 
     public Like(String swiperId, String swipedId, String companyId, String offerId, boolean isFromRedirection) {
@@ -42,4 +41,4 @@ public class Like {
     public void setCompanyId(String companyId) { this.companyId = companyId; }
     public void setOfferId(String offerId) { this.offerId = offerId; }
     public void setIsFromRedirection(boolean isFromRedirection) { this.isFromRedirection = isFromRedirection; }
-                                                                                    }
+}

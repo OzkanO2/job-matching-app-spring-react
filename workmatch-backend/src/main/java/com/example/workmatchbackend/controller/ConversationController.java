@@ -16,18 +16,19 @@ public class ConversationController {
 
     @Autowired
     private ConversationRepository conversationRepository;
+
     @Autowired
     private MessageRepository messageRepository;
 
     @GetMapping("/{userId}")
     public List<Conversation> getUserConversations(@PathVariable String userId) {
-        System.out.println("📌 Requête reçue pour récupérer les conversations de l'utilisateur: " + userId);
+        System.out.println("Requête reçue pour récupérer les conversations de l'utilisateur: " + userId);
         return conversationRepository.findByUser1IdOrUser2Id(userId, userId);
     }
 
     @PostMapping("/create")
     public Conversation createConversation(@RequestBody Conversation conversation) {
-        System.out.println("✅ Création d'une nouvelle conversation entre "
+        System.out.println("Création d'une nouvelle conversation entre "
                 + conversation.getUser1Id() + " et " + conversation.getUser2Id());
         return conversationRepository.save(conversation);
     }
@@ -36,7 +37,7 @@ public class ConversationController {
     public boolean checkConversationExists(@PathVariable String user1Id, @PathVariable String user2Id) {
         boolean exists = conversationRepository.existsByUser1IdAndUser2Id(user1Id, user2Id)
                 || conversationRepository.existsByUser1IdAndUser2Id(user2Id, user1Id);
-        System.out.println("📌 Vérification d'existence entre " + user1Id + " et " + user2Id + ": " + exists);
+        System.out.println("Vérification d'existence entre " + user1Id + " et " + user2Id + ": " + exists);
         return exists;
     }
 

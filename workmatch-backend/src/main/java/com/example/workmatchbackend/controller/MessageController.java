@@ -20,10 +20,10 @@ public class MessageController {
 
     @PostMapping("/send")
     public ResponseEntity<Message> sendMessage(@RequestBody Message messageDetails) {
-        System.out.println("📩 Message reçu : " + messageDetails);
+        System.out.println("Message reçu : " + messageDetails);
 
         if (messageDetails.getSenderId() == null || messageDetails.getReceiverId() == null) {
-            System.out.println("❌ Erreur : senderId ou receiverId est null");
+            System.out.println("Erreur : senderId ou receiverId est null");
             return ResponseEntity.badRequest().build();
         }
 
@@ -36,7 +36,7 @@ public class MessageController {
         );
 
         Message savedMessage = messageRepository.save(message);
-        System.out.println("✅ Message sauvegardé : " + savedMessage);
+        System.out.println("Message sauvegardé : " + savedMessage);
         return ResponseEntity.ok(savedMessage);
     }
 

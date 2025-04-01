@@ -39,31 +39,31 @@ public class SwipeController {
             @PathVariable String swiperId,
             @PathVariable String jobOfferId) {
 
-        System.out.println("✅ Début API filteredJobSearchers avec swiperId : " + swiperId + " et jobOfferId : " + jobOfferId);
+        System.out.println("Début API filteredJobSearchers avec swiperId : " + swiperId + " et jobOfferId : " + jobOfferId);
 
-        // ✅ Récupérer les swipes "left" pour cette offre
+        //Récupérer les swipes "left" pour cette offre
         List<SwipedCard> leftSwipesForOffer = swipedCardRepository.findBySwipedIdAndDirection(jobOfferId, "left");
 
-        // ✅ Extraire les `swiperId` (ceux qui ont swipé cette offre à gauche)
+        //Extraire les `swiperId` (ceux qui ont swipé cette offre à gauche)
         List<String> swipedUserIdsForOffer = leftSwipesForOffer.stream()
-                .map(SwipedCard::getSwiperId)  // 🛠 Ici on prend swiperId car c'est l'utilisateur qui a swipé
+                .map(SwipedCard::getSwiperId)  //Ici on prend swiperId car c'est l'utilisateur qui a swipé
                 .collect(Collectors.toList());
 
-        System.out.println("❌ Candidats ayant swipé cette offre à gauche (userId) : " + swipedUserIdsForOffer);
+        System.out.println("Candidats ayant swipé cette offre à gauche (userId) : " + swipedUserIdsForOffer);
 
-        // ✅ Récupérer tous les job searchers
+        //Récupérer tous les job searchers
         List<JobSearcher> jobSearchers = jobSearcherRepository.findAll();
 
-        // ✅ Filtrer les candidats
+        //Filtrer les candidats
         List<JobSearcher> filteredJobSearchers = jobSearchers.stream()
                 .filter(jobSearcher -> {
                     String userId = jobSearcher.getUserId().toString();  // 🛠 Convertit ObjectId en String
                     boolean hasSwipedLeftForOffer = swipedUserIdsForOffer.contains(userId);
 
                     if (hasSwipedLeftForOffer) {
-                        System.out.println("❌ Exclusion du candidat : " + jobSearcher.getName() + " | ID: " + userId);
+                        System.out.println("Exclusion du candidat : " + jobSearcher.getName() + " | ID: " + userId);
                     } else {
-                        System.out.println("✅ Conservation du candidat : " + jobSearcher.getName() + " | ID: " + userId);
+                        System.out.println("Conservation du candidat : " + jobSearcher.getName() + " | ID: " + userId);
                     }
 
                     return !hasSwipedLeftForOffer;
@@ -77,23 +77,24 @@ public class SwipeController {
     public ResponseEntity<Map<String, Boolean>> checkCompanySwipe(
             @RequestParam String companyId,
             @RequestParam String userId,
-            @RequestParam String jobOfferId) {  // Ajout de jobOfferId en paramètre
+            @RequestParam String jobOfferId) {
 
         boolean exists = swipedCardRepository.existsBySwiperIdAndSwipedIdAndDirectionAndJobOfferIdAndIsFromRedirection(
-                companyId, userId, "left", jobOfferId, true  // Correction : jobOfferId != "" et isFromRedirection = true
+                companyId, userId, "left", jobOfferId, true
         );
 
         Map<String, Boolean> response = new HashMap<>();
         response.put("exists", exists);
         return ResponseEntity.ok(response);
     }
+
     @GetMapping("/checkCompanySwipeNormal")
     public ResponseEntity<Map<String, Boolean>> checkCompanySwipeNormal(
             @RequestParam String companyId,
             @RequestParam String userId) {
 
         boolean exists = swipedCardRepository.existsBySwiperIdAndSwipedIdAndDirectionAndJobOfferIdAndIsFromRedirection(
-                companyId, userId, "left", "", false  // ✅ JobOfferId vide et isFromRedirection = false
+                companyId, userId, "left", "", false
         );
 
         Map<String, Boolean> response = new HashMap<>();
@@ -105,7 +106,7 @@ public class SwipeController {
         List<JobOffer> companyOffers = jobOfferRepository.findByCompanyId(new ObjectId(companyId));
 
         if (companyOffers.isEmpty()) {
-            System.out.println("❌ Aucune offre trouvée pour l'entreprise : " + companyId);
+            System.out.println("Aucune offre trouvée pour l'entreprise : " + companyId);
             return Collections.emptyMap();
         }
 
@@ -133,13 +134,10 @@ public class SwipeController {
             }
         }
 
-        System.out.println("📊 Nombre de swipes trouvés pour chaque candidat : " + swipeCounts);
+        System.out.println("Nombre de swipes trouvés pour chaque candidat : " + swipeCounts);
         return swipeCounts;
     }
 
-    /**
-                 * 📌 Récupérer les swipes pour une offre spécifique.
-                 */
     @GetMapping("/{swiperId}/{jobOfferId}")
     public ResponseEntity<List<SwipedCard>> getSwipedCardsForOffer(
             @PathVariable String swiperId,
@@ -149,19 +147,13 @@ public class SwipeController {
         return ResponseEntity.ok(swipedCards);
     }
 
-    /**
-     * 📌 Récupérer tous les swipes d'un utilisateur (toutes offres confondues).
-     */
     @GetMapping("/{swiperId}")
     public ResponseEntity<List<SwipedCard>> getSwipedCards(@PathVariable String swiperId) {
         List<SwipedCard> swipedCards = swipedCardRepository.findBySwiperId(swiperId);
-        System.out.println("📌 Swipes trouvés pour " + swiperId + " : " + swipedCards);
+        System.out.println("Swipes trouvés pour " + swiperId + " : " + swipedCards);
         return ResponseEntity.ok(swipedCards);
     }
 
-    /**
-     * 📌 Vérifier si un swipe existe (peu importe l'offre d'emploi).
-     */
     @GetMapping("/check")
     public ResponseEntity<Map<String, Boolean>> checkIfSwiped(
             @RequestParam String swiperId,
@@ -180,18 +172,18 @@ public class SwipeController {
     }
     @GetMapping("/filteredJobSearchersNormal/{swiperId}")
     public ResponseEntity<List<JobSearcher>> getFilteredJobSearchersNormal(@PathVariable String swiperId) {
-        // ✅ Récupérer TOUS les swipes (left et right) où jobOfferId est vide et isFromRedirection est false
+        //Récupérer TOUS les swipes (left et right) où jobOfferId est vide et isFromRedirection est false
         List<SwipedCard> swipedCards = swipedCardRepository.findBySwiperIdAndJobOfferIdAndIsFromRedirection(swiperId, "", false);
 
-        // ✅ Extraire les `swipedId` des candidats déjà swipés
+        //Extraire les `swipedId` des candidats déjà swipés
         List<String> swipedIds = swipedCards.stream()
                 .map(SwipedCard::getSwipedId)
                 .collect(Collectors.toList());
 
-        // ✅ Récupérer tous les job searchers
+        //Récupérer tous les job searchers
         List<JobSearcher> jobSearchers = jobSearcherRepository.findAll();
 
-        // ✅ Filtrer les candidats déjà swipés (que ce soit left OU right)
+        //Filtrer les candidats déjà swipés (que ce soit left OU right)
         List<JobSearcher> filteredJobSearchers = jobSearchers.stream()
                 .filter(jobSearcher -> !swipedIds.contains(jobSearcher.getId()))
                 .collect(Collectors.toList());
@@ -199,37 +191,34 @@ public class SwipeController {
         return ResponseEntity.ok(filteredJobSearchers);
     }
 
-    /**
-     * 📌 Enregistrer un swipe (avec gestion de `jobOfferId` et `isFromRedirection`).
-     */
     @PostMapping("/save")
     public ResponseEntity<String> saveSwipe(@RequestBody Map<String, Object> payload) {
         String swiperId = (String) payload.get("swiperId");
         String swipedId = (String) payload.get("swipedId");
         String direction = (String) payload.get("direction");
-        String jobOfferId = payload.get("jobOfferId") != null ? (String) payload.get("jobOfferId") : "";  // 🔹 Toujours définir une valeur par défaut
+        String jobOfferId = payload.get("jobOfferId") != null ? (String) payload.get("jobOfferId") : "";
         boolean isFromRedirection = payload.containsKey("isFromRedirection") && (boolean) payload.get("isFromRedirection");
 
-        // 🔍 Vérifier que tous les champs sont valides
+        //Vérifier que tous les champs sont valides
         if (swiperId == null || swipedId == null || direction == null) {
-            return ResponseEntity.badRequest().body("❌ swiperId, swipedId et direction sont requis.");
+            return ResponseEntity.badRequest().body("swiperId, swipedId et direction sont requis.");
         }
 
-        // 🔥 Vérifier si un swipe **exactement identique** existe (avec jobOfferId différencié)
+        //Vérifier si un swipe exactement identique existe (avec jobOfferId différencié)
         boolean alreadySwiped = swipedCardRepository.existsBySwiperIdAndSwipedIdAndDirectionAndJobOfferIdAndIsFromRedirection(
                 swiperId, swipedId, direction, jobOfferId, isFromRedirection
         );
 
         if (alreadySwiped) {
-            return ResponseEntity.ok("🟡 Swipe déjà existant pour ce contexte, pas besoin d'ajouter.");
+            return ResponseEntity.ok("Swipe déjà existant pour ce contexte, pas besoin d'ajouter.");
         }
 
-        // ✅ Sauvegarde si c'est un nouveau swipe unique
+        //Sauvegarde si c'est un nouveau swipe unique
         SwipedCard swipe = new SwipedCard(swiperId, swipedId, direction, jobOfferId, isFromRedirection);
         swipedCardRepository.save(swipe);
 
-        System.out.println("✅ Nouveau swipe enregistré : " + swipe);
-        return ResponseEntity.ok("✅ Swipe enregistré !");
+        System.out.println("Nouveau swipe enregistré : " + swipe);
+        return ResponseEntity.ok("Swipe enregistré !");
     }
 
 }

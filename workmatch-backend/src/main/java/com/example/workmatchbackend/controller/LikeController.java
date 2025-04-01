@@ -37,23 +37,23 @@ public class LikeController {
         String swipedId = (String) payload.get("swipedId");
         String companyId = payload.getOrDefault("companyId", "").toString();
         String offerId = payload.getOrDefault("offerId", "").toString();
-        boolean isFromRedirection = false; // ✅ Toujours false pour CompanyHomePage
+        boolean isFromRedirection = false; //Toujours false pour CompanyHomePage
 
         boolean alreadyLiked = likeRepository.existsBySwiperIdAndSwipedId(swiperId, swipedId);
 
         if (alreadyLiked) {
-            return ResponseEntity.badRequest().body("❌ Déjà liké.");
+            return ResponseEntity.badRequest().body("Déjà liké.");
         }
 
-        likeService.saveLike(swiperId, swipedId, companyId, offerId, isFromRedirection); // ✅ Appel correct
-        return ResponseEntity.ok("✅ Offre likée avec succès !");
+        likeService.saveLike(swiperId, swipedId, companyId, offerId, isFromRedirection);
+        return ResponseEntity.ok("Offre likée avec succès !");
     }
 
     @GetMapping
     public ResponseEntity<List<Like>> getLikesBySwipedId(@RequestParam String swipedId) {
         List<Like> likes = likeRepository.findBySwipedId(swipedId);
 
-        return ResponseEntity.ok(likes); // ✅ Retourne une liste vide au lieu d'un 404
+        return ResponseEntity.ok(likes); //Retourne une liste vide au lieu d'un 404
     }
 
     @GetMapping("/likes/{userId}")
@@ -91,7 +91,7 @@ public class LikeController {
     @DeleteMapping("/unlike/{userId}/{offerId}")
     public ResponseEntity<String> unlikeJobOffer(@PathVariable String userId, @PathVariable String offerId) {
         likeRepository.deleteBySwiperIdAndSwipedId(userId, offerId);
-        return ResponseEntity.ok("✅ Like supprimé avec succès !");
+        return ResponseEntity.ok("Like supprimé avec succès !");
     }
     @GetMapping("/liked-candidates/{companyId}")
     public ResponseEntity<List<JobSearcher>> getLikedCandidates(@PathVariable String companyId) {
