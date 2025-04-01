@@ -62,6 +62,16 @@ public class LikeController {
 
         return ResponseEntity.ok(likedOffers);
     }
+    @GetMapping("/liked-offers/{userId}")
+    public ResponseEntity<List<JobOffer>> getLikedOffersByUser(@PathVariable String userId) {
+        List<Like> likes = likeRepository.findBySwiperId(userId);
+        List<String> offerIds = likes.stream()
+                .map(Like::getSwipedId)
+                .collect(Collectors.toList());
+
+        List<JobOffer> offers = jobOfferRepository.findAllById(offerIds);
+        return ResponseEntity.ok(offers);
+    }
 
     @GetMapping("/check/{userId}/{offerId}")
     public ResponseEntity<Boolean> hasUserLikedOffer(@PathVariable String userId, @PathVariable String offerId) {

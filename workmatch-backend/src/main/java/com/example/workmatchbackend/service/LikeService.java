@@ -11,6 +11,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.Optional;
 import org.bson.types.ObjectId;
+import java.util.List;
+import com.example.workmatchbackend.model.JobOffer;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Service
 public class LikeService {
@@ -37,6 +41,16 @@ public class LikeService {
         boolean user2LikedUser1 = likeRepository.existsBySwiperIdAndSwipedId(user2Id, user1Id);
 
         return user1LikedUser2 && user2LikedUser1;
+    }
+    public List<JobOffer> getOffersLikedByUser(String userId) {
+        List<Like> likes = likeRepository.findBySwiperId(userId);
+        List<String> offerIds = likes.stream()
+                .map(Like::getOfferId)
+                .filter(Objects::nonNull)
+                .distinct()
+                .collect(Collectors.toList());
+
+        return jobOfferRepository.findAllById(offerIds);
     }
 
     public Like saveLike(String swiperId, String swipedId, String companyId, String offerId, boolean isFromRedirection) {

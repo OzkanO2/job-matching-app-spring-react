@@ -20,6 +20,7 @@ import ChatRoom from '../pages/chat/ChatRoom';
 import JobOfferDetails from '../pages/offers/JobOfferDetails';
 import EditOfferPage from '../pages/offers/EditOfferPage';
 import ChangePasswordPage from '../pages/profile/ChangePasswordPage';
+import LikedOffersPage from '../pages/liked/LikedOffersPage';
 
 const Stack = createStackNavigator();
 
@@ -163,6 +164,15 @@ function MainStackNavigator() {
           title: 'LikedPage',
         }}
       />
+      <Stack.Screen
+        name="LikedOffersPage"
+        component={LikedOffersPage}
+        options={{
+          headerLeft: () => null,
+          title: 'Liked Offers',
+        }}
+      />
+
       <Stack.Screen
         name="ChatRoom"
         component={ChatRoom}

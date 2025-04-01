@@ -270,8 +270,8 @@ const companyId = swipedJobOffer.companyId?.$oid || swipedJobOffer.companyId || 
                  <Text style={styles.navButtonText}>Chat</Text>
                </TouchableOpacity>
 
-               <TouchableOpacity style={[styles.navButton, { backgroundColor: '#bfdbfe' }]} onPress={() => navigation.navigate('MyOffersPage')}>
-                 <Text style={styles.navButtonText}>My Offers</Text>
+               <TouchableOpacity style={[styles.navButton, { backgroundColor: '#bfdbfe' }]} onPress={() => navigation.navigate('LikedOffersPage')}>
+                 <Text style={styles.navButtonText}>Liked Offers</Text>
                </TouchableOpacity>
 
              </View>

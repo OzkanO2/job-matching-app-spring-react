@@ -75,9 +75,17 @@ const ChatPage = ({ route }) => {
                 <Text style={styles.navButtonText}>Chat</Text>
               </TouchableOpacity>
 
-              <TouchableOpacity style={[styles.navButton, { backgroundColor: '#bfdbfe' }]} onPress={() => navigation.navigate('MyOffersPage')}>
-                <Text style={styles.navButtonText}>My Offers</Text>
-              </TouchableOpacity>
+              {userType === 'COMPANY' && (
+                <TouchableOpacity style={[styles.navButton, { backgroundColor: '#dbeafe' }]} onPress={() => navigation.navigate('LikedPage')}>
+                  <Text style={styles.navButtonText}>Liked Candidates</Text>
+                </TouchableOpacity>
+              )}
+
+              {userType === 'INDIVIDUAL' && (
+                <TouchableOpacity style={[styles.navButton, { backgroundColor: '#dbeafe' }]} onPress={() => navigation.navigate('LikedOffersPage')}>
+                  <Text style={styles.navButtonText}>Liked Offers</Text>
+                </TouchableOpacity>
+              )}
 
               {userType === 'COMPANY' && (
                 <TouchableOpacity style={[styles.navButton, { backgroundColor: '#dbeafe' }]} onPress={() => navigation.navigate('LikedPage')}>
