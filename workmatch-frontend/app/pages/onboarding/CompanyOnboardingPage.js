@@ -6,52 +6,52 @@ import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const CompanyOnboardingPage = ({ navigation, route }) => {
-  const { userInfo } = route.params;
+    const { userInfo } = route.params;
 
-  const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
-  const [titleError, setTitleError] = useState('');
-  const [descriptionError, setDescriptionError] = useState('');
-const [salaryMin, setSalaryMin] = useState(30000);
-const [salaryMax, setSalaryMax] = useState(60000);
-const [salaryError, setSalaryError] = useState('');
-const [employmentType, setEmploymentType] = useState('');
-const [employmentTypeError, setEmploymentTypeError] = useState('');
-const [remote, setRemote] = useState(false);
-const [category, setCategory] = useState('');
-const [categoryError, setCategoryError] = useState('');
-const [selectedLocations, setSelectedLocations] = useState([]);
-const [locationError, setLocationError] = useState('');
-const [selectedSkills, setSelectedSkills] = useState({});
-const [skillsError, setSkillsError] = useState('');
-const allSkills = ["JavaScript", "React", "Node.js", "Python", "Java", "C#", "Ruby", "Swift"];
+    const [title, setTitle] = useState('');
+    const [description, setDescription] = useState('');
+    const [titleError, setTitleError] = useState('');
+    const [descriptionError, setDescriptionError] = useState('');
+    const [salaryMin, setSalaryMin] = useState(30000);
+    const [salaryMax, setSalaryMax] = useState(60000);
+    const [salaryError, setSalaryError] = useState('');
+    const [employmentType, setEmploymentType] = useState('');
+    const [employmentTypeError, setEmploymentTypeError] = useState('');
+    const [remote, setRemote] = useState(false);
+    const [category, setCategory] = useState('');
+    const [categoryError, setCategoryError] = useState('');
+    const [selectedLocations, setSelectedLocations] = useState([]);
+    const [locationError, setLocationError] = useState('');
+    const [selectedSkills, setSelectedSkills] = useState({});
+    const [skillsError, setSkillsError] = useState('');
+    const allSkills = ["JavaScript", "React", "Node.js", "Python", "Java", "C#", "Ruby", "Swift"];
 
-const handleLocationToggle = (location) => {
-  setSelectedLocations((prevLocations) =>
-    prevLocations.includes(location)
-      ? prevLocations.filter((loc) => loc !== location)
-      : [...prevLocations, location]
-  );
-};
-const handleSkillToggle = (skill) => {
-  setSelectedSkills((prevSkills) => {
-    const newSkills = { ...prevSkills };
-    if (newSkills[skill]) {
-      delete newSkills[skill];
-    } else {
-      newSkills[skill] = 1;
-    }
-    return newSkills;
-  });
-};
+    const handleLocationToggle = (location) => {
+      setSelectedLocations((prevLocations) =>
+        prevLocations.includes(location)
+          ? prevLocations.filter((loc) => loc !== location)
+          : [...prevLocations, location]
+      );
+    };
 
-const handleExperienceChange = (skill, value) => {
-  setSelectedSkills((prevSkills) => ({
-    ...prevSkills,
-    [skill]: Math.max(1, prevSkills[skill] + value),
-  }));
-};
+    const handleSkillToggle = (skill) => {
+      setSelectedSkills((prevSkills) => {
+        const newSkills = { ...prevSkills };
+        if (newSkills[skill]) {
+          delete newSkills[skill];
+        } else {
+          newSkills[skill] = 1;
+        }
+        return newSkills;
+      });
+    };
 
+    const handleExperienceChange = (skill, value) => {
+      setSelectedSkills((prevSkills) => ({
+        ...prevSkills,
+        [skill]: Math.max(1, prevSkills[skill] + value),
+      }));
+    };
 
     const validateInputs = () => {
         const titleWithoutSpaces = title.replace(/\s/g, '');
@@ -102,7 +102,6 @@ const handleExperienceChange = (skill, value) => {
           setSkillsError('');
         }
 
-
         return isValid;
       };
 
@@ -117,7 +116,7 @@ const handleExperienceChange = (skill, value) => {
            Alert.alert("Champs requis", "Merci de remplir tous les champs.");
            return;
          }
-const skills = Object.entries(selectedSkills).map(([name, experience]) => ({ name, experience }));
+         const skills = Object.entries(selectedSkills).map(([name, experience]) => ({ name, experience }));
 
          const newOffer = {
            title,
@@ -127,12 +126,10 @@ const skills = Object.entries(selectedSkills).map(([name, experience]) => ({ nam
            salaryMax,
            employmentType,
            remote,
-           category, // ✅
-           locations: selectedLocations, // ✅ Ajouté ici
-           skills, // ✅ ici
-
+           category,
+           locations: selectedLocations,
+           skills,
          };
-
 
          const response = await axios.post(
              'http://localhost:8080/joboffers',
@@ -146,20 +143,20 @@ const skills = Object.entries(selectedSkills).map(([name, experience]) => ({ nam
            );
 
          if (response.status === 201 || response.status === 200) {
-             Alert.alert("✅ Offre créée !", "Votre première offre a été enregistrée.");
+             Alert.alert("Offre créée !", "Votre première offre a été enregistrée.");
              navigation.replace('CompanyHome');
            } else {
-             Alert.alert("❌ Erreur", "Impossible de créer l’offre.");
+             Alert.alert("Erreur", "Impossible de créer l’offre.");
            }
        } catch (error) {
-         console.error('❌ Erreur lors de la création de l\'offre :', error);
+         console.error('Erreur lors de la création de l\'offre :', error);
          Alert.alert("Erreur", "Impossible de créer l'offre.");
        }
      };
-console.log("🎯 userInfo dans CompanyOnboardingPage :", userInfo);
+    console.log("🎯 userInfo dans CompanyOnboardingPage :", userInfo);
 
- return (
-<ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
+    return (
+       <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
        <Text style={styles.headerText}>Bienvenue, {userInfo.username} !</Text>
              <Text style={styles.subText}>Créez votre première offre, vous pourrez en créer d'autres par la suite.</Text>
 
@@ -291,67 +288,67 @@ console.log("🎯 userInfo dans CompanyOnboardingPage :", userInfo);
                   ))}
                 </View>
                 {categoryError ? <Text style={styles.errorText}>{categoryError}</Text> : null}
-<Text style={styles.label}>Villes concernées :</Text>
-    <View style={styles.locationContainer}>
-      {["Paris", "Lyon", "Marseille", "Toulouse", "Nice", "Bordeaux", "Lille", "Nantes"].map((city) => (
-        <TouchableOpacity
-          key={city}
-          style={[
-            styles.locationButton,
-            selectedLocations.includes(city) && styles.selectedLocation,
-          ]}
-          onPress={() => handleLocationToggle(city)}
-        >
-          <Text
-            style={[
-              styles.locationText,
-              selectedLocations.includes(city) && styles.selectedLocationText,
-            ]}
-          >
-            {city}
-          </Text>
-        </TouchableOpacity>
-      ))}
-    </View>
-{locationError ? <Text style={styles.errorText}>{locationError}</Text> : null}
-<Text style={styles.label}>Compétences requises :</Text>
-<View style={styles.skillContainer}>
-  {allSkills.map((skill) => (
-    <View key={skill} style={{ alignItems: "center", marginVertical: 8 }}>
-      <TouchableOpacity
-        onPress={() => handleSkillToggle(skill)}
-        style={[styles.skillButton, selectedSkills[skill] && styles.selectedSkill]}
-      >
-        <Text style={[styles.skillText, selectedSkills[skill] && styles.selectedSkillText]}>
-          {skill}
-        </Text>
-      </TouchableOpacity>
+                <Text style={styles.label}>Villes concernées :</Text>
+                    <View style={styles.locationContainer}>
+                      {["Paris", "Lyon", "Marseille", "Toulouse", "Nice", "Bordeaux", "Lille", "Nantes"].map((city) => (
+                        <TouchableOpacity
+                          key={city}
+                          style={[
+                            styles.locationButton,
+                            selectedLocations.includes(city) && styles.selectedLocation,
+                          ]}
+                          onPress={() => handleLocationToggle(city)}
+                        >
+                          <Text
+                            style={[
+                              styles.locationText,
+                              selectedLocations.includes(city) && styles.selectedLocationText,
+                            ]}
+                          >
+                            {city}
+                          </Text>
+                        </TouchableOpacity>
+                      ))}
+                    </View>
+                    {locationError ? <Text style={styles.errorText}>{locationError}</Text> : null}
+                    <Text style={styles.label}>Compétences requises :</Text>
+                    <View style={styles.skillContainer}>
+                      {allSkills.map((skill) => (
+                        <View key={skill} style={{ alignItems: "center", marginVertical: 8 }}>
+                          <TouchableOpacity
+                            onPress={() => handleSkillToggle(skill)}
+                            style={[styles.skillButton, selectedSkills[skill] && styles.selectedSkill]}
+                          >
+                            <Text style={[styles.skillText, selectedSkills[skill] && styles.selectedSkillText]}>
+                              {skill}
+                            </Text>
+                          </TouchableOpacity>
 
-      {selectedSkills[skill] && (
-        <View style={styles.experienceContainer}>
-          <TouchableOpacity onPress={() => handleExperienceChange(skill, -1)}>
-            <Ionicons name="remove-circle-outline" size={24} color="#6c757d" />
-          </TouchableOpacity>
-          <Text style={styles.experienceValue}>{selectedSkills[skill]} years</Text>
-          <TouchableOpacity onPress={() => handleExperienceChange(skill, 1)}>
-            <Ionicons name="add-circle-outline" size={24} color="#6c757d" />
-          </TouchableOpacity>
-        </View>
-      )}
+                          {selectedSkills[skill] && (
+                            <View style={styles.experienceContainer}>
+                              <TouchableOpacity onPress={() => handleExperienceChange(skill, -1)}>
+                                <Ionicons name="remove-circle-outline" size={24} color="#6c757d" />
+                              </TouchableOpacity>
+                              <Text style={styles.experienceValue}>{selectedSkills[skill]} years</Text>
+                              <TouchableOpacity onPress={() => handleExperienceChange(skill, 1)}>
+                                <Ionicons name="add-circle-outline" size={24} color="#6c757d" />
+                              </TouchableOpacity>
+                            </View>
+                          )}
+                        </View>
+    ))}
     </View>
-  ))}
-</View>
-{skillsError ? <Text style={styles.errorText}>{skillsError}</Text> : null}
+    {skillsError ? <Text style={styles.errorText}>{skillsError}</Text> : null}
 
-             <Button title="Soumettre l'offre" onPress={handleSubmit} />
-           </ScrollView>
+     <Button title="Soumettre l'offre" onPress={handleSubmit} />
+   </ScrollView>
    );
 };
 
 
 const styles = StyleSheet.create({
   container: {
-    padding: 12,  paddingBottom: 40, // pour l'espace tout en bas
+    padding: 12,  paddingBottom: 40,
 
     backgroundColor: '#fff',
   },

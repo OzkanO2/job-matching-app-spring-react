@@ -148,7 +148,7 @@ const ChatPage = ({ route }) => {
                                 prev.filter(c => c.conversationId !== item.conversationId)
                               );
                             } catch (err) {
-                              console.error("❌ Erreur suppression conversation :", err);
+                              console.error("Erreur suppression conversation :", err);
                             }
                           }}
                         >
@@ -166,7 +166,7 @@ const ChatPage = ({ route }) => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: "#0f172a", // ancien : "#f9f9f9"
+        backgroundColor: "#0f172a",
         padding: 10,
     },
 
@@ -178,22 +178,22 @@ const styles = StyleSheet.create({
     title: {
         fontSize: 20,
         fontWeight: "bold",
-        color: "#ffffff", // 👈 texte blanc
+        color: "#ffffff",
         padding: 10,
         textAlign: "center",
     },
 conversationItem: {
     padding: 15,
     borderBottomWidth: 1,
-    borderBottomColor: "#475569", // ligne douce gris bleuté
-    backgroundColor: "#1e293b", // fond carte sombre
+    borderBottomColor: "#475569",
+    backgroundColor: "#1e293b",
     marginBottom: 6,
     borderRadius: 10,
 },
     username: {
         fontSize: 16,
         fontWeight: "bold",
-        color: "#ffffff", // 👈 texte blanc
+        color: "#ffffff",
     },
     navButton: {
       backgroundColor: '#1e3a8a',
@@ -215,7 +215,7 @@ conversationItem: {
     },
 deleteButton: {
   padding: 10,
-  backgroundColor: "#dc2626", // rouge
+  backgroundColor: "#dc2626",
   borderRadius: 8,
   marginLeft: 10,
   alignSelf: "center",

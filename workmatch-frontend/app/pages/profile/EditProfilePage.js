@@ -85,11 +85,11 @@ const EditProfilePage = () => {
             />
 
             <TouchableOpacity style={styles.button} onPress={handleSave}>
-              <Text style={styles.buttonText}>💾 Save</Text>
+              <Text style={styles.buttonText}>Save</Text>
             </TouchableOpacity>
 
             <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('ChangePasswordPage')}>
-              <Text style={styles.buttonText}>🔒 Change Password</Text>
+              <Text style={styles.buttonText}>Change Password</Text>
             </TouchableOpacity>
 
             <TouchableOpacity style={styles.button} onPress={() => navigation.goBack()}>

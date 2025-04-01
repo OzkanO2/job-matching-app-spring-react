@@ -2,17 +2,17 @@ import React, { useEffect, useState } from 'react';
 import { Image, Button, View, Text, StyleSheet, ScrollView,TextInput,Alert,TouchableOpacity}from 'react-native';// ✅ AJOUTE CECI } from 'react-native';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import axios from 'axios';
-import AsyncStorage from '@react-native-async-storage/async-storage'; // ✅ Correction de l'import d'AsyncStorage
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { CheckBox } from 'react-native-elements';
 import { Ionicons } from '@expo/vector-icons';
-import { Picker } from '@react-native-picker/picker'; // 🔹 ajoute ça en haut si ce n’est pas déjà fait
+import { Picker } from '@react-native-picker/picker';
 
 const ProfilePage = () => {
     const navigation = useNavigation();
     const [userInfo, setUserInfo] = useState(null);
     const [userType, setUserType] = useState('');
     const [selectedCategories, setSelectedCategories] = useState([]);
-    const [tempSelectedCategories, setTempSelectedCategories] = useState([]);  // 🔹 Stocke les choix temporaires
+    const [tempSelectedCategories, setTempSelectedCategories] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const [skills, setSkills] = useState({});
     const [skillsSuccess, setSkillsSuccess] = useState(false);
@@ -20,7 +20,7 @@ const ProfilePage = () => {
     const [isRemotePreferred, setIsRemotePreferred] = useState(false);
     const [remoteSuccess, setRemoteSuccess] = useState(false);
     const [selectedLocations, setSelectedLocations] = useState([]);
-    const [locationDropdowns, setLocationDropdowns] = useState(1); // au moins 1 visible
+    const [locationDropdowns, setLocationDropdowns] = useState(1);
     const [locationSuccess, setLocationSuccess] = useState(false);
 
     const addLocationDropdown = () => {
@@ -62,41 +62,39 @@ const ProfilePage = () => {
       updated.splice(index, 1);
       setSelectedLocations(updated);
     };
-const saveAllPreferencesToBackend = async () => {
-  try {
-    const token = await AsyncStorage.getItem('userToken');
-    const userId = await AsyncStorage.getItem('userId');
+    const saveAllPreferencesToBackend = async () => {
+      try {
+        const token = await AsyncStorage.getItem('userToken');
+        const userId = await AsyncStorage.getItem('userId');
 
-    const headers = {
-      Authorization: `Bearer ${token}`,
+        const headers = {
+          Authorization: `Bearer ${token}`,
+        };
+        const updatedData = {
+          skills: Object.entries(skills).map(([name, experience]) => ({ name, experience })),
+          locations: selectedLocations.filter(loc => loc !== ""),
+          remote: isRemotePreferred
+        };
+        console.log("Payload envoyé :", updatedData);
+
+        await axios.put(`http://localhost:8080/jobsearchers/${userId}/updateUser`, updatedData, {
+          headers
+        });
+
+        setSkillsSuccess(true);
+        setLocationSuccess(true);
+        setRemoteSuccess(true);
+
+        setTimeout(() => {
+          setSkillsSuccess(false);
+          setLocationSuccess(false);
+          setRemoteSuccess(false);
+        }, 3000);
+
+      } catch (err) {
+        console.error("❌ Erreur globale d'enregistrement :", err);
+      }
     };
-    const updatedData = {
-      skills: Object.entries(skills).map(([name, experience]) => ({ name, experience })),
-      locations: selectedLocations.filter(loc => loc !== ""),
-      remote: isRemotePreferred
-    };
-    console.log("📦 Payload envoyé :", updatedData);
-
-    // 2. Un seul PUT avec tout en une fois
-    await axios.put(`http://localhost:8080/jobsearchers/${userId}/updateUser`, updatedData, {
-      headers
-    });
-
-    // ✅ Success message
-    setSkillsSuccess(true);
-    setLocationSuccess(true);
-    setRemoteSuccess(true);
-
-    setTimeout(() => {
-      setSkillsSuccess(false);
-      setLocationSuccess(false);
-      setRemoteSuccess(false);
-    }, 3000);
-
-  } catch (err) {
-    console.error("❌ Erreur globale d'enregistrement :", err);
-  }
-};
 
     const saveSkillsToBackend = async () => {
       try {
@@ -109,8 +107,6 @@ const saveAllPreferencesToBackend = async () => {
         }, {
           headers: { Authorization: `Bearer ${token}` }
         });
-
-
         setSkillsSuccess(true);
         setTimeout(() => setSkillsSuccess(false), 3000);
 
@@ -125,9 +121,9 @@ const saveAllPreferencesToBackend = async () => {
             const token = await AsyncStorage.getItem('userToken');
             const userId = await AsyncStorage.getItem('userId');
 
-            console.log("📡 Envoi des préférences à l'API...");
-            console.log("👤 UserID :", userId);
-            console.log("📂 Catégories enregistrées :", tempSelectedCategories);
+            console.log("Envoi des préférences à l'API...");
+            console.log("UserID :", userId);
+            console.log("Catégories enregistrées :", tempSelectedCategories);
 
             const response = await axios.put(
                 `http://localhost:8080/users/${userId}/preferences`,
@@ -137,52 +133,51 @@ const saveAllPreferencesToBackend = async () => {
                 }
             );
 
-            console.log("✅ Réponse API :", response.data);
+            console.log("Réponse API :", response.data);
 
             setSelectedCategories([...tempSelectedCategories]);
             alert("Vos préférences ont été enregistrées avec succès !");
         } catch (error) {
-            console.error("❌ Erreur lors de la sauvegarde des préférences :", error);
+            console.error("Erreur lors de la sauvegarde des préférences :", error);
         }
     };
 
-const saveLocationToBackend = async () => {
-  try {
-    const token = await AsyncStorage.getItem('userToken');
-    const userId = await AsyncStorage.getItem('userId');
+    const saveLocationToBackend = async () => {
+      try {
+        const token = await AsyncStorage.getItem('userToken');
+        const userId = await AsyncStorage.getItem('userId');
 
-    await axios.put(`http://localhost:8080/jobsearchers/${userId}/updateUser`, {
-      locations: selectedLocations.filter(loc => loc !== "") // retire les vides
-    }, {
-      headers: { Authorization: `Bearer ${token}` }
-    });
+        await axios.put(`http://localhost:8080/jobsearchers/${userId}/updateUser`, {
+          locations: selectedLocations.filter(loc => loc !== "") // retire les vides
+        }, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
 
-    setLocationSuccess(true);
-    setTimeout(() => setLocationSuccess(false), 3000);
-  } catch (err) {
-    console.error("❌ Erreur enregistrement localisation :", err);
-  }
-};
+        setLocationSuccess(true);
+        setTimeout(() => setLocationSuccess(false), 3000);
+      } catch (err) {
+        console.error("Erreur enregistrement localisation :", err);
+      }
+    };
 
-const saveRemoteToBackend = async () => {
-  try {
-    const token = await AsyncStorage.getItem('userToken');
-    const userId = await AsyncStorage.getItem('userId');
+    const saveRemoteToBackend = async () => {
+      try {
+        const token = await AsyncStorage.getItem('userToken');
+        const userId = await AsyncStorage.getItem('userId');
 
-    await axios.put(`http://localhost:8080/jobsearchers/${userId}/updateUser`, {
-      remote: isRemotePreferred
-    }, {
-      headers: { Authorization: `Bearer ${token}` }
-    });
+        await axios.put(`http://localhost:8080/jobsearchers/${userId}/updateUser`, {
+          remote: isRemotePreferred
+        }, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
 
-    setRemoteSuccess(true);
-    setTimeout(() => setRemoteSuccess(false), 3000); // ✅ Reset après 3 sec
+        setRemoteSuccess(true);
+        setTimeout(() => setRemoteSuccess(false), 3000);
 
-  } catch (err) {
-    console.error("❌ Erreur télétravail:", err);
-  }
-};
-
+      } catch (err) {
+        console.error("Erreur télétravail:", err);
+      }
+    };
 
     useEffect(() => {
         const fetchUserData = async () => {
@@ -201,38 +196,36 @@ const saveRemoteToBackend = async () => {
                 const userId = await AsyncStorage.getItem('userId');
 
                 if (!token || !userId) {
-                    console.error("❌ No token or userId found");
+                    console.error("No token or userId found");
                     return;
                 }
 
-                console.log("📡 Récupération des préférences utilisateur...");
+                console.log("Récupération des préférences utilisateur...");
 
                 const response = await axios.get(`http://localhost:8080/users/id/${userId}`, {
                     headers: { Authorization: `Bearer ${token}` },
                 });
 
                 const userData = response.data;
-                console.log("✅ Données utilisateur récupérées :", userData);
+                console.log("Données utilisateur récupérées :", userData);
 
                 if (userData.preferredCategories) {
-                    console.log("🎯 Préférences chargées :", userData.preferredCategories);
-                    setSelectedCategories(userData.preferredCategories); // ✅ Mise à jour correcte
+                    console.log("Préférences chargées :", userData.preferredCategories);
+                    setSelectedCategories(userData.preferredCategories);
                     setTempSelectedCategories(userData.preferredCategories);
                 } else {
-                    console.warn("⚠️ Aucune préférence trouvée en base.");
+                    console.warn("Aucune préférence trouvée en base.");
                 }
 
                 setIsLoading(false);
             } catch (error) {
-                console.error("❌ Erreur lors de la récupération des préférences :", error);
+                console.error("Erreur lors de la récupération des préférences :", error);
                 setIsLoading(false);
             }
         };
 
-
         fetchUserPreferences();
     }, [navigation]);
-
 
     useEffect(() => {
         const fetchUserType = async () => {
@@ -251,12 +244,11 @@ const saveRemoteToBackend = async () => {
             console.log("Nom d'utilisateur récupéré:", username);
 
             if (!token || !username || !userId) {
-              throw new Error('❌ Token, username ou userId manquant');
+              throw new Error('Token, username ou userId manquant');
             }
 
             const bearerToken = `${token}`;
 
-            // 🔹 Récupération des données User
             const userResponse = await axios.get(`http://localhost:8080/users/${username}`, {
               headers: {
                 Authorization: bearerToken,
@@ -265,16 +257,15 @@ const saveRemoteToBackend = async () => {
 
             const userData = userResponse.data;
             setUserInfo(userData);
-            console.log("📥 Infos User:", userData);
+            console.log("Infos User:", userData);
 
-            // 🔹 Récupération des compétences depuis JobSearcher
             try {
               const jobSearcherRes = await axios.get(`http://localhost:8080/jobsearchers/${userId}`, {
                 headers: { Authorization: bearerToken }
               });
 
               const jobSearcher = jobSearcherRes.data;
-              console.log("🎓 Compétences reçues depuis JobSearcher:", jobSearcher.skills);
+              console.log("Compétences reçues depuis JobSearcher:", jobSearcher.skills);
 
               if (jobSearcher.skills && Array.isArray(jobSearcher.skills)) {
                   const formatted = {};
@@ -289,13 +280,12 @@ const saveRemoteToBackend = async () => {
                     setSelectedLocations(jobSearcher.locations);
                   }
 
-                  // ✅ ICI tu ajoutes :
                   if (typeof jobSearcher.remote === 'boolean') {
                     setIsRemotePreferred(jobSearcher.remote);
                   }
 
             } catch (error) {
-              console.error("❌ Erreur lors de la récupération des compétences JobSearcher:", error);
+              console.error("Erreur lors de la récupération des compétences JobSearcher:", error);
             }
           };
 
@@ -391,7 +381,7 @@ const saveRemoteToBackend = async () => {
         {userType === 'INDIVIDUAL' && (
           <>
             <View style={styles.categorySection}>
-              <Text style={styles.sectionTitle}>🔎 Offres recherchées</Text>
+              <Text style={styles.sectionTitle}>Offres recherchées</Text>
               <View style={styles.categoriesContainer}>
                 {categories.map((category) => (
                   <CheckBox
@@ -439,7 +429,7 @@ const saveRemoteToBackend = async () => {
             </View>
 
             <View style={{ marginTop: 20 }}>
-              <Text style={styles.sectionTitle}>📍 Localisation préférée</Text>
+              <Text style={styles.sectionTitle}> Localisation préférée</Text>
 
               {selectedLocations.map((loc, index) => (
                 <View key={index} style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 10 }}>
@@ -471,7 +461,7 @@ const saveRemoteToBackend = async () => {
 
 
             <View style={{ marginTop: 20 }}>
-              <Text style={styles.sectionTitle}>🏠 Télétravail accepté ?</Text>
+              <Text style={styles.sectionTitle}>Télétravail accepté ?</Text>
 
               <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 10 }}>
                 <TouchableOpacity
@@ -488,14 +478,14 @@ const saveRemoteToBackend = async () => {
                   <Text style={!isRemotePreferred ? styles.toggleTextSelected : styles.toggleText}>Non</Text>
                 </TouchableOpacity>
               </View>
-<View style={{ marginTop: 20 }}>
-  <Button title="💾 Enregistrer mes préférences" onPress={saveAllPreferencesToBackend} />
-  {(skillsSuccess || remoteSuccess || locationSuccess) && (
-    <Text style={{ color: 'green', marginTop: 6 }}>
-      ✅ Préférences mises à jour avec succès !
-    </Text>
-  )}
-</View>
+        <View style={{ marginTop: 20 }}>
+          <Button title="💾 Enregistrer mes préférences" onPress={saveAllPreferencesToBackend} />
+          {(skillsSuccess || remoteSuccess || locationSuccess) && (
+            <Text style={{ color: 'green', marginTop: 6 }}>
+              ✅ Préférences mises à jour avec succès !
+            </Text>
+          )}
+        </View>
 
             </View>
           </>
@@ -619,12 +609,12 @@ const styles = StyleSheet.create({
 ,
 scroll: {
   flex: 1,
-  backgroundColor: '#0f172a', // Ajoute cette ligne si absente
+  backgroundColor: '#0f172a',
 },
 scrollContainer: {
   paddingBottom: 100,
   paddingHorizontal: 10,
-  backgroundColor: '#0f172a', // Ajoute cette ligne si absente
+  backgroundColor: '#0f172a',
 },
 bottomActions: {
   padding: 10,

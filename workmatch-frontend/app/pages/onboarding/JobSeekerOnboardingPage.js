@@ -16,8 +16,8 @@ const JobSeekerOnboardingPage = ({ navigation, route }) => {
 
   // État pour stocker les compétences sélectionnées et leur expérience
   const [selectedSkills, setSelectedSkills] = useState({});
-  const [isRemote, setIsRemote] = useState(false); // ✅ Ajout du remote toggle
-  const [selectedLocations, setSelectedLocations] = useState([]); // ✅ Ajout pour les villes
+  const [isRemote, setIsRemote] = useState(false); // Ajout du remote toggle
+  const [selectedLocations, setSelectedLocations] = useState([]); // Ajout pour les villes
 const [salaryMin, setSalaryMin] = useState(30000);
   const [salaryMax, setSalaryMax] = useState(60000);
 
@@ -53,39 +53,39 @@ const [salaryMin, setSalaryMin] = useState(30000);
       }
     });
   };
-const handleSalaryChange = (type, amount) => {
-    if (type === "min") {
-      setSalaryMin((prev) => Math.max(10000, Math.min(prev + amount, salaryMax - 1000)));
-    } else {
-      setSalaryMax((prev) => Math.max(salaryMin + 1000, prev + amount));
-    }
-  };
+    const handleSalaryChange = (type, amount) => {
+        if (type === "min") {
+          setSalaryMin((prev) => Math.max(10000, Math.min(prev + amount, salaryMax - 1000)));
+        } else {
+          setSalaryMax((prev) => Math.max(salaryMin + 1000, prev + amount));
+        }
+      };
   // Fonction pour soumettre les données
   const handleSubmit = async () => {
     try {
       if (!userInfo.id) {
-        console.error("❌ Erreur : userInfo.id est undefined !");
+        console.error("Erreur : userInfo.id est undefined !");
         alert("User ID is missing. Please try again.");
         return;
       }
 
-      // ✅ Transformation des compétences en JSON correct
+      // Transformation des compétences en JSON correct
       const formattedSkills = Object.entries(selectedSkills).map(([skill, experience]) => ({
         name: skill,
         experience,
       }));
 
-      // ✅ Vérification du JSON avant envoi
-      console.log("📤 Envoi des données :", JSON.stringify({
+      // Vérification du JSON avant envoi
+      console.log("Envoi des données :", JSON.stringify({
       skills: formattedSkills,
       remote: isRemote,
-      locations: selectedLocations, // ✅ Envoi des villes sélectionnées
+      locations: selectedLocations, // Envoi des villes sélectionnées
         salaryMin,
         salaryMax
       }));
 
       const response = await axios.put(
-        `http://localhost:8080/jobsearchers/${userInfo.id}/updateUser`, // ✅ Nouveau endpoint
+        `http://localhost:8080/jobsearchers/${userInfo.id}/updateUser`, // Nouveau endpoint
                 { skills: formattedSkills, remote: isRemote, locations: selectedLocations, salaryMin, salaryMax },
 
         {
@@ -96,7 +96,7 @@ const handleSalaryChange = (type, amount) => {
         }
       );
 
-      console.log("✅ User data updated successfully!", response.data);
+      console.log("User data updated successfully!", response.data);
 
       await AsyncStorage.setItem("userType", userInfo.userType);
       await AsyncStorage.setItem("userId", userInfo.id);
@@ -107,7 +107,7 @@ const handleSalaryChange = (type, amount) => {
         navigation.replace("CompanyHome", { userInfo });
       }
     } catch (error) {
-      console.error("❌ Failed to update user data:", error.response ? error.response.data : error);
+      console.error("Failed to update user data:", error.response ? error.response.data : error);
       alert("Failed to update user data. Please try again.");
     }
   };
@@ -121,7 +121,6 @@ const handleSalaryChange = (type, amount) => {
         keyExtractor={(item) => item}
         renderItem={({ item }) => (
           <View style={styles.skillContainer}>
-            {/* Bouton de sélection de compétence */}
             <TouchableOpacity
               onPress={() => handleSkillToggle(item)}
               style={[styles.skillButton, selectedSkills[item] && styles.selectedSkill]}
@@ -131,7 +130,6 @@ const handleSalaryChange = (type, amount) => {
               </Text>
             </TouchableOpacity>
 
-            {/* Sélection de l'expérience si le skill est choisi */}
             {selectedSkills[item] && (
               <View style={styles.experienceContainer}>
                 <TouchableOpacity onPress={() => handleExperienceChange(item, -1)}>
@@ -149,7 +147,6 @@ const handleSalaryChange = (type, amount) => {
         )}
       />
 
-      {/* ✅ Toggle Remote Work */}
       <View style={styles.remoteContainer}>
         <Text style={styles.remoteText}>Remote:</Text>
         <TouchableOpacity
@@ -160,7 +157,6 @@ const handleSalaryChange = (type, amount) => {
         </TouchableOpacity>
       </View>
 
- {/* ✅ Dropdown pour les villes */}
       <Text style={styles.title}>Select Locations:</Text>
       <FlatList
         data={availableLocations}
@@ -186,7 +182,7 @@ const handleSalaryChange = (type, amount) => {
                   <Ionicons name="add-circle-outline" size={24} color="#6c757d" />
                 </TouchableOpacity>
               </View>
-<View style={styles.salaryContainer}>
+        <View style={styles.salaryContainer}>
         <Text>Max Salary:</Text>
         <TouchableOpacity onPress={() => handleSalaryChange("max", -1000)}>
           <Ionicons name="remove-circle-outline" size={24} color="#6c757d" />
@@ -203,7 +199,6 @@ const handleSalaryChange = (type, amount) => {
   );
 };
 
-// 🎨 **Styles améliorés**
 const styles = StyleSheet.create({
   container: {
     flex: 1,

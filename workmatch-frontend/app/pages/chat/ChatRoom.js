@@ -34,7 +34,7 @@ const ChatRoom = () => {
 
                 const token = await AsyncStorage.getItem('userToken');
 
-                // 🔄 Mettre les IDs dans l'ordre lexicographique
+                //Mettre les IDs dans l'ordre lexicographique
                 const [id1, id2] = [storedUserId, matchedUserId].sort();
 
                 console.log("📡 [fetchMatchInfo] Récupération des raisons du match entre", id1, "et", id2);
@@ -44,10 +44,10 @@ const ChatRoom = () => {
                     { headers: { Authorization: `Bearer ${token}` } }
                 );
 
-                console.log("✅ [fetchMatchInfo] Données reçues :", response.data);
+                console.log("Données reçues :", response.data);
                 setMatchInfo(response.data);
             } catch (error) {
-                console.error("❌ Erreur lors de la récupération des raisons du match :", error);
+                console.error("Erreur lors de la récupération des raisons du match :", error);
             } finally {
                 setLoading(false);
             }
@@ -68,7 +68,7 @@ const ChatRoom = () => {
                 setUserId(storedUserId);
                 setReceiverId(storedReceiverId);
             } catch (error) {
-                console.error("❌ Erreur lors de la récupération des identifiants :", error);
+                console.error("Erreur lors de la récupération des identifiants :", error);
             }
         };
 
@@ -86,7 +86,7 @@ const ChatRoom = () => {
                 });
                 setMessages(response.data);
             } catch (error) {
-                console.error("❌ Erreur chargement messages :", error);
+                console.error("Erreur chargement messages :", error);
             }
         };
 
@@ -103,17 +103,17 @@ const ChatRoom = () => {
         stomp.debug = null;
 
         stomp.connect({}, () => {
-            console.log("✅ Connecté au WebSocket");
+            console.log("Connecté au WebSocket");
 
             stomp.subscribe(`/topic/messages/${conversationId}`, (message) => {
                 const receivedMessage = JSON.parse(message.body);
-                console.log("📩 Message reçu en WebSocket :", receivedMessage);
+                console.log("Message reçu en WebSocket :", receivedMessage);
                 setMessages((prev) => [...prev, receivedMessage]);
             });
 
             setStompClient(stomp);
         }, (error) => {
-            console.error("❌ Erreur connexion WebSocket :", error);
+            console.error("Erreur connexion WebSocket :", error);
         });
 
         return () => {
@@ -123,7 +123,7 @@ const ChatRoom = () => {
 
     const sendMessage = async () => {
         if (!newMessage.trim() || !userId || !receiverId) {
-            console.error("❌ Impossible d'envoyer le message : userId ou receiverId manquant.");
+            console.error("Impossible d'envoyer le message : userId ou receiverId manquant.");
             return;
         }
 
@@ -134,13 +134,13 @@ const ChatRoom = () => {
             content: newMessage,
         };
 
-        console.log("📩 Message envoyé via WebSocket :", message);
+        console.log("Message envoyé via WebSocket :", message);
 
         if (stompClient && stompClient.connected) {
             stompClient.send(`/app/send/${conversationId}`, {}, JSON.stringify(message));
-            console.log("✅ Message envoyé via WebSocket");
+            console.log("Message envoyé via WebSocket");
         } else {
-            console.error("❌ WebSocket non connecté !");
+            console.error("WebSocket non connecté !");
         }
 
         setNewMessage("");
@@ -150,31 +150,27 @@ const ChatRoom = () => {
     return (
       <View style={styles.container}>
 
-        {/* Bouton retour stylé */}
         <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
           <Text style={styles.backButtonText}>⬅️ Retour</Text>
         </TouchableOpacity>
 
-        {/* Titre */}
         <Text style={styles.header}>Conversation avec {username}</Text>
         <Text style={{ color: "#ffffff", textAlign: 'center', marginBottom: 10 }}>
           💬 Chat avec {matchedUserName}
         </Text>
 
-        {/* Raison du match */}
         {loading ? (
           <ActivityIndicator size="large" color="#3b82f6" />
         ) : (
           <View style={styles.matchInfo}>
-            <Text style={styles.matchLabel}>📌 Pourquoi l'entreprise a liké ?</Text>
+            <Text style={styles.matchLabel}>Pourquoi l'entreprise a liké ?</Text>
             <Text style={styles.matchText}>{matchInfo?.companyReason || "Non disponible"}</Text>
 
-            <Text style={styles.matchLabel}>📌 Pourquoi le candidat a liké ?</Text>
+            <Text style={styles.matchLabel}>Pourquoi le candidat a liké ?</Text>
             <Text style={styles.matchText}>{matchInfo?.individualReason || "Non disponible"}</Text>
           </View>
         )}
 
-        {/* Liste des messages */}
         <FlatList
           data={messages}
           keyExtractor={(item, index) => index.toString()}
@@ -185,7 +181,6 @@ const ChatRoom = () => {
           )}
         />
 
-        {/* Champ de texte */}
         <TextInput
           style={styles.input}
           value={newMessage}
@@ -194,9 +189,8 @@ const ChatRoom = () => {
           placeholderTextColor="#94a3b8"
         />
 
-        {/* Bouton envoyer stylé */}
         <TouchableOpacity style={styles.sendButton} onPress={sendMessage}>
-          <Text style={styles.sendButtonText}>📤 Envoyer</Text>
+          <Text style={styles.sendButtonText}>Envoyer</Text>
         </TouchableOpacity>
       </View>
     );
@@ -206,7 +200,7 @@ const ChatRoom = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#0f172a", // fond sombre
+    backgroundColor: "#0f172a",
     padding: 10,
   },
   header: {
@@ -214,7 +208,7 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     padding: 12,
     textAlign: "center",
-    backgroundColor: "#2563eb", // bleu intense
+    backgroundColor: "#2563eb",
     color: "#ffffff",
     borderRadius: 12,
     marginBottom: 10,

@@ -5,20 +5,20 @@ import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function SignUpPage({ navigation }) {
-  const [userType, setUserType] = useState(''); // "INDIVIDUAL" ou "COMPANY"
+  const [userType, setUserType] = useState('');
   const [username, setUsername] = useState('');
   const [emailPrefix, setEmailPrefix] = useState('');
-  const [emailDomain, setEmailDomain] = useState('gmail.com'); // Domaine par défaut
+  const [emailDomain, setEmailDomain] = useState('gmail.com');
   const [password, setPassword] = useState('');
   const [companyName, setCompanyName] = useState('');
-  const [uniqueNumber, setUniqueNumber] = useState(''); // SIRET ou autre identifiant unique
+  const [uniqueNumber, setUniqueNumber] = useState('');
   const [isUsernameValid, setIsUsernameValid] = useState(true);
   const [usernameError, setUsernameError] = useState('');
   const [emailError, setEmailError] = useState('');
   const [isEmailPrefixValid, setIsEmailPrefixValid] = useState(true);
   const [emailPrefixError, setEmailPrefixError] = useState('');
-const [isPasswordValid, setIsPasswordValid] = useState(true);
-const [passwordError, setPasswordError] = useState('');
+  const [isPasswordValid, setIsPasswordValid] = useState(true);
+  const [passwordError, setPasswordError] = useState('');
 
   const allowedDomains = ['gmail.com', 'hotmail.com', 'yahoo.com', 'outlook.com', 'protonmail.com'];
 
@@ -69,16 +69,16 @@ const [passwordError, setPasswordError] = useState('');
     setIsEmailPrefixValid(true);
     return true;
   };
-const validatePassword = (pwd) => {
-  if (pwd.length < 4) {
-    setPasswordError('Password must be at least 4 characters.');
-    setIsPasswordValid(false);
-    return false;
-  }
-  setPasswordError('');
-  setIsPasswordValid(true);
-  return true;
-};
+    const validatePassword = (pwd) => {
+      if (pwd.length < 4) {
+        setPasswordError('Password must be at least 4 characters.');
+        setIsPasswordValid(false);
+        return false;
+      }
+      setPasswordError('');
+      setIsPasswordValid(true);
+      return true;
+    };
 
   const validateEmail = () => {
     if (!validateEmailPrefix(emailPrefix)) return false;
@@ -107,29 +107,29 @@ const validatePassword = (pwd) => {
         Alert.alert('Success', 'User registered successfully');
         const userInfo = response.data;
 
-        console.log("🟢 User registered:", userInfo);
+        console.log("User registered:", userInfo);
 
-        // 🔹 Auto-login après inscription
+        //Auto-login après inscription
         const loginResponse = await axios.post('http://localhost:8080/users/login', {
-          username: userInfo.username, // ✅ Correction: Utilisation de username
-          password: password, // 🔥 On utilise le mot de passe saisi à l'inscription
+          username: userInfo.username,
+          password: password,
         });
 
-        console.log("🟢 Auto-login successful:", loginResponse.data);
+        console.log("Auto-login successful:", loginResponse.data);
 
         const token = loginResponse.data.token;
         if (token) {
           await AsyncStorage.setItem('userToken', `Bearer ${token}`);
           await AsyncStorage.setItem('username', userInfo.username);
-          await AsyncStorage.setItem('userType', userInfo.userType); // ✅ très important
+          await AsyncStorage.setItem('userType', userInfo.userType);
 
-          // 🔹 Rediriger directement vers la page des compétences après l'inscription
+        //Rediriger directement vers la page des compétences après l'inscription
         if (userInfo.userType === 'COMPANY') {
-              console.log("➡️ Redirection vers CompanyOnboardingPage");
+              console.log("Redirection vers CompanyOnboardingPage");
 
           navigation.navigate('CompanyOnboardingPage', { userInfo });
         } else {
-              console.log("➡️ Redirection vers JobSeekerOnboardingPage");
+              console.log("Redirection vers JobSeekerOnboardingPage");
 
           navigation.navigate('JobSeekerOnboardingPage', { userInfo });
         }
@@ -141,7 +141,7 @@ const validatePassword = (pwd) => {
         Alert.alert('Error', 'Registration failed');
       }
     } catch (error) {
-      console.error('🔴 Sign-up or login failed:', error);
+      console.error('Sign-up or login failed:', error);
       Alert.alert('Error', 'An error occurred. Please try again.');
     }
   };
@@ -232,7 +232,7 @@ const validatePassword = (pwd) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#0f172a', // bleu nuit moderne
+    backgroundColor: '#0f172a',
     justifyContent: 'center',
     alignItems: 'center',
     padding: 20,
@@ -288,7 +288,7 @@ const styles = StyleSheet.create({
     color: 'white',
   },
   signupButton: {
-    backgroundColor: '#10b981', // vert futuriste
+    backgroundColor: '#10b981',
     borderRadius: 12,
     paddingVertical: 14,
     alignItems: 'center',

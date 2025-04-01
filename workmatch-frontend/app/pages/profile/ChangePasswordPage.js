@@ -10,7 +10,7 @@ const ChangePasswordPage = ({ navigation }) => {
 
   const [newPasswordError, setNewPasswordError] = useState('');
   const [confirmPasswordError, setConfirmPasswordError] = useState('');
-const [currentPasswordError, setCurrentPasswordError] = useState('');
+  const [currentPasswordError, setCurrentPasswordError] = useState('');
 
   const validatePasswords = () => {
     let valid = true;
@@ -50,7 +50,7 @@ const [currentPasswordError, setCurrentPasswordError] = useState('');
       });
 
       if (response.status === 200) {
-        Alert.alert("✅ Mot de passe modifié avec succès");
+        Alert.alert("Mot de passe modifié avec succès");
         navigation.goBack();
       }
     } catch (error) {
@@ -59,7 +59,7 @@ const [currentPasswordError, setCurrentPasswordError] = useState('');
         setNewPassword('');
         setConfirmPassword('');
 
-        setCurrentPasswordError("❌ Le mot de passe actuel est incorrect.");
+        setCurrentPasswordError("Le mot de passe actuel est incorrect.");
         setNewPasswordError('');
         setConfirmPasswordError('');
 

@@ -17,9 +17,9 @@ const allCategories = [
 ];
 
 const EditOfferPage = ({ route, navigation }) => {
-  const { offer } = route.params;
+    const { offer } = route.params;
 
-  const [title, setTitle] = useState(offer.title);
+    const [title, setTitle] = useState(offer.title);
     const [description, setDescription] = useState(offer.description);
     const [salaryMin, setSalaryMin] = useState(offer.salaryMin);
     const [salaryMax, setSalaryMax] = useState(offer.salaryMax);
@@ -42,13 +42,13 @@ const EditOfferPage = ({ route, navigation }) => {
       const [locationError, setLocationError] = useState('');
       const [skillsError, setSkillsError] = useState('');
 
-const handleLocationToggle = (location) => {
-    setSelectedLocations((prev) =>
-      prev.includes(location) ? prev.filter((l) => l !== location) : [...prev, location]
-    );
-  };
+    const handleLocationToggle = (location) => {
+        setSelectedLocations((prev) =>
+          prev.includes(location) ? prev.filter((l) => l !== location) : [...prev, location]
+        );
+      };
 
-  const handleSkillToggle = (skill) => {
+    const handleSkillToggle = (skill) => {
       setSelectedSkills((prev) => {
         const newSkills = { ...prev };
         if (newSkills[skill]) {
@@ -60,111 +60,109 @@ const handleLocationToggle = (location) => {
       });
     };
 
-const handleExperienceChange = (skill, value) => {
-    setSelectedSkills((prev) => ({
-      ...prev,
-      [skill]: Math.max(1, (prev[skill] || 1) + value),
-    }));
-  };
+    const handleExperienceChange = (skill, value) => {
+        setSelectedSkills((prev) => ({
+          ...prev,
+          [skill]: Math.max(1, (prev[skill] || 1) + value),
+        }));
+      };
 
-const validateInputs = () => {
-    let isValid = true;
-    const titleWithoutSpaces = title.replace(/\s/g, '');
-    const descriptionWithoutSpaces = description.replace(/\s/g, '');
+    const validateInputs = () => {
+        let isValid = true;
+        const titleWithoutSpaces = title.replace(/\s/g, '');
+        const descriptionWithoutSpaces = description.replace(/\s/g, '');
 
-    if (titleWithoutSpaces.length < 7) {
-      setTitleError('Le titre doit contenir au moins 7 caractères (hors espaces).');
-      isValid = false;
-    } else {
-      setTitleError('');
-    }
-
-    if (descriptionWithoutSpaces.length < 20) {
-      setDescriptionError('La description doit contenir au moins 20 caractères.');
-      isValid = false;
-    } else {
-      setDescriptionError('');
-    }
-
-    if (salaryMin >= salaryMax) {
-      setSalaryError("Le salaire minimum doit être inférieur au maximum.");
-      isValid = false;
-    } else {
-      setSalaryError('');
-    }
-
-    if (!employmentType) {
-      setEmploymentTypeError("Veuillez choisir un type de contrat.");
-      isValid = false;
-    } else {
-      setEmploymentTypeError('');
-    }
-
-    if (!category) {
-      setCategoryError("Veuillez choisir une catégorie.");
-      isValid = false;
-    } else {
-      setCategoryError('');
-    }
-
-    if (selectedLocations.length === 0) {
-      setLocationError("Veuillez choisir au moins une ville.");
-      isValid = false;
-    } else {
-      setLocationError('');
-    }
-
-    if (Object.keys(selectedSkills).length === 0) {
-      setSkillsError("Veuillez choisir au moins une compétence.");
-      isValid = false;
-    } else {
-      setSkillsError('');
-    }
-
-    return isValid;
-  };
-
-  const handleUpdate = async () => {
-  if (!validateInputs()) return;
-
-  const token = await AsyncStorage.getItem('userToken');
-
-
-const updatedOffer = {
-      title,
-      description,
-      salaryMin,
-      salaryMax,
-      employmentType,
-      remote,
-      category,
-      locations: selectedLocations,
-      skills: Object.entries(selectedSkills).map(([name, experience]) => ({
-        name,
-        experience,
-      })),
-    };
-    try {
-const response = await axios.put(
-        `http://localhost:8080/joboffers/${offer._id}`,
-        updatedOffer,
-        {
-          headers: {
-            Authorization: token,
-            'Content-Type': 'application/json',
-          },
+        if (titleWithoutSpaces.length < 7) {
+          setTitleError('Le titre doit contenir au moins 7 caractères (hors espaces).');
+          isValid = false;
+        } else {
+          setTitleError('');
         }
-      );
-      if (response.status === 200) {
-        navigation.navigate('MyOffersPage')
-      }
 
+        if (descriptionWithoutSpaces.length < 20) {
+          setDescriptionError('La description doit contenir au moins 20 caractères.');
+          isValid = false;
+        } else {
+          setDescriptionError('');
+        }
 
-    } catch (error) {
-      console.error("❌ Erreur de mise à jour :", error);
-      Alert.alert("Erreur", "Impossible de mettre à jour l’offre.");
-    }
-  };
+        if (salaryMin >= salaryMax) {
+          setSalaryError("Le salaire minimum doit être inférieur au maximum.");
+          isValid = false;
+        } else {
+          setSalaryError('');
+        }
+
+        if (!employmentType) {
+          setEmploymentTypeError("Veuillez choisir un type de contrat.");
+          isValid = false;
+        } else {
+          setEmploymentTypeError('');
+        }
+
+        if (!category) {
+          setCategoryError("Veuillez choisir une catégorie.");
+          isValid = false;
+        } else {
+          setCategoryError('');
+        }
+
+        if (selectedLocations.length === 0) {
+          setLocationError("Veuillez choisir au moins une ville.");
+          isValid = false;
+        } else {
+          setLocationError('');
+        }
+
+        if (Object.keys(selectedSkills).length === 0) {
+          setSkillsError("Veuillez choisir au moins une compétence.");
+          isValid = false;
+        } else {
+          setSkillsError('');
+        }
+
+        return isValid;
+      };
+
+      const handleUpdate = async () => {
+          if (!validateInputs()) return;
+
+          const token = await AsyncStorage.getItem('userToken');
+
+            const updatedOffer = {
+              title,
+              description,
+              salaryMin,
+              salaryMax,
+              employmentType,
+              remote,
+              category,
+              locations: selectedLocations,
+              skills: Object.entries(selectedSkills).map(([name, experience]) => ({
+                name,
+                experience,
+              })),
+            };
+            try {
+            const response = await axios.put(
+                `http://localhost:8080/joboffers/${offer._id}`,
+                updatedOffer,
+                {
+                  headers: {
+                    Authorization: token,
+                    'Content-Type': 'application/json',
+                  },
+                }
+              );
+              if (response.status === 200) {
+                navigation.navigate('MyOffersPage')
+              }
+
+            } catch (error) {
+              console.error("Erreur de mise à jour :", error);
+              Alert.alert("Erreur", "Impossible de mettre à jour l’offre.");
+            }
+      };
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
@@ -197,7 +195,6 @@ const response = await axios.put(
       />
       {descriptionError ? <Text style={styles.errorText}>{descriptionError}</Text> : null}
 
-      {/* Salaire */}
       <View style={styles.salaryContainer}>
         <Text style={styles.label}>Salaire Minimum :</Text>
         <View style={styles.salaryControls}>
@@ -225,7 +222,6 @@ const response = await axios.put(
       </View>
       {salaryError ? <Text style={styles.errorText}>{salaryError}</Text> : null}
 
-      {/* Type de contrat */}
       <Text style={styles.label}>Type de contrat :</Text>
       <View style={styles.contractContainer}>
         {["full_time", "part_time", "internship", "freelance"].map((type) => (
@@ -242,7 +238,6 @@ const response = await axios.put(
       </View>
       {employmentTypeError ? <Text style={styles.errorText}>{employmentTypeError}</Text> : null}
 
-      {/* Télétravail */}
       <Text style={styles.label}>Télétravail :</Text>
       <View style={styles.remoteContainer}>
         <TouchableOpacity
@@ -253,7 +248,6 @@ const response = await axios.put(
         </TouchableOpacity>
       </View>
 
-      {/* Catégorie */}
       <Text style={styles.label}>Catégorie :</Text>
       <View style={styles.contractContainer}>
         {allCategories.map((cat) => (
@@ -268,7 +262,6 @@ const response = await axios.put(
       </View>
       {categoryError ? <Text style={styles.errorText}>{categoryError}</Text> : null}
 
-      {/* Villes */}
       <Text style={styles.label}>Villes concernées :</Text>
       <View style={styles.locationContainer}>
         {allCities.map((city) => (
@@ -285,7 +278,6 @@ const response = await axios.put(
       </View>
       {locationError ? <Text style={styles.errorText}>{locationError}</Text> : null}
 
-      {/* Compétences */}
       <Text style={styles.label}>Compétences requises :</Text>
       <View style={styles.skillContainer}>
         {allSkills.map((skill) => (

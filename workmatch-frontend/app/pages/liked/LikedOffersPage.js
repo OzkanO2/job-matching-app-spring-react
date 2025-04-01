@@ -20,10 +20,10 @@ const LikedOffersPage = () => {
           headers: { Authorization: `Bearer ${token}` }
         });
 
-        console.log("📋 Offres likées :", response.data);
+        console.log("Offres likées :", response.data);
         setLikedOffers(response.data);
       } catch (error) {
-        console.error("❌ Erreur lors de la récupération des offres likées :", error);
+        console.error("Erreur lors de la récupération des offres likées :", error);
       } finally {
         setIsLoading(false);
       }

@@ -17,7 +17,7 @@ const IndividualHomePage = () => {
         const fetchUserData = async () => {
             const storedUserId = await AsyncStorage.getItem('userId');
             setUserId(storedUserId);
-            console.log("👤 ID utilisateur récupéré :", storedUserId);
+            console.log("ID utilisateur récupéré :", storedUserId);
         };
 
         const fetchJobOffers = async () => {
@@ -27,47 +27,47 @@ const IndividualHomePage = () => {
                 const swiperId = await AsyncStorage.getItem("userId");
 
                 if (!token || !swiperId) {
-                    console.error("❌ Token ou swiperId manquant !");
+                    console.error("Token ou swiperId manquant !");
                     setIsLoading(false);
                     return;
                 }
 
                 console.log("📡 Récupération des offres d'emploi filtrées...");
 
-                // 🔹 1. Récupère toutes les offres
+                //Récupère toutes les offres
                 const response = await axios.get(`http://localhost:8080/joboffers/user/${swiperId}`, {
                     headers: { Authorization: `Bearer ${token}` },
                 });
 
                 const allJobOffers = response.data;
-                console.log("📋 Toutes les offres récupérées :", allJobOffers);
+                console.log("Toutes les offres récupérées :", allJobOffers);
 
-                // 🔹 2. Récupère toutes les offres déjà swipées
+                //Récupère toutes les offres déjà swipées
                 const swipedResponse = await axios.get(`http://localhost:8080/api/swiped/${swiperId}`, {
                     headers: { Authorization: `Bearer ${token}` },
                 });
 
                 const swipedData = swipedResponse.data;
-                console.log("🛑 Offres déjà swipées :", swipedData);
+                console.log("Offres déjà swipées :", swipedData);
 
-                // 🔹 3. Transforme les IDs en String pour assurer la compatibilité
+                //Transforme les IDs en String pour assurer la compatibilité
                 const swipedIds = new Set(swipedData.map(item => item.swipedId.toString()));
-                console.log("🛑 Swiped IDs Set :", swipedIds);
+                console.log("Swiped IDs Set :", swipedIds);
 
-                // 🔹 4. Filtrage des offres déjà swipées
+                //Filtrage des offres déjà swipées
                 const filteredJobOffers = allJobOffers.filter(offer => !swipedIds.has(offer._id.toString()));
 
                 console.log("✅ Liste des offres après filtrage :", filteredJobOffers);
 
-                // 🔹 5. Garde uniquement les offres uniques
+                //Garde uniquement les offres uniques
                 const uniqueJobOffers = filteredJobOffers.reduce((acc, offer) => {
                     if (!acc.some(o => o._id === offer._id)) acc.push(offer);
                     return acc;
                 }, []);
 
-                console.log("📜 IDs des offres uniques après filtrage :", uniqueJobOffers.map(o => o._id));
+                console.log("IDs des offres uniques après filtrage :", uniqueJobOffers.map(o => o._id));
 
-                // 🔹 5. Récupérer les entreprises qui ont déjà swipé l'utilisateur à gauche sur une offre spécifique
+                //Récupérer les entreprises qui ont déjà swipé l'utilisateur à gauche sur une offre spécifique
                 const blockedByCompaniesForSpecificOffers = new Set();
                 for (const offer of uniqueJobOffers) {
                     const companyId = offer.companyId?.toString() || offer.company?.id?.toString();
@@ -80,15 +80,15 @@ const IndividualHomePage = () => {
                         );
 
                         if (companySwipeResponse.data.exists) {
-                            console.log(`❌ Offre ${offer._id} bloquée : L'entreprise ${companyId} a déjà swipé ce user sur CETTE offre.`);
+                            console.log(` Offre ${offer._id} bloquée : L'entreprise ${companyId} a déjà swipé ce user sur CETTE offre.`);
                             blockedByCompaniesForSpecificOffers.add(offer._id.toString());
                         }
                     } catch (error) {
-                        console.error(`⚠️ Erreur lors de la vérification des swipes de la company ${companyId}:`, error);
+                        console.error(`Erreur lors de la vérification des swipes de la company ${companyId}:`, error);
                     }
                 }
 
-                // 🔹 6. Récupérer les entreprises qui ont swipé l'utilisateur à gauche DANS LA PAGE NORMALE
+                //Récupérer les entreprises qui ont swipé l'utilisateur à gauche DANS LA PAGE NORMALE
                 const blockedByCompaniesForAllOffers = new Set();
                 for (const offer of uniqueJobOffers) {
                 const companyId = offer.companyId?.toString() || offer.company?.id?.toString();
@@ -101,32 +101,31 @@ const IndividualHomePage = () => {
                         );
 
                         if (companySwipeResponse.data.exists) {
-                            console.log(`❌ Toutes les offres de l'entreprise ${companyId} sont bloquées car elle a déjà swipé ce user.`);
+                            console.log(` Toutes les offres de l'entreprise ${companyId} sont bloquées car elle a déjà swipé ce user.`);
                             blockedByCompaniesForAllOffers.add(companyId);
                         }
                     } catch (error) {
-                        console.error(`⚠️ Erreur lors de la vérification des swipes normaux de la company ${companyId}:`, error);
+                        console.error(`Erreur lors de la vérification des swipes normaux de la company ${companyId}:`, error);
                     }
                 }
 
-                // 🔹 7. Appliquer le filtre final avant de setter jobOffers
+                //Appliquer le filtre final avant de setter jobOffers
                 const finalJobOffers = uniqueJobOffers.filter(
                     offer => !blockedByCompaniesForSpecificOffers.has(offer._id.toString()) &&
                              !blockedByCompaniesForAllOffers.has(offer.companyId)
                 );
 
-                console.log("✅ Liste finale des offres après TOUS les filtres :", finalJobOffers);
+                console.log("Liste finale des offres après TOUS les filtres :", finalJobOffers);
 
-                // 🔹 8. Mise à jour du state (on garde uniquement les offres non bloquées)
+                //Mise à jour du state (on garde uniquement les offres non bloquées)
                 setJobOffers(finalJobOffers);
 
             } catch (error) {
-                console.error('❌ Error fetching job offers:', error);
+                console.error(' Error fetching job offers:', error);
             } finally {
                 setIsLoading(false);
             }
         };
-
 
         fetchUserData();
         fetchJobOffers();
@@ -137,7 +136,7 @@ const IndividualHomePage = () => {
         const swipedJobOffer = jobOffers[index];
 
         if (!swipedJobOffer) {
-            console.error("❌ Aucun job offer trouvé pour cet index.");
+            console.error("Aucun job offer trouvé pour cet index.");
             return;
         }
 
@@ -145,27 +144,27 @@ const IndividualHomePage = () => {
 
         const swipedId = swipedJobOffer._id;
         const swiperId = await AsyncStorage.getItem("userId");
-const companyId = swipedJobOffer.companyId?.$oid || swipedJobOffer.companyId || swipedJobOffer.company?.id;
+        const companyId = swipedJobOffer.companyId?.$oid || swipedJobOffer.companyId || swipedJobOffer.company?.id;
 
         if (!swiperId || !swipedId || !companyId) {
-            console.error("❌ swiperId, swipedId ou companyId est manquant !");
-            console.log("📌 swiperId:", swiperId);
-            console.log("📌 swipedId:", swipedId);
-            console.log("📌 companyId:", companyId);
+            console.error(" swiperId, swipedId ou companyId est manquant !");
+            console.log(" swiperId:", swiperId);
+            console.log(" swipedId:", swipedId);
+            console.log(" companyId:", companyId);
             return;
         }
 
-        console.log("✅ swiperId envoyé :", swiperId);
-        console.log("✅ swipedId envoyé :", swipedId);
-        console.log("✅ companyId envoyé :", companyId);
+        console.log("swiperId envoyé :", swiperId);
+        console.log("swipedId envoyé :", swipedId);
+        console.log("companyId envoyé :", companyId);
 
         const direction = "right";
 
         try {
             const token = await AsyncStorage.getItem('userToken');
 
-            console.log("🔑 Token utilisé pour la requête :", token);
-            console.log("📡 Données envoyées à /api/matches/swipe/individual :", {
+            console.log("Token utilisé pour la requête :", token);
+            console.log("Données envoyées à /api/matches/swipe/individual :", {
                 swiperId,
                 swipedId,
                 companyId
@@ -192,11 +191,11 @@ const companyId = swipedJobOffer.companyId?.$oid || swipedJobOffer.companyId || 
                 { headers: { Authorization: `Bearer ${token}` } }
             );
 
-            console.log("🟢 Réponse match :", matchResponse.data);
+            console.log(" Réponse match :", matchResponse.data);
 
-            console.log("✅ Réponse serveur :", response.data);
+            console.log(" Réponse serveur :", response.data);
         } catch (error) {
-            console.error('❌ Erreur lors du swipe:', error);
+            console.error('Erreur lors du swipe:', error);
         }
     };
 
@@ -205,34 +204,34 @@ const companyId = swipedJobOffer.companyId?.$oid || swipedJobOffer.companyId || 
         const swipedJobOffer = jobOffers[index];
 
         if (!swipedJobOffer) {
-            console.error("❌ Aucun job offer trouvé pour cet index.");
+            console.error("Aucun job offer trouvé pour cet index.");
             return;
         }
 
-        console.log("🔴 Job Offer ignorée:", swipedJobOffer);
+        console.log(" Job Offer ignorée:", swipedJobOffer);
 
         const swipedId = swipedJobOffer._id;
         const companyId = swipedJobOffer.companyId?.toString();
         const swiperId = await AsyncStorage.getItem("userId");
 
         if (!swiperId || !swipedId || !companyId) {
-            console.error("❌ swiperId, swipedId ou companyId est manquant !");
-            console.log("📌 swiperId:", swiperId);
-            console.log("📌 swipedId:", swipedId);
-            console.log("📌 companyId:", companyId);
+            console.error(" swiperId, swipedId ou companyId est manquant !");
+            console.log(" swiperId:", swiperId);
+            console.log(" swipedId:", swipedId);
+            console.log(" companyId:", companyId);
             return;
         }
 
-        console.log("✅ swiperId envoyé :", swiperId);
-        console.log("✅ swipedId envoyé :", swipedId);
-        console.log("✅ companyId envoyé :", companyId);
+        console.log("swiperId envoyé :", swiperId);
+        console.log("swipedId envoyé :", swipedId);
+        console.log("companyId envoyé :", companyId);
 
         const direction = "left";
 
         try {
             const token = await AsyncStorage.getItem('userToken');
 
-            console.log("🔑 Token utilisé pour la requête :", token);
+            console.log(" Token utilisé pour la requête :", token);
 
             await axios.post(
                 "http://localhost:8080/api/swiped/save",
@@ -248,9 +247,9 @@ const companyId = swipedJobOffer.companyId?.$oid || swipedJobOffer.companyId || 
                 { headers: { Authorization: `Bearer ${token}` } }
             );
 
-            console.log("✅ Swipe à gauche enregistré avec succès !");
+            console.log(" Swipe à gauche enregistré avec succès !");
         } catch (error) {
-            console.error('❌ Erreur lors du swipe gauche:', error);
+            console.error(' Erreur lors du swipe gauche:', error);
         }
     };
 
@@ -280,7 +279,7 @@ const companyId = swipedJobOffer.companyId?.$oid || swipedJobOffer.companyId || 
                  {isLoading ? (
                      <Text>Loading...</Text>
                  ) : jobOffers.length === 0 ? (
-<Text style={styles.noOffers}>Aucune offre disponible</Text>
+                 <Text style={styles.noOffers}>Aucune offre disponible</Text>
                  ) : (
                      <Swiper
                          key={jobOffers.length}
@@ -307,7 +306,6 @@ const companyId = swipedJobOffer.companyId?.$oid || swipedJobOffer.companyId || 
                  )}
              </View>
          </View>
-
     );
 };
 
@@ -324,7 +322,7 @@ const styles = StyleSheet.create({
       marginBottom: 20,
     },
     navButton: {
-      backgroundColor: '#1e3a8a', // un joli bleu futuriste
+      backgroundColor: '#1e3a8a',
       paddingVertical: 10,
       paddingHorizontal: 16,
       borderRadius: 12,
@@ -340,7 +338,7 @@ const styles = StyleSheet.create({
     },
     card: {
       height: 440,
-      backgroundColor: '#334155', // gris bleuté foncé
+      backgroundColor: '#334155',
       borderRadius: 20,
       padding: 24,
       justifyContent: 'center',
@@ -353,16 +351,16 @@ const styles = StyleSheet.create({
       borderWidth: 1,
       borderColor: '#475569',
     },
-cardTitle: {
-  fontSize: 18,
-  fontWeight: 'bold',
-  color: '#ffffff',
-  marginBottom: 12,
-  textAlign: 'center',
-},
-text1: {
-  color: '#ffffff',
-},
+    cardTitle: {
+      fontSize: 18,
+      fontWeight: 'bold',
+      color: '#ffffff',
+      marginBottom: 12,
+      textAlign: 'center',
+    },
+    text1: {
+      color: '#ffffff',
+    },
     cardDescription: {
       fontSize: 14,
       color: '#ffffff',

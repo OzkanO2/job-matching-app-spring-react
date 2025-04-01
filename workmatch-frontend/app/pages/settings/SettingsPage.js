@@ -21,7 +21,7 @@ const SettingsPage = () => {
   }, [navigation]);
 
   const handleDeleteAccount = async () => {
-    console.log("✅ Début de suppression sans Alert");
+    console.log("Début de suppression sans Alert");
 
     try {
       const token = await AsyncStorage.getItem("userToken");
@@ -32,11 +32,11 @@ const SettingsPage = () => {
       });
 
       await AsyncStorage.clear();
-      Alert.alert("✅ Compte supprimé avec succès.");
+      Alert.alert("Compte supprimé avec succès.");
       navigation.navigate("SignIn");
 
     } catch (error) {
-      console.error("❌ Erreur lors de la suppression :", error);
+      console.error("Erreur lors de la suppression :", error);
       Alert.alert("Erreur", "Impossible de supprimer le compte.");
     }
   };
@@ -46,23 +46,23 @@ const SettingsPage = () => {
     <View style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
-          <Text style={styles.backButtonText}>⬅ Retour</Text>
+          <Text style={styles.backButtonText}>Retour</Text>
         </TouchableOpacity>
       </View>
 
       <View style={styles.actionsContainer}>
         <TouchableOpacity style={styles.actionButton} onPress={() => navigation.navigate('SignIn')}>
-          <Text style={styles.actionText}>🚪 Logout</Text>
+          <Text style={styles.actionText}>Logout</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
           style={[styles.actionButton, styles.dangerButton]}
           onPress={() => {
-            console.log("⚠️ Bouton pressé");
+            console.log("Bouton pressé");
             handleDeleteAccount();
           }}
         >
-          <Text style={styles.actionText}>🗑️ Supprimer le compte</Text>
+          <Text style={styles.actionText}>Supprimer le compte</Text>
         </TouchableOpacity>
       </View>
     </View>

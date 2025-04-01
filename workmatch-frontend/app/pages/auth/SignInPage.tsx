@@ -20,13 +20,13 @@ export default function SignInPage({ navigation }) {
                 await AsyncStorage.setItem('username', username);
                 await AsyncStorage.setItem('userType', userType);
 
-                console.log("✅ Identifiants stockés avec succès !");
+                console.log("Identifiants stockés avec succès !");
                 navigation.navigate(userType === 'INDIVIDUAL' ? 'IndividualHome' : 'CompanyHome');
             } else {
                 Alert.alert('Invalid credentials');
             }
         } catch (error) {
-            console.error('❌ An error occurred:', error);
+            console.error('An error occurred:', error);
             Alert.alert('An error occurred. Please try again.');
         }
     };

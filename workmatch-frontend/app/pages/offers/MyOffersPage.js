@@ -14,8 +14,8 @@ const MyOffersPage = () => {
         const fetchUserData = async () => {
             const type = await AsyncStorage.getItem('userType');
             const id = await AsyncStorage.getItem('userId');
-            console.log("🔍 UserType:", type);
-            console.log("🔍 Company ID récupéré:", id);
+            console.log("UserType:", type);
+            console.log("Company ID récupéré:", id);
             setUserType(type);
             setCompanyId(id);
         };
@@ -32,17 +32,18 @@ const MyOffersPage = () => {
     const fetchJobOffers = async () => {
         try {
             const token = await AsyncStorage.getItem("userToken");
-            console.log("📡 Envoi de la requête Axios avec companyId:", companyId);
+            console.log("Envoi de la requête Axios avec companyId:", companyId);
             const response = await axios.get(`http://localhost:8080/joboffers/company/${companyId}`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
 
-            console.log("✅ Réponse reçue:", response.data);
+            console.log("Réponse reçue:", response.data);
             setJobOffers(response.data);
         } catch (error) {
-            console.error("❌ Erreur lors du chargement des offres :", error);
+            console.error("Erreur lors du chargement des offres :", error);
         }
     };
+
     const handleDeleteOffer = async (offerId) => {
         try {
             const token = await AsyncStorage.getItem("userToken");
@@ -51,9 +52,10 @@ const MyOffersPage = () => {
             });
             setJobOffers(prev => prev.filter((offer) => offer._id !== offerId));
         } catch (error) {
-            console.error("❌ Erreur lors de la suppression de l'offre :", error);
+            console.error("Erreur lors de la suppression de l'offre :", error);
         }
     };
+
     return (
         <View style={styles.container}>
             <View style={styles.topButtons}>
@@ -81,7 +83,7 @@ const MyOffersPage = () => {
             </View>
 
 
-            <Text style={styles.title}>📌 Mes Offres d'Emploi</Text>
+            <Text style={styles.title}>Mes Offres d'Emploi</Text>
 
             <FlatList
                 data={jobOffers}
@@ -100,7 +102,7 @@ const MyOffersPage = () => {
                         style={styles.editOfferButton}
                         onPress={() => navigation.navigate("EditOfferPage", { offer: item })}
                       >
-                        <Text style={styles.buttonText}>✏️ Modifier</Text>
+                        <Text style={styles.buttonText}>Modifier</Text>
                       </TouchableOpacity>
 
                       <TouchableOpacity
@@ -110,7 +112,6 @@ const MyOffersPage = () => {
                         <Text style={styles.buttonText}>Voir les candidats</Text>
                       </TouchableOpacity>
 
-                      {/* 🔥 Bouton de suppression */}
                       <TouchableOpacity
                         style={styles.deleteButton}
                         onPress={async () => {
@@ -121,7 +122,7 @@ const MyOffersPage = () => {
                             });
                             setJobOffers(prev => prev.filter(o => o._id !== item._id));
                           } catch (err) {
-                            console.error("❌ Erreur suppression offre :", err);
+                            console.error("Erreur suppression offre :", err);
                           }
                         }}
                       >
@@ -130,7 +131,7 @@ const MyOffersPage = () => {
                     </View>
 
                 )}
-                ListEmptyComponent={() => <Text style={styles.noDataText}>⚠️ Aucune offre disponible</Text>}
+                ListEmptyComponent={() => <Text style={styles.noDataText}>Aucune offre disponible</Text>}
             />
 
         </View>

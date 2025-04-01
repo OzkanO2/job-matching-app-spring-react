@@ -23,10 +23,10 @@ useEffect(() => {
           headers: { Authorization: `Bearer ${token}` }
         });
 
-        console.log("💙 Candidats likés :", response.data);
+        console.log("Candidats likés :", response.data);
         setCandidates(response.data);
       } catch (error) {
-        console.error("❌ Erreur candidats likés :", error);
+        console.error("Erreur candidats likés :", error);
       } finally {
         setIsLoading(false);
       }
@@ -45,10 +45,10 @@ useEffect(() => {
           headers: { Authorization: `Bearer ${token}` }
         });
 
-        console.log("💙 Candidats likés :", response.data);
+        console.log("Candidats likés :", response.data);
         setCandidates(response.data);
       } catch (error) {
-        console.error("❌ Erreur candidats likés :", error);
+        console.error("Erreur candidats likés :", error);
       } finally {
         setIsLoading(false);
       }
@@ -93,7 +93,7 @@ useEffect(() => {
                 </TouchableOpacity>
               </View>
             )}
-      <Text style={styles.pageTitle}>👥 Candidats Likés</Text>
+      <Text style={styles.pageTitle}>Candidats Likés</Text>
 
       {isLoading ? (
         <Text style={styles.loading}>Chargement...</Text>
