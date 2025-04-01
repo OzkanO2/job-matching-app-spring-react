@@ -58,11 +58,11 @@ const LikedOffersPage = () => {
       </TouchableOpacity>
 
       <TouchableOpacity style={[styles.navButton, { backgroundColor: '#bfdbfe' }]} onPress={() => navigation.navigate('LikedOffersPage')}>
-        <Text style={styles.navButtonText}>My Offers</Text>
+        <Text style={styles.navButtonText}>Liked Offers</Text>
       </TouchableOpacity>
     </View>
 
-      <Text style={styles.pageTitle}>Mes Offres Likées</Text>
+      <Text style={styles.pageTitle}></Text>
 
       {isLoading ? (
         <Text style={styles.loadingText}>Chargement...</Text>
