@@ -7,6 +7,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import { useCallback } from 'react';
 import SockJS from "sockjs-client";
 import Stomp from "stompjs";
+import { Ionicons } from '@expo/vector-icons';
 
 const ChatPage = ({ route }) => {
     const navigation = useNavigation();
@@ -148,6 +149,18 @@ const ChatPage = ({ route }) => {
 
       fetchConversations();
     }, []);
+const handleDeleteConversation = async (conversationId) => {
+  try {
+    const token = await AsyncStorage.getItem('userToken');
+    await axios.delete(`http://localhost:8080/api/conversations/${conversationId}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    setConversations(prev => prev.filter(c => c.conversationId !== conversationId));
+  } catch (error) {
+    console.error("Erreur suppression conversation :", error);
+  }
+};
 
 
     useEffect(() => {
@@ -247,14 +260,29 @@ const ChatPage = ({ route }) => {
                             matchedUserName: item.username
                           })}
                         >
-                          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                            <Text style={styles.username}>{item.username}</Text>
+                          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+                            <TouchableOpacity
+                              style={{ flex: 1 }}
+                              onPress={() => navigation.navigate("ChatRoom", {
+                                conversationId: item.conversationId,
+                                matchedUserId: item.receiverId,
+                                matchedUserName: item.username
+                              })}
+                            >
+                              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                <Text style={styles.username}>{item.username}</Text>
+                                {item.unread > 0 && <View style={styles.dot} />}
+                              </View>
+                            </TouchableOpacity>
 
-                            {item.unread > 0 && (
-                              <View style={styles.dot} />
-                            )}
-
+                            <TouchableOpacity
+                              style={styles.deleteButton}
+                              onPress={() => handleDeleteConversation(item.conversationId)}
+                            >
+                              <Text style={styles.deleteText}>🗑️</Text>
+                            </TouchableOpacity>
                           </View>
+
                         </TouchableOpacity>
                       </View> // ✅ ce </View> manquait !
                     )}
