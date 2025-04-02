@@ -33,12 +33,27 @@ const CompanyHomePage = () => {
           stomp.subscribe(`/topic/notifications/${userId}`, (message) => {
             const msg = JSON.parse(message.body);
             console.log('🔔 Notification reçue dans CompanyHomePage !', msg);
-            setUnreadCount((prev) => prev + 1);
+            setUnreadCount((prev) => {
+              const newCount = prev + 1;
+              AsyncStorage.setItem('unreadMessageCount', newCount.toString());
+              return newCount;
+            });
           });
         });
       };
 
       connectNotificationWebSocket();
+    }, []);
+
+    useEffect(() => {
+      const loadUnreadCount = async () => {
+        const storedCount = await AsyncStorage.getItem('unreadMessageCount');
+        if (storedCount !== null) {
+          setUnreadCount(parseInt(storedCount, 10));
+        }
+      };
+
+      loadUnreadCount();
     }, []);
 
     useEffect(() => {

@@ -25,7 +25,11 @@ const LikedOffersPage = () => {
             stomp.subscribe(`/topic/notifications/${userId}`, (message) => {
               const msg = JSON.parse(message.body);
               console.log('🔔 Notification reçue (LikedOffersPage) :', msg);
-              setUnreadCount((prev) => prev + 1);
+              setUnreadCount((prev) => {
+                const newCount = prev + 1;
+                AsyncStorage.setItem('unreadMessageCount', newCount.toString());
+                return newCount;
+              });
             });
           });
         };
@@ -33,27 +37,38 @@ const LikedOffersPage = () => {
         connectWebSocket();
       }, []);
 
-  useEffect(() => {
-    const fetchLikedOffers = async () => {
-      try {
-        const token = await AsyncStorage.getItem("userToken");
-        const userId = await AsyncStorage.getItem("userId");
+    useEffect(() => {
+          const loadUnreadCount = async () => {
+            const storedCount = await AsyncStorage.getItem('unreadMessageCount');
+            if (storedCount !== null) {
+              setUnreadCount(parseInt(storedCount, 10));
+            }
+          };
 
-        const response = await axios.get(`http://localhost:8080/likes/liked-offers/${userId}`, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
+          loadUnreadCount();
+        }, []);
 
-        console.log("Offres likées :", response.data);
-        setLikedOffers(response.data);
-      } catch (error) {
-        console.error("Erreur lors de la récupération des offres likées :", error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
+      useEffect(() => {
+        const fetchLikedOffers = async () => {
+          try {
+            const token = await AsyncStorage.getItem("userToken");
+            const userId = await AsyncStorage.getItem("userId");
 
-    fetchLikedOffers();
-  }, []);
+            const response = await axios.get(`http://localhost:8080/likes/liked-offers/${userId}`, {
+              headers: { Authorization: `Bearer ${token}` }
+            });
+
+            console.log("Offres likées :", response.data);
+            setLikedOffers(response.data);
+          } catch (error) {
+            console.error("Erreur lors de la récupération des offres likées :", error);
+          } finally {
+            setIsLoading(false);
+          }
+        };
+
+        fetchLikedOffers();
+      }, []);
 
   const renderOffer = ({ item }) => (
     <TouchableOpacity

@@ -14,25 +14,40 @@ const MyOffersPage = () => {
     const [unreadCount, setUnreadCount] = useState(0);
 
     useEffect(() => {
-          const connectNotificationWebSocket = async () => {
-            const userId = await AsyncStorage.getItem('userId');
-            if (!userId) return;
+      const connectNotificationWebSocket = async () => {
+        const userId = await AsyncStorage.getItem('userId');
+        if (!userId) return;
 
-            const socket = new SockJS('http://localhost:8080/ws');
-            const stomp = Stomp.over(socket);
-            stomp.debug = null;
+        const socket = new SockJS('http://localhost:8080/ws');
+        const stomp = Stomp.over(socket);
+        stomp.debug = null;
 
-            stomp.connect({}, () => {
-              stomp.subscribe(`/topic/notifications/${userId}`, (message) => {
-                const msg = JSON.parse(message.body);
-                console.log('🔔 Notification reçue dans CompanyHomePage !', msg);
-                setUnreadCount((prev) => prev + 1);
+        stomp.connect({}, () => {
+          stomp.subscribe(`/topic/notifications/${userId}`, (message) => {
+            const msg = JSON.parse(message.body);
+            console.log('🔔 Notification reçue dans CompanyHomePage !', msg);
+            setUnreadCount((prev) => {
+                const newCount = prev + 1;
+                AsyncStorage.setItem('unreadMessageCount', newCount.toString());
+                return newCount;
               });
-            });
-          };
+          });
+        });
+      };
 
-          connectNotificationWebSocket();
-        }, []);
+      connectNotificationWebSocket();
+    }, []);
+
+    useEffect(() => {
+      const loadUnreadCount = async () => {
+        const storedCount = await AsyncStorage.getItem('unreadMessageCount');
+        if (storedCount !== null) {
+          setUnreadCount(parseInt(storedCount, 10));
+        }
+      };
+
+      loadUnreadCount();
+    }, []);
 
     useEffect(() => {
         const fetchUserData = async () => {

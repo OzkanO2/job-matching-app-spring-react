@@ -23,6 +23,18 @@ const ChatPage = ({ route }) => {
     }, []);
 
     useEffect(() => {
+      const resetUnreadCount = async () => {
+        await AsyncStorage.setItem('unreadMessageCount', '0');
+      };
+
+      const unsubscribe = navigation.addListener('focus', () => {
+        resetUnreadCount();
+      });
+
+      return unsubscribe;
+    }, [navigation]);
+
+    useEffect(() => {
         const fetchConversations = async () => {
             try {
                 const token = await AsyncStorage.getItem("userToken");

@@ -31,12 +31,26 @@ const CompanyRedirectedPage = () => {
           stomp.subscribe(`/topic/notifications/${userId}`, (message) => {
             const msg = JSON.parse(message.body);
             console.log('🔔 Notification reçue (CompanyRedirectedPage) :', msg);
-            setUnreadCount((prev) => prev + 1);
+            setUnreadCount((prev) => {
+              const newCount = prev + 1;
+              AsyncStorage.setItem('unreadMessageCount', newCount.toString());
+              return newCount;
+            });
           });
         });
       };
 
       connectWebSocket();
+    }, []);
+    useEffect(() => {
+      const loadUnreadCount = async () => {
+        const storedCount = await AsyncStorage.getItem('unreadMessageCount');
+        if (storedCount !== null) {
+          setUnreadCount(parseInt(storedCount, 10));
+        }
+      };
+
+      loadUnreadCount();
     }, []);
 
     useEffect(() => {

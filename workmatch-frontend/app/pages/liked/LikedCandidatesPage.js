@@ -28,7 +28,11 @@ const LikedCandidatesPage = () => {
           stomp.subscribe(`/topic/notifications/${userId}`, (message) => {
             const msg = JSON.parse(message.body);
             console.log('🔔 Notification reçue (likedCandidatesPage) :', msg);
-            setUnreadCount((prev) => prev + 1);
+            setUnreadCount((prev) => {
+                const newCount = prev + 1;
+                AsyncStorage.setItem('unreadMessageCount', newCount.toString());
+                return newCount;
+              });
           });
         }, (err) => {
           console.error("Erreur WebSocket LikedCandidatesPage:", err);
@@ -38,8 +42,18 @@ const LikedCandidatesPage = () => {
       connectWebSocket();
     }, []);
 
+    useEffect(() => {
+      const loadUnreadCount = async () => {
+        const storedCount = await AsyncStorage.getItem('unreadMessageCount');
+        if (storedCount !== null) {
+          setUnreadCount(parseInt(storedCount, 10));
+        }
+      };
 
-useEffect(() => {
+      loadUnreadCount();
+    }, []);
+
+    useEffect(() => {
     const fetchData = async () => {
       const type = await AsyncStorage.getItem('userType');
       setUserType(type);
