@@ -24,7 +24,7 @@ const LikedOffersPage = () => {
           stomp.connect({}, () => {
             stomp.subscribe(`/topic/notifications/${userId}`, (message) => {
               const msg = JSON.parse(message.body);
-              console.log('🔔 Notification reçue (LikedOffersPage) :', msg);
+              console.log('Notification reçue (LikedOffersPage) :', msg);
               const senderId = msg.senderId;
 
               if (senderId !== userId) {

@@ -41,7 +41,7 @@ const ProfilePage = () => {
         stomp.connect({}, () => {
           stomp.subscribe(`/topic/notifications/${userId}`, async (message) => {
             const msg = JSON.parse(message.body);
-            console.log('🔔 Notification reçue dans CompanyHomePage !', msg);
+            console.log('Notification reçue dans CompanyHomePage !', msg);
 
             const conversationId = msg.conversationId;
             if (!conversationId) return;
@@ -54,7 +54,7 @@ const ProfilePage = () => {
 
               await AsyncStorage.setItem('unreadByConversation', JSON.stringify(unreadMap));
             } catch (error) {
-              console.error("❌ Erreur de stockage des unreadByConversation :", error);
+              console.error("Erreur de stockage des unreadByConversation :", error);
             }
 
             const senderId = msg.senderId;
@@ -163,7 +163,7 @@ const ProfilePage = () => {
         }, 3000);
 
       } catch (err) {
-        console.error("❌ Erreur globale d'enregistrement :", err);
+        console.error("Erreur globale d'enregistrement :", err);
       }
     };
 
@@ -334,7 +334,7 @@ const ProfilePage = () => {
               const jobSearcherRes = await axios.get(`http://localhost:8080/jobsearchers/${userId}`, {
                 headers: { Authorization: bearerToken }
               });
-              const jobSearcher = jobSearcherRes.data; // 👉 tu récupères ici d'abord
+              const jobSearcher = jobSearcherRes.data;
 
                 if (jobSearcher.salaryMin) {
                   setSalaryMin(jobSearcher.salaryMin);
@@ -361,9 +361,9 @@ const ProfilePage = () => {
                   if (typeof jobSearcher.remote === 'boolean') {
                     setIsRemotePreferred(jobSearcher.remote);
                   }
-if (jobSearcher.employmentType) {
-  setEmploymentType(jobSearcher.employmentType);
-}
+                    if (jobSearcher.employmentType) {
+                      setEmploymentType(jobSearcher.employmentType);
+                    }
 
             } catch (error) {
               console.error("Erreur lors de la récupération des compétences JobSearcher:", error);
@@ -490,7 +490,7 @@ if (jobSearcher.employmentType) {
             </View>
 
             <View style={{ marginTop: 20 }}>
-              <Text style={styles.sectionTitle}>🛠️ Modifier mes compétences</Text>
+              <Text style={styles.sectionTitle}>Modifier mes compétences</Text>
 
               {availableSkills.map((skill) => (
                 <View key={skill} style={{ alignItems: 'center', marginVertical: 8 }}>

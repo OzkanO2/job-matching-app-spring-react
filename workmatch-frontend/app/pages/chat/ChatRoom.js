@@ -29,7 +29,7 @@ const ChatRoom = () => {
                 const storedUserId = await AsyncStorage.getItem('userId');
 
                 if (!storedUserId || !matchedUserId) {
-                    console.warn("⚠️ [fetchMatchInfo] userId ou matchedUserId manquant !");
+                    console.warn("[fetchMatchInfo] userId ou matchedUserId manquant !");
                     return;
                 }
 
@@ -38,7 +38,7 @@ const ChatRoom = () => {
                 //Mettre les IDs dans l'ordre lexicographique
                 const [id1, id2] = [storedUserId, matchedUserId].sort();
 
-                console.log("📡 [fetchMatchInfo] Récupération des raisons du match entre", id1, "et", id2);
+                console.log("[fetchMatchInfo] Récupération des raisons du match entre", id1, "et", id2);
 
                 const response = await axios.get(
                     `http://localhost:8080/api/matches/reason/${id1}/${id2}`,
@@ -176,13 +176,12 @@ const ChatRoom = () => {
               const navState = navigation.getState();
               const currentRoute = navState.routes[navState.index];
 
-              // ✅ Vérifie si l'utilisateur est sur ChatRoom ET que c’est bien la bonne conversation
+              // Vérifie si l'utilisateur est sur ChatRoom ET que c’est bien la bonne conversation
               const isCurrentConversation =
                 currentRoute.name === "ChatRoom" &&
                 currentRoute.params?.conversationId === conversationId;
 
               if (!isCurrentConversation) {
-                // 🔴 Ajoute à unread uniquement si ce n'est PAS cette conversation
                 const unreadRaw = await AsyncStorage.getItem('unreadByConversation');
                 const unreadMap = unreadRaw ? JSON.parse(unreadRaw) : {};
 
@@ -193,7 +192,7 @@ const ChatRoom = () => {
                 const totalUnread = parseInt(totalUnreadRaw || '0') + 1;
                 await AsyncStorage.setItem('unreadMessageCount', totalUnread.toString());
               } else {
-                console.log("✅ Message lu en direct, pas de notif.");
+                console.log(" Message lu en direct, pas de notif.");
               }
             });
 

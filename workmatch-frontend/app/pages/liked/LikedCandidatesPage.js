@@ -24,10 +24,10 @@ const LikedCandidatesPage = () => {
         stomp.debug = null;
 
         stomp.connect({}, () => {
-          console.log("✅ WebSocket connecté dans LikedCandidatesPage");
+          console.log(" WebSocket connecté dans LikedCandidatesPage");
           stomp.subscribe(`/topic/notifications/${userId}`, (message) => {
             const msg = JSON.parse(message.body);
-            console.log('🔔 Notification reçue (likedCandidatesPage) :', msg);
+            console.log('Notification reçue (likedCandidatesPage) :', msg);
             const senderId = msg.senderId;
 
             if (senderId !== userId) {

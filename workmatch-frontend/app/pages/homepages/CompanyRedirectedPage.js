@@ -30,7 +30,7 @@ const CompanyRedirectedPage = () => {
         stomp.connect({}, () => {
           stomp.subscribe(`/topic/notifications/${userId}`, (message) => {
             const msg = JSON.parse(message.body);
-            console.log('🔔 Notification reçue (CompanyRedirectedPage) :', msg);
+            console.log('Notification reçue (CompanyRedirectedPage) :', msg);
             const senderId = msg.senderId;
 
             if (senderId !== userId) {
@@ -167,7 +167,7 @@ const CompanyRedirectedPage = () => {
                 console.log("Swipes à gauche pour CETTE OFFRE :", [...swipedIdsForOffer]);
 
             } catch (error) {
-                console.error("⚠️ Erreur lors de la récupération des swipes pour cette offre :", error);
+                console.error("Erreur lors de la récupération des swipes pour cette offre :", error);
             }
 
             //Récupérer les swipes à gauche GLOBALEMENT (hors redirection)
@@ -430,7 +430,7 @@ const CompanyRedirectedPage = () => {
 
          try {
              const token = await AsyncStorage.getItem('userToken');
-             console.log("🔑 Token utilisé pour la requête :", token);
+             console.log("Token utilisé pour la requête :", token);
 
              await axios.post(
                  "http://localhost:8080/api/swiped/save",

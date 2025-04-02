@@ -165,7 +165,7 @@ const CompanyOnboardingPage = ({ navigation, route }) => {
          Alert.alert("Erreur", "Impossible de créer l'offre.");
        }
      };
-    console.log("🎯 userInfo dans CompanyOnboardingPage :", userInfo);
+    console.log("userInfo dans CompanyOnboardingPage :", userInfo);
 
     return (
        <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>

@@ -141,7 +141,7 @@ public class JobOfferController {
         List<JobOffer> jobOffers = jobOfferService.getJobOffersByCompanyId(companyId);
 
         if (jobOffers.isEmpty()) {
-            logger.warn("⚠Aucune offre trouvée pour companyId: {}", companyId);
+            logger.warn("Aucune offre trouvée pour companyId: {}", companyId);
         } else {
             logger.info("{} offres trouvées pour companyId: {}", jobOffers.size(), companyId);
         }

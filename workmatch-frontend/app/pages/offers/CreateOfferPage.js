@@ -113,7 +113,7 @@ const CreateOfferPage = ({ navigation }) => {
         Alert.alert("Erreur", "Échec de la création de l’offre.");
       }
     } catch (error) {
-      console.error("❌ Erreur création offre :", error);
+      console.error(" Erreur création offre :", error);
       Alert.alert("Erreur", "Une erreur est survenue.");
     }
   };

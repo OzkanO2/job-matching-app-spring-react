@@ -32,7 +32,7 @@ const CompanyHomePage = () => {
         stomp.connect({}, () => {
           stomp.subscribe(`/topic/notifications/${userId}`, async (message) => {
             const msg = JSON.parse(message.body);
-            console.log('🔔 Notification reçue dans CompanyHomePage !', msg);
+            console.log(' Notification reçue dans CompanyHomePage !', msg);
 
             const conversationId = msg.conversationId;
             if (!conversationId) return;
@@ -45,7 +45,7 @@ const CompanyHomePage = () => {
 
               await AsyncStorage.setItem('unreadByConversation', JSON.stringify(unreadMap));
             } catch (error) {
-              console.error("❌ Erreur de stockage des unreadByConversation :", error);
+              console.error(" Erreur de stockage des unreadByConversation :", error);
             }
 
             const senderId = msg.senderId;
@@ -341,7 +341,7 @@ const CompanyHomePage = () => {
             //Vérifier si l'élément existe bien dans swipedIds avant de filtrer
             allJobSearchers = allJobSearchers.filter(jobSearcher => {
                 const jobSearcherId = jobSearcher.userId?.toString() || jobSearcher.id?.toString();
-                console.log(`🔍 Vérification de ${jobSearcherId}, est-il dans swipedIds ?`, swipedIds.has(jobSearcherId));
+                console.log(`Vérification de ${jobSearcherId}, est-il dans swipedIds ?`, swipedIds.has(jobSearcherId));
                 return !swipedIds.has(jobSearcherId);
             });
 

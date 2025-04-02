@@ -68,13 +68,13 @@ const ChatPage = ({ route }) => {
         stomp.debug = null;
 
         stomp.connect({}, () => {
-          console.log("✅ WebSocket ChatPage connecté");
+          console.log("WebSocket ChatPage connecté");
 
           stomp.subscribe(`/topic/notifications/${userId}`, async (message) => {
             const msg = JSON.parse(message.body);
             const conversationId = msg.conversationId;
 
-            console.log("📨 Notification reçue pour conversation :", conversationId);
+            console.log("Notification reçue pour conversation :", conversationId);
 
             // Mettre à jour unreadByConversation
             const unreadRaw = await AsyncStorage.getItem("unreadByConversation");

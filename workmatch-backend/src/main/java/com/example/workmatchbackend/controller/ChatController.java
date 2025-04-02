@@ -50,7 +50,7 @@ public class ChatController {
         // Envoie du message pour le chat
         messagingTemplate.convertAndSend("/topic/messages/" + conversationId, savedMessage);
 
-        // 🔔 Envoie de la notification au receiver
+        //Envoie de la notification au receiver
         messagingTemplate.convertAndSend("/topic/notifications/" + savedMessage.getReceiverId(), savedMessage);
     }
 
@@ -96,7 +96,7 @@ public class ChatController {
         );
 
         Message savedMessage = messageRepository.save(message);
-        System.out.println("✅ Message sauvegardé dans MongoDB : " + savedMessage);
+        System.out.println(" Message sauvegardé dans MongoDB : " + savedMessage);
 
         return ResponseEntity.ok(savedMessage);
     }

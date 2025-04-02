@@ -27,7 +27,7 @@ const MyOffersPage = () => {
         stomp.connect({}, () => {
           stomp.subscribe(`/topic/notifications/${userId}`, (message) => {
             const msg = JSON.parse(message.body);
-            console.log('🔔 Notification reçue dans CompanyHomePage !', msg);
+            console.log('Notification reçue dans CompanyHomePage !', msg);
             const senderId = msg.senderId;
 
             if (senderId !== userId) {
@@ -200,7 +200,7 @@ const MyOffersPage = () => {
                           }
                         }}
                       >
-                        <Text style={styles.buttonText}>🗑️ Supprimer</Text>
+                        <Text style={styles.buttonText}>🗑️</Text>
                       </TouchableOpacity>
                     </View>
 

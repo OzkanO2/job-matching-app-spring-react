@@ -28,7 +28,7 @@ const IndividualHomePage = () => {
           stomp.connect({}, () => {
             stomp.subscribe(`/topic/messages/${userId}`, (message) => {
               const msg = JSON.parse(message.body);
-              console.log('📩 Nouveau message reçu (notification) :', msg);
+              console.log('Nouveau message reçu (notification) :', msg);
               setUnreadCount((prev) => prev + 1);
             });
           });
@@ -50,7 +50,7 @@ const IndividualHomePage = () => {
         stomp.connect({}, () => {
           stomp.subscribe(`/topic/notifications/${userId}`, (message) => {
             const msg = JSON.parse(message.body);
-            console.log('🔔 Notification reçue !', msg);
+            console.log('Notification reçue !', msg);
               const senderId = msg.senderId;
 
               if (senderId !== userId) {
@@ -104,7 +104,7 @@ const IndividualHomePage = () => {
                     return;
                 }
 
-                console.log("📡 Récupération des offres d'emploi filtrées...");
+                console.log("Récupération des offres d'emploi filtrées...");
 
                 //Récupère toutes les offres
                 const response = await axios.get(`http://localhost:8080/joboffers/user/${swiperId}`, {
@@ -129,7 +129,7 @@ const IndividualHomePage = () => {
                 //Filtrage des offres déjà swipées
                 const filteredJobOffers = allJobOffers.filter(offer => !swipedIds.has(offer._id.toString()));
 
-                console.log("✅ Liste des offres après filtrage :", filteredJobOffers);
+                console.log("Liste des offres après filtrage :", filteredJobOffers);
 
                 //Garde uniquement les offres uniques
                 const uniqueJobOffers = filteredJobOffers.reduce((acc, offer) => {
@@ -339,7 +339,7 @@ const IndividualHomePage = () => {
 
                <TouchableOpacity style={styles.chatButton}
                onPress={() => {
-                 setUnreadCount(0); // on cache la pastille
+                 setUnreadCount(0);
                  navigation.navigate("ChatPage");
                }}
 >
