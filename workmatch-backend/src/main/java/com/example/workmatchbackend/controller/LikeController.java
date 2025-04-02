@@ -53,6 +53,10 @@ public class LikeController {
 
     @GetMapping
     public ResponseEntity<List<Like>> getLikesBySwipedId(@RequestParam String swipedId) {
+        if (swipedId == null || swipedId.trim().isEmpty()) {
+            return ResponseEntity.badRequest().body("L'identifiant de l'offre est requis.");
+        }
+
         List<Like> likes = likeRepository.findBySwipedId(swipedId);
 
         return ResponseEntity.ok(likes); //Retourne une liste vide au lieu d'un 404

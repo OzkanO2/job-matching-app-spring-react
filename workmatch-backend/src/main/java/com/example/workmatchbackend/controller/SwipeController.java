@@ -171,6 +171,18 @@ public class SwipeController {
             @RequestParam(required = false, defaultValue = "") String jobOfferId,
             @RequestParam boolean isFromRedirection) {
 
+        if (swiperId == null || swiperId.trim().isEmpty()) {
+            return ResponseEntity.badRequest().body("swiperId est requis.");
+        }
+
+        if (swipedId == null || swipedId.trim().isEmpty()) {
+            return ResponseEntity.badRequest().body("swipedId est requis.");
+        }
+
+        if (!direction.equals("left") && !direction.equals("right")) {
+            return ResponseEntity.badRequest().body("direction doit être 'left' ou 'right'.");
+        }
+
         boolean exists = swipedCardRepository.existsBySwiperIdAndSwipedIdAndDirectionAndJobOfferIdAndIsFromRedirection(
                 swiperId, swipedId, direction, jobOfferId, isFromRedirection
         );
