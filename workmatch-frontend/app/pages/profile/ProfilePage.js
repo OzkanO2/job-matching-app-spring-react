@@ -26,6 +26,8 @@ const ProfilePage = () => {
     const [unreadCount, setUnreadCount] = useState(0);
     const [employmentType, setEmploymentType] = useState('');
     const [employmentTypeSuccess, setEmploymentTypeSuccess] = useState(false);
+    const [salaryMin, setSalaryMin] = useState(30000);
+    const [salaryMax, setSalaryMax] = useState(60000);
 
     useEffect(() => {
       const connectNotificationWebSocket = async () => {
@@ -141,6 +143,8 @@ const ProfilePage = () => {
           locations: selectedLocations.filter(loc => loc !== ""),
           remote: isRemotePreferred,
           employmentType,
+  salaryMin,
+  salaryMax
         };
         console.log("Payload envoyé :", updatedData);
 
@@ -330,8 +334,15 @@ const ProfilePage = () => {
               const jobSearcherRes = await axios.get(`http://localhost:8080/jobsearchers/${userId}`, {
                 headers: { Authorization: bearerToken }
               });
+              const jobSearcher = jobSearcherRes.data; // 👉 tu récupères ici d'abord
 
-              const jobSearcher = jobSearcherRes.data;
+                if (jobSearcher.salaryMin) {
+                  setSalaryMin(jobSearcher.salaryMin);
+                }
+                if (jobSearcher.salaryMax) {
+                  setSalaryMax(jobSearcher.salaryMax);
+                }
+
               console.log("Compétences reçues depuis JobSearcher:", jobSearcher.skills);
 
               if (jobSearcher.skills && Array.isArray(jobSearcher.skills)) {
@@ -585,6 +596,36 @@ if (jobSearcher.employmentType) {
                   <Text style={{ color: "green", marginTop: 6 }}>✅ Contrat préféré enregistré !</Text>
                 )}
               </View>
+                <View style={{ marginTop: 20 }}>
+                  <Text style={styles.sectionTitle}>Salaire souhaité</Text>
+                  <View style={{ flexDirection: 'row', justifyContent: 'space-around', marginBottom: 10 }}>
+                    <View>
+                      <Text style={styles.defaultText}>Minimum :</Text>
+                      <View style={styles.experienceContainer}>
+                        <TouchableOpacity onPress={() => setSalaryMin((prev) => Math.max(0, prev - 1000))}>
+                          <Ionicons name="remove-circle-outline" size={24} color="#6c757d" />
+                        </TouchableOpacity>
+                        <Text style={styles.experienceValue}>{salaryMin} €</Text>
+                        <TouchableOpacity onPress={() => setSalaryMin((prev) => prev + 1000)}>
+                          <Ionicons name="add-circle-outline" size={24} color="#6c757d" />
+                        </TouchableOpacity>
+                      </View>
+                    </View>
+
+                    <View>
+                      <Text style={styles.defaultText}>Maximum :</Text>
+                      <View style={styles.experienceContainer}>
+                        <TouchableOpacity onPress={() => setSalaryMax((prev) => Math.max(0, prev - 1000))}>
+                          <Ionicons name="remove-circle-outline" size={24} color="#6c757d" />
+                        </TouchableOpacity>
+                        <Text style={styles.experienceValue}>{salaryMax} €</Text>
+                        <TouchableOpacity onPress={() => setSalaryMax((prev) => prev + 1000)}>
+                          <Ionicons name="add-circle-outline" size={24} color="#6c757d" />
+                        </TouchableOpacity>
+                      </View>
+                    </View>
+                  </View>
+                </View>
 
         <View style={{ marginTop: 20 }}>
           <Button title="💾 Enregistrer mes préférences" onPress={saveAllPreferencesToBackend} />

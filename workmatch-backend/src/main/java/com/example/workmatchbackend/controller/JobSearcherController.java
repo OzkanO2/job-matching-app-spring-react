@@ -66,7 +66,7 @@ public class JobSearcherController {
     @PutMapping("/{userId}/updateUser")
     public ResponseEntity<?> updateUser(@PathVariable String userId,
                                         @RequestBody JobSearcher jobSearcher) {
-        System.out.println("📥 Requête reçue pour mettre à jour l'utilisateur : " + userId);
+        System.out.println("Requête reçue pour mettre à jour l'utilisateur : " + userId);
 
         //Vérifier si le JobSearcher existe
         Optional<JobSearcher> existingJobSearcher = jobSearcherService.findByUserId(new ObjectId(userId));
@@ -87,6 +87,7 @@ public class JobSearcherController {
         if (jobSearcher.getEmploymentType() == null || jobSearcher.getEmploymentType().isEmpty()) {
             return ResponseEntity.badRequest().body("Le type de contrat est requis.");
         }
+
         if (existingJobSearcher.isPresent()) {
             JobSearcher updatedJobSearcher = existingJobSearcher.get();
 

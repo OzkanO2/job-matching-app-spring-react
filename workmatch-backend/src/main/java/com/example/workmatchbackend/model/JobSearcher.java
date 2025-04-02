@@ -132,7 +132,6 @@ public class JobSearcher {
     public void setEmploymentType(String employmentType) {
         this.employmentType = employmentType;
     }
-
     public List<String> getLocations() {
         return locations;
     }
