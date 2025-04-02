@@ -69,7 +69,20 @@ public class JobSearcherController {
 
         //Vérifier si le JobSearcher existe
         Optional<JobSearcher> existingJobSearcher = jobSearcherService.findByUserId(new ObjectId(userId));
+        if (jobSearcher.getSkills() == null || jobSearcher.getSkills().isEmpty()) {
+            return ResponseEntity.badRequest().body("Veuillez sélectionner au moins une compétence.");
+        }
+        if (jobSearcher.getLocations() == null || jobSearcher.getLocations().isEmpty()) {
+            return ResponseEntity.badRequest().body("Veuillez sélectionner au moins une ville.");
+        }
+        if (jobSearcher.getSalaryMin() == null || jobSearcher.getSalaryMax() == null) {
+            return ResponseEntity.badRequest().body("Salaire minimum et maximum requis.");
+        }
 
+        if (jobSearcher.getSalaryMin() >= jobSearcher.getSalaryMax()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("Le salaire minimum doit être inférieur au salaire maximum.");
+        }
         if (existingJobSearcher.isPresent()) {
             JobSearcher updatedJobSearcher = existingJobSearcher.get();
 
