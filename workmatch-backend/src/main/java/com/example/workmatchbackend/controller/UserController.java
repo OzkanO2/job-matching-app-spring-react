@@ -289,6 +289,21 @@ public class UserController {
     public ResponseEntity<?> loginUser(@RequestBody Map<String, String> user) {
         String username = user.get("username");
         String password = user.get("password");
+        if (username == null || username.trim().isEmpty()) {
+            return ResponseEntity.badRequest().body("Le nom d'utilisateur est requis.");
+        }
+
+        if (password == null || password.trim().isEmpty()) {
+            return ResponseEntity.badRequest().body("Le mot de passe est requis.");
+        }
+
+        if (username.length() > 30) {
+            return ResponseEntity.badRequest().body("Le nom d'utilisateur est trop long.");
+        }
+
+        if (password.length() > 50) {
+            return ResponseEntity.badRequest().body("Le mot de passe est trop long.");
+        }
 
         User existingUser = userRepository.findByUsername(username);
         if (existingUser != null && passwordEncoder.matches(password, existingUser.getPassword())) {
