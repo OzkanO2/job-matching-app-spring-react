@@ -5,6 +5,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import { useFocusEffect } from '@react-navigation/native';
 import { useCallback } from 'react';
+import SockJS from "sockjs-client";
+import Stomp from "stompjs";
 
 const ChatPage = ({ route }) => {
     const navigation = useNavigation();
@@ -53,6 +55,55 @@ const ChatPage = ({ route }) => {
         loadUnreadByConversation();
       }, [])
     );
+    useEffect(() => {
+      let stomp = null;
+      let socket = null;
+
+      const connectSocket = async () => {
+        const userId = await AsyncStorage.getItem("userId");
+
+        socket = new SockJS("http://localhost:8080/ws");
+        stomp = Stomp.over(socket);
+        stomp.debug = null;
+
+        stomp.connect({}, () => {
+          console.log("✅ WebSocket ChatPage connecté");
+
+          stomp.subscribe(`/topic/notifications/${userId}`, async (message) => {
+            const msg = JSON.parse(message.body);
+            const conversationId = msg.conversationId;
+
+            console.log("📨 Notification reçue pour conversation :", conversationId);
+
+            // Mettre à jour unreadByConversation
+            const unreadRaw = await AsyncStorage.getItem("unreadByConversation");
+            const unreadMap = unreadRaw ? JSON.parse(unreadRaw) : {};
+            unreadMap[conversationId] = (unreadMap[conversationId] || 0) + 1;
+            await AsyncStorage.setItem("unreadByConversation", JSON.stringify(unreadMap));
+
+            // Mettre à jour le total global
+            const total = Object.values(unreadMap).reduce((acc, val) => acc + val, 0);
+            await AsyncStorage.setItem("unreadMessageCount", total.toString());
+
+            // Mettre à jour visuellement
+            setConversations(prev =>
+              prev.map(conv =>
+                conv.conversationId === conversationId
+                  ? { ...conv, unread: unreadMap[conversationId] }
+                  : conv
+              )
+            );
+          });
+        });
+      };
+
+      connectSocket();
+
+      return () => {
+        if (stomp) stomp.disconnect();
+        if (socket) socket.close();
+      };
+    }, []);
 
     useEffect(() => {
       const fetchConversations = async () => {
