@@ -40,6 +40,14 @@ public class SwipeController {
             @PathVariable String swiperId,
             @PathVariable String jobOfferId) {
 
+        if (swiperId == null || swiperId.trim().isEmpty()) {
+            return ResponseEntity.badRequest().body("swiperId est requis.");
+        }
+
+        if (jobOfferId == null || jobOfferId.trim().isEmpty()) {
+            return ResponseEntity.badRequest().body("jobOfferId est requis.");
+        }
+
         System.out.println("Début API filteredJobSearchers avec swiperId : " + swiperId + " et jobOfferId : " + jobOfferId);
 
         //Récupérer les swipes "left" pour cette offre
@@ -105,6 +113,11 @@ public class SwipeController {
 
     @GetMapping("/company/swipes/{companyId}")
     public Map<String, Map<String, Integer>> getCandidateSwipeCounts(@PathVariable String companyId) {
+
+        if (companyId == null || companyId.trim().isEmpty()) {
+            return ResponseEntity.badRequest().body("companyId est requis.");
+        }
+
         List<JobOffer> companyOffers = jobOfferRepository.findByCompanyId(new ObjectId(companyId));
 
         if (companyOffers.isEmpty()) {
@@ -158,6 +171,10 @@ public class SwipeController {
 
     @GetMapping("/{swiperId}")
     public ResponseEntity<List<SwipedCard>> getSwipedCards(@PathVariable String swiperId) {
+        if (swiperId == null || swiperId.trim().isEmpty()) {
+            return ResponseEntity.badRequest().body("swiperId est requis.");
+        }
+
         List<SwipedCard> swipedCards = swipedCardRepository.findBySwiperId(swiperId);
         System.out.println("Swipes trouvés pour " + swiperId + " : " + swipedCards);
         return ResponseEntity.ok(swipedCards);
@@ -194,6 +211,10 @@ public class SwipeController {
 
     @GetMapping("/filteredJobSearchersNormal/{swiperId}")
     public ResponseEntity<List<JobSearcher>> getFilteredJobSearchersNormal(@PathVariable String swiperId) {
+        if (swiperId == null || swiperId.trim().isEmpty()) {
+            return ResponseEntity.badRequest().body("L'identifiant du swiper est requis.");
+        }
+
         //Récupérer TOUS les swipes (left et right) où jobOfferId est vide et isFromRedirection est false
         List<SwipedCard> swipedCards = swipedCardRepository.findBySwiperIdAndJobOfferIdAndIsFromRedirection(swiperId, "", false);
 

@@ -67,6 +67,30 @@ public class JobOfferController {
     public ResponseEntity<JobOffer> createJobOffer(@RequestBody JobOffer jobOffer) {
         logger.info("Creating a new job offer.");
 
+        if (jobOffer.getTitle() == null || jobOffer.getTitle().replaceAll("\\s", "").length() < 7) {
+            return ResponseEntity.badRequest().body(null);
+        }
+
+        if (jobOffer.getDescription() == null || jobOffer.getDescription().replaceAll("\\s", "").length() < 20) {
+            return ResponseEntity.badRequest().body(null);
+        }
+
+        if (jobOffer.getSalaryMin() >= jobOffer.getSalaryMax()) {
+            return ResponseEntity.badRequest().body(null);
+        }
+
+        if (jobOffer.getEmploymentType() == null || jobOffer.getEmploymentType().trim().isEmpty()) {
+            return ResponseEntity.badRequest().body(null);
+        }
+
+        if (jobOffer.getLocations() == null || jobOffer.getLocations().isEmpty()) {
+            return ResponseEntity.badRequest().body(null);
+        }
+
+        if (jobOffer.getSkills() == null || jobOffer.getSkills().isEmpty()) {
+            return ResponseEntity.badRequest().body(null);
+        }
+
         if (jobOffer.getCreatedAt() == null) {
             jobOffer.setCreatedAt(LocalDate.now());
         }
@@ -163,6 +187,30 @@ public class JobOfferController {
 
         if (existingOfferOpt.isEmpty()) {
             return ResponseEntity.notFound().build();
+        }
+        String title = updatedOffer.getTitle() != null ? updatedOffer.getTitle().replaceAll("\\s+", "") : "";
+        if (title.length() < 7) {
+            return ResponseEntity.badRequest().body("Le titre doit contenir au moins 7 caractères (hors espaces).");
+        }
+        String description = updatedOffer.getDescription() != null ? updatedOffer.getDescription().replaceAll("\\s+", "") : "";
+        if (description.length() < 20) {
+            return ResponseEntity.badRequest().body("La description doit contenir au moins 20 caractères (hors espaces).");
+        }
+        if (updatedOffer.getSalaryMin() >= updatedOffer.getSalaryMax()) {
+            return ResponseEntity.badRequest().body("Le salaire minimum doit être inférieur au salaire maximum.");
+        }
+
+        List<String> validTypes = List.of("full_time", "part_time", "internship", "freelance");
+        if (updatedOffer.getEmploymentType() == null || !validTypes.contains(updatedOffer.getEmploymentType())) {
+            return ResponseEntity.badRequest().body("Le type de contrat est invalide.");
+        }
+
+        if (updatedOffer.getLocations() == null || updatedOffer.getLocations().isEmpty()) {
+            return ResponseEntity.badRequest().body("Veuillez sélectionner au moins une ville.");
+        }
+
+        if (updatedOffer.getSkills() == null || updatedOffer.getSkills().isEmpty()) {
+            return ResponseEntity.badRequest().body("Veuillez sélectionner au moins une compétence.");
         }
 
         JobOffer existingOffer = existingOfferOpt.get();

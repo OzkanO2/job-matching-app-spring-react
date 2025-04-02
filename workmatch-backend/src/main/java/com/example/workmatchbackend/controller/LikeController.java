@@ -75,7 +75,13 @@ public class LikeController {
 
     @GetMapping("/liked-offers/{userId}")
     public ResponseEntity<List<JobOffer>> getLikedOffersByUser(@PathVariable String userId) {
+        if (userId == null || userId.trim().isEmpty()) {
+            return ResponseEntity.badRequest().body("userId est requis.");
+        }
+
         List<Like> likes = likeRepository.findBySwiperId(userId);
+
+
         List<String> offerIds = likes.stream()
                 .map(Like::getSwipedId)
                 .collect(Collectors.toList());
@@ -104,6 +110,10 @@ public class LikeController {
 
     @GetMapping("/liked-candidates/{companyId}")
     public ResponseEntity<List<JobSearcher>> getLikedCandidates(@PathVariable String companyId) {
+        if (companyId == null || companyId.trim().isEmpty()) {
+            return ResponseEntity.badRequest().body("L'identifiant de l'entreprise est requis.");
+        }
+
         List<Like> likes = likeRepository.findAllByCompanyId(companyId);
 
         List<String> jobSearcherIds = likes.stream()
