@@ -56,13 +56,37 @@ public class ChatController {
 
     @PostMapping("/sendMessage")
     public ResponseEntity<Message> sendMessage(@RequestBody Message messageDetails) {
-        System.out.println("📩 Message reçu via API : " + messageDetails);
+        System.out.println("Message reçu via API : " + messageDetails);
 
         if (messageDetails.getSenderId() == null || messageDetails.getReceiverId() == null) {
-            System.out.println("❌ senderId ou receiverId manquant !");
+            System.out.println("senderId ou receiverId manquant !");
             return ResponseEntity.badRequest().build();
         }
+        if (messageDetails.getContent() == null || messageDetails.getContent().trim().isEmpty()) {
+            System.out.println("Le contenu du message est vide !");
+            return ResponseEntity.badRequest().body(null);
+        }
+        if (messageDetails.getContent().length() > 1000) {
+            System.out.println("Message trop long !");
+            return ResponseEntity.badRequest().body(null);
+        }
 
+
+        if (!conversationRepository.existsById(messageDetails.getConversationId())) {
+
+            Conversation conversation = conversationRepository.findById(messageDetails.getConversationId()).orElse(null);
+            if (conversation == null) {
+                System.out.println("Conversation inexistante : " + messageDetails.getConversationId());
+                return ResponseEntity.status(404).body(null);
+            }
+
+            if (!conversation.getUser1Id().equals(messageDetails.getSenderId()) &&
+                    !conversation.getUser2Id().equals(messageDetails.getSenderId())) {
+                System.out.println("Utilisateur non autorisé à envoyer un message dans cette conversation !");
+                return ResponseEntity.status(403).body(null);
+            }
+
+        }
         Message message = new Message(
                 messageDetails.getConversationId(),
                 messageDetails.getSenderId(),

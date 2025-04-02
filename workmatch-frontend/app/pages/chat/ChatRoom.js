@@ -223,6 +223,10 @@ const ChatRoom = () => {
             console.error("Impossible d'envoyer le message : userId ou receiverId manquant.");
             return;
         }
+        if (newMessage.length > 1000) {
+            alert("Le message est trop long. Maximum 1000 caractères autorisés.");
+            return;
+          }
 
         const message = {
             conversationId,
@@ -294,6 +298,7 @@ useEffect(() => {
           onChangeText={setNewMessage}
           placeholder="Écrire un message..."
           placeholderTextColor="#94a3b8"
+          maxLength={1000}
         />
 
         <TouchableOpacity style={styles.sendButton} onPress={sendMessage}>

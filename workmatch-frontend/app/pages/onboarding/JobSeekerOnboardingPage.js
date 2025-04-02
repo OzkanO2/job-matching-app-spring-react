@@ -190,7 +190,7 @@ const [salaryMin, setSalaryMin] = useState(30000);
       />
       <Text style={styles.title}>Select Your Salary Range:</Text>
               <View style={styles.salaryContainer}>
-                <Text>Min Salary:</Text>
+<Text style={{ color: "#ffffff", fontWeight: "bold" }}>Min Salary:</Text>
                 <TouchableOpacity onPress={() => handleSalaryChange("min", -1000)}>
                   <Ionicons name="remove-circle-outline" size={24} color="#6c757d" />
                 </TouchableOpacity>
@@ -200,7 +200,7 @@ const [salaryMin, setSalaryMin] = useState(30000);
                 </TouchableOpacity>
               </View>
         <View style={styles.salaryContainer}>
-        <Text>Max Salary:</Text>
+<Text style={{ color: "#ffffff", fontWeight: "bold" }}>Max Salary:</Text>
         <TouchableOpacity onPress={() => handleSalaryChange("max", -1000)}>
           <Ionicons name="remove-circle-outline" size={24} color="#6c757d" />
         </TouchableOpacity>
@@ -219,98 +219,115 @@ const [salaryMin, setSalaryMin] = useState(30000);
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 20,
-    alignItems: "center",
-    backgroundColor: "#f8f9fa",
+    backgroundColor: "#0f172a",
+    padding: 16,
   },
   title: {
+    color: "#ffffff",
     fontSize: 20,
     fontWeight: "bold",
-    marginBottom: 10,
-    color: "#343a40",
+    marginVertical: 10,
+    textAlign: "center",
   },
   skillContainer: {
+    marginBottom: 10,
     alignItems: "center",
-    marginVertical: 8,
   },
   skillButton: {
+    backgroundColor: "#1e293b",
     paddingVertical: 10,
     paddingHorizontal: 20,
-    borderWidth: 2,
-    borderColor: "#007bff",
-    borderRadius: 10,
-    backgroundColor: "white",
-    marginBottom: 5,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: "#3b82f6",
   },
   selectedSkill: {
-    backgroundColor: "#007bff",
+    backgroundColor: "#3b82f6",
   },
   skillText: {
-    fontSize: 16,
-    color: "#007bff",
+    color: "#3b82f6",
+    fontWeight: "bold",
   },
   selectedSkillText: {
-    color: "white",
-    fontWeight: "bold",
+    color: "#ffffff",
   },
   experienceContainer: {
     flexDirection: "row",
     alignItems: "center",
-    marginTop: 5,
+    marginTop: 4,
   },
   experienceValue: {
+    color: "#ffffff",
+    marginHorizontal: 8,
     fontSize: 16,
     fontWeight: "bold",
-    marginHorizontal: 10,
   },
   remoteContainer: {
     flexDirection: "row",
     alignItems: "center",
-    marginTop: 20,
+    marginTop: 16,
+    justifyContent: "center",
   },
   remoteText: {
+    color: "#ffffff",
     fontSize: 18,
-    marginRight: 10,
+    marginRight: 8,
   },
   remoteButton: {
+    backgroundColor: "#1e293b",
     paddingVertical: 10,
-    paddingHorizontal: 15,
+    paddingHorizontal: 20,
     borderRadius: 10,
-    backgroundColor: "#ddd",
   },
   remoteSelected: {
-    backgroundColor: "#007bff",
+    backgroundColor: "#3b82f6",
   },
   remoteButtonText: {
-    fontSize: 16,
+    color: "#ffffff",
     fontWeight: "bold",
-    color: "white",
-  },
-  submitButton: {
-    backgroundColor: "#007bff",
-    paddingVertical: 12,
-    paddingHorizontal: 25,
-    borderRadius: 10,
-    marginTop: 15,
   },
   locationButton: {
-      padding: 10,
-      borderWidth: 2,
-      borderColor: "#007bff",
-      borderRadius: 10,
-      marginVertical: 5,
+    backgroundColor: "#1e293b",
+    padding: 10,
+    borderRadius: 10,
+    marginVertical: 5,
+    borderWidth: 1,
+    borderColor: "#3b82f6",
   },
-    selectedLocation: {
-    backgroundColor: "#007bff",
+  selectedLocation: {
+    backgroundColor: "#3b82f6",
+  },
+  locationText: {
+    color: "#3b82f6",
+    textAlign: "center",
   },
   selectedLocationText: {
-    color: "white",
+    color: "#ffffff",
     fontWeight: "bold",
   },
-  submitButtonText: {
-    color: "white",
-    fontSize: 18,
+  salaryContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 12,
+    marginVertical: 10,
+  },
+  salaryValue: {
+    color: "#ffffff",
+    fontSize: 16,
     fontWeight: "bold",
+  },
+  submitButton: {
+    backgroundColor: "#3b82f6",
+    paddingVertical: 14,
+    borderRadius: 14,
+    marginTop: 20,
+  },
+  submitButtonText: {
+    color: "#ffffff",
+    fontWeight: "bold",
+    fontSize: 18,
+    textAlign: "center",
   },
 });
 
