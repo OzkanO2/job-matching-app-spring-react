@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, TextInput, Button, FlatList, StyleSheet } from 'react-native';
+import React, { useRef, useEffect, useState } from 'react';
+import {  View, Text, TextInput, Button, FlatList, StyleSheet } from 'react-native';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
@@ -21,6 +21,7 @@ const ChatRoom = () => {
     const [loading, setLoading] = useState(true);
     const [matchInfo, setMatchInfo] = useState(null);
     const {matchedUserId, matchedUserName } = route.params;
+    const flatListRef = useRef(null);
 
     useEffect(() => {
         const fetchMatchInfo = async () => {
@@ -189,6 +190,13 @@ const ChatRoom = () => {
 
         setNewMessage("");
     };
+useEffect(() => {
+  if (messages.length > 0) {
+    setTimeout(() => {
+      flatListRef.current?.scrollToEnd({ animated: false });
+    }, 0); // force un scroll dès que possible
+  }
+}, [messages]);
 
 
     return (
@@ -216,6 +224,7 @@ const ChatRoom = () => {
         )}
 
         <FlatList
+          ref={flatListRef}
           data={messages}
           keyExtractor={(item, index) => index.toString()}
           renderItem={({ item }) => (
@@ -223,6 +232,8 @@ const ChatRoom = () => {
               {item.content}
             </Text>
           )}
+          onContentSizeChange={() => flatListRef.current?.scrollToEnd({ animated: false })}
+          onLayout={() => flatListRef.current?.scrollToEnd({ animated: false })}
         />
 
         <TextInput
