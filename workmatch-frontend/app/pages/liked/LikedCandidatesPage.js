@@ -3,12 +3,41 @@ import { View, Text, TouchableOpacity, FlatList, StyleSheet } from 'react-native
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation } from '@react-navigation/native';
 import axios from 'axios';
+import SockJS from 'sockjs-client';
 
 const LikedCandidatesPage = () => {
   const [candidates, setCandidates] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const navigation = useNavigation();
   const [userType, setUserType] = useState('');
+  const [unreadCount, setUnreadCount] = useState(0);
+
+    useEffect(() => {
+      const connectWebSocket = async () => {
+        const userId = await AsyncStorage.getItem('userId');
+        if (!userId) return;
+
+        console.log("Connexion WebSocket depuis LikedCandidatesPage");
+
+        const socket = new SockJS('http://localhost:8080/ws');
+        const stomp = Stomp.over(socket);
+        stomp.debug = null;
+
+        stomp.connect({}, () => {
+          console.log("✅ WebSocket connecté dans LikedCandidatesPage");
+          stomp.subscribe(`/topic/notifications/${userId}`, (message) => {
+            const msg = JSON.parse(message.body);
+            console.log('🔔 Notification reçue (likedCandidatesPage) :', msg);
+            setUnreadCount((prev) => prev + 1);
+          });
+        }, (err) => {
+          console.error("Erreur WebSocket LikedCandidatesPage:", err);
+        });
+      };
+
+      connectWebSocket();
+    }, []);
+
 
 useEffect(() => {
     const fetchData = async () => {
@@ -80,8 +109,27 @@ useEffect(() => {
                   <Text style={styles.navButtonText}>Main Menu</Text>
                 </TouchableOpacity>
 
-                <TouchableOpacity style={[styles.navButton, { backgroundColor: '#93c5fd' }]} onPress={() => navigation.navigate('ChatPage')}>
+                <TouchableOpacity
+                  style={[styles.navButton, { backgroundColor: '#93c5fd', position: 'relative' }]}
+                  onPress={() => {
+                    setUnreadCount(0); // reset
+                    navigation.navigate('ChatPage');
+                  }}
+                >
                   <Text style={styles.navButtonText}>Chat</Text>
+                  {unreadCount > 0 && (
+                    <View style={{
+                      position: 'absolute',
+                      top: -6,
+                      right: -6,
+                      backgroundColor: 'red',
+                      borderRadius: 10,
+                      paddingHorizontal: 6,
+                      paddingVertical: 2,
+                    }}>
+                      <Text style={{ color: 'white', fontWeight: 'bold', fontSize: 10 }}>{unreadCount}</Text>
+                    </View>
+                  )}
                 </TouchableOpacity>
 
                 <TouchableOpacity style={[styles.navButton, { backgroundColor: '#bfdbfe' }]} onPress={() => navigation.navigate('MyOffersPage')}>

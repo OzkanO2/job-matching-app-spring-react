@@ -5,6 +5,7 @@ import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Swiper from 'react-native-deck-swiper';
 import { useRoute } from '@react-navigation/native';
+import SockJS from 'sockjs-client';
 
 const CompanyRedirectedPage = () => {
     const navigation = useNavigation();
@@ -15,6 +16,28 @@ const CompanyRedirectedPage = () => {
     const route = useRoute();
     const { selectedOffer } = route.params || {};
     const [matchingJobSearchers, setMatchingJobSearchers] = useState([]);
+    const [unreadCount, setUnreadCount] = useState(0);
+
+    useEffect(() => {
+      const connectWebSocket = async () => {
+        const userId = await AsyncStorage.getItem('userId');
+        if (!userId) return;
+
+        const socket = new SockJS('http://localhost:8080/ws');
+        const stomp = Stomp.over(socket);
+        stomp.debug = null;
+
+        stomp.connect({}, () => {
+          stomp.subscribe(`/topic/notifications/${userId}`, (message) => {
+            const msg = JSON.parse(message.body);
+            console.log('🔔 Notification reçue (CompanyRedirectedPage) :', msg);
+            setUnreadCount((prev) => prev + 1);
+          });
+        });
+      };
+
+      connectWebSocket();
+    }, []);
 
     useEffect(() => {
         if (selectedOffer) {
@@ -411,9 +434,30 @@ const CompanyRedirectedPage = () => {
               <TouchableOpacity style={styles.navButton} onPress={() => navigation.navigate('CompanyHome')}>
                 <Text style={styles.navButtonText}>Main Menu</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={styles.navButton} onPress={() => navigation.navigate('ChatPage')}>
+
+              <TouchableOpacity
+                style={[styles.navButton, { backgroundColor: '#93c5fd', position: 'relative' }]}
+                onPress={() => {
+                  setUnreadCount(0);
+                  navigation.navigate('ChatPage');
+                }}
+              >
                 <Text style={styles.navButtonText}>Chat</Text>
+                {unreadCount > 0 && (
+                  <View style={{
+                    position: 'absolute',
+                    top: -6,
+                    right: -6,
+                    backgroundColor: 'red',
+                    borderRadius: 10,
+                    paddingHorizontal: 6,
+                    paddingVertical: 2,
+                  }}>
+                    <Text style={{ color: 'white', fontWeight: 'bold', fontSize: 10 }}>{unreadCount}</Text>
+                  </View>
+                )}
               </TouchableOpacity>
+
               <TouchableOpacity style={styles.navButton} onPress={() => navigation.navigate('MyOffersPage')}>
                 <Text style={styles.navButtonText}>My Offers</Text>
               </TouchableOpacity>
