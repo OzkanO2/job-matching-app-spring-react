@@ -3,6 +3,8 @@ import { Button, View, Text, StyleSheet, FlatList, TouchableOpacity, ActivityInd
 import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
+import { useFocusEffect } from '@react-navigation/native';
+import { useCallback } from 'react';
 
 const ChatPage = ({ route }) => {
     const navigation = useNavigation();
@@ -33,6 +35,24 @@ const ChatPage = ({ route }) => {
 
       return unsubscribe;
     }, [navigation]);
+
+    useFocusEffect(
+      useCallback(() => {
+        const loadUnreadByConversation = async () => {
+          const stored = await AsyncStorage.getItem('unreadByConversation');
+          const unreadMap = stored ? JSON.parse(stored) : {};
+
+          setConversations(prev =>
+            prev.map(conv => ({
+              ...conv,
+              unread: unreadMap[conv.conversationId] || 0
+            }))
+          );
+        };
+
+        loadUnreadByConversation();
+      }, [])
+    );
 
     useEffect(() => {
       const fetchConversations = async () => {

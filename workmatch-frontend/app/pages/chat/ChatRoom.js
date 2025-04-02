@@ -108,6 +108,25 @@ const ChatRoom = () => {
       return unsubscribe;
     }, [conversationId, navigation]);
 
+    useEffect(() => {
+      const clearUnreadOnExit = async () => {
+        const raw = await AsyncStorage.getItem('unreadByConversation');
+        let map = raw ? JSON.parse(raw) : {};
+
+        if (map[conversationId] !== 0) {
+          map[conversationId] = 0;
+          await AsyncStorage.setItem('unreadByConversation', JSON.stringify(map));
+        }
+
+        // recalcul du total général
+        const total = Object.values(map).reduce((acc, val) => acc + val, 0);
+        await AsyncStorage.setItem('unreadMessageCount', total.toString());
+      };
+
+      const unsubscribe = navigation.addListener('beforeRemove', clearUnreadOnExit);
+
+      return unsubscribe;
+    }, [conversationId, navigation]);
 
     useEffect(() => {
         const fetchMessages = async () => {
@@ -150,10 +169,32 @@ const ChatRoom = () => {
         stomp.connect({}, () => {
             console.log("Connecté au WebSocket");
 
-            stomp.subscribe(`/topic/messages/${conversationId}`, (message) => {
-                const receivedMessage = JSON.parse(message.body);
-                console.log("Message reçu en WebSocket :", receivedMessage);
-                setMessages((prev) => [...prev, receivedMessage]);
+            stomp.subscribe(`/topic/messages/${conversationId}`, async (message) => {
+              const receivedMessage = JSON.parse(message.body);
+              setMessages((prev) => [...prev, receivedMessage]);
+
+              const navState = navigation.getState();
+              const currentRoute = navState.routes[navState.index];
+
+              // ✅ Vérifie si l'utilisateur est sur ChatRoom ET que c’est bien la bonne conversation
+              const isCurrentConversation =
+                currentRoute.name === "ChatRoom" &&
+                currentRoute.params?.conversationId === conversationId;
+
+              if (!isCurrentConversation) {
+                // 🔴 Ajoute à unread uniquement si ce n'est PAS cette conversation
+                const unreadRaw = await AsyncStorage.getItem('unreadByConversation');
+                const unreadMap = unreadRaw ? JSON.parse(unreadRaw) : {};
+
+                unreadMap[conversationId] = (unreadMap[conversationId] || 0) + 1;
+                await AsyncStorage.setItem('unreadByConversation', JSON.stringify(unreadMap));
+
+                const totalUnreadRaw = await AsyncStorage.getItem('unreadMessageCount');
+                const totalUnread = parseInt(totalUnreadRaw || '0') + 1;
+                await AsyncStorage.setItem('unreadMessageCount', totalUnread.toString());
+              } else {
+                console.log("✅ Message lu en direct, pas de notif.");
+              }
             });
 
             setStompClient(stomp);
@@ -162,8 +203,19 @@ const ChatRoom = () => {
         });
 
         return () => {
-            if (stomp) stomp.disconnect();
+          if (stomp) stomp.disconnect();
+
+          AsyncStorage.getItem('unreadByConversation').then((stored) => {
+            const map = stored ? JSON.parse(stored) : {};
+            if (map[conversationId] !== 0) {
+              map[conversationId] = 0;
+              AsyncStorage.setItem('unreadByConversation', JSON.stringify(map));
+            }
+          });
+
+          AsyncStorage.setItem('unreadMessageCount', '0'); // on reset aussi le total si tu veux
         };
+
     }, [conversationId]);
 
     const sendMessage = async () => {
