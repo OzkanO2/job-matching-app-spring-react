@@ -29,11 +29,7 @@ const MyOffersPage = () => {
             const senderId = msg.senderId;
 
             if (senderId !== userId) {
-              setUnreadCount((prev) => {
-                const newCount = prev + 1;
-                AsyncStorage.setItem('unreadMessageCount', newCount.toString());
-                return newCount;
-              });
+              setUnreadCount(1); // juste pour forcer l’affichage de la bulle
 
               // Et incrémenter par conversation :
               AsyncStorage.getItem('unreadByConversation').then((raw) => {
@@ -123,15 +119,14 @@ const MyOffersPage = () => {
               <TouchableOpacity
                   style={styles.chatButton}
                   onPress={() => {
-                    setUnreadCount(0); // Reset la notif
+                    setUnreadCount(0); // on cache la pastille
                     navigation.navigate("ChatPage");
                   }}
+
                 >
                   <Text style={styles.buttonText}>Chat</Text>
                   {unreadCount > 0 && (
-                    <View style={styles.badge}>
-                      <Text style={styles.badgeText}>{unreadCount}</Text>
-                    </View>
+                    <View style={styles.dot} />
                   )}
 
 
