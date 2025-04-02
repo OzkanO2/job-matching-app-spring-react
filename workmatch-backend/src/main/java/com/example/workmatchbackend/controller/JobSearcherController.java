@@ -33,6 +33,10 @@ public class JobSearcherController {
 
     @GetMapping("/matching")
     public List<JobSearcher> getMatchingCandidates(@RequestParam String jobOfferId) {
+        if (jobOfferId == null || jobOfferId.trim().isEmpty()) {
+            return ResponseEntity.badRequest().body("L'identifiant de l'offre d'emploi est requis.");
+        }
+
         return jobSearcherService.findMatchingCandidates(jobOfferId);
     }
 

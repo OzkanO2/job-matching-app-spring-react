@@ -145,6 +145,13 @@ public class SwipeController {
             @PathVariable String swiperId,
             @PathVariable String jobOfferId) {
 
+        if (swiperId == null || swiperId.trim().isEmpty()) {
+            return ResponseEntity.badRequest().body("L'identifiant de l'utilisateur est requis.");
+        }
+        if (jobOfferId == null || jobOfferId.trim().isEmpty()) {
+            return ResponseEntity.badRequest().body("L'identifiant de l'offre est requis.");
+        }
+
         List<SwipedCard> swipedCards = swipedCardRepository.findBySwiperIdAndJobOfferId(swiperId, jobOfferId);
         return ResponseEntity.ok(swipedCards);
     }
