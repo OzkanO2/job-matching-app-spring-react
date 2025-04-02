@@ -9,6 +9,7 @@ import EditProfilePage from '../pages/profile/EditProfilePage';
 import SettingsPage from '../pages/settings/SettingsPage';
 import ChatPage from '../pages/chat/ChatPage';
 import MyOffersPage from '../pages/offers/MyOffersPage';
+import CreateOfferPage from '../pages/offers/CreateOfferPage';
 import JobSeekerOnboardingPage from '../pages/onboarding/JobSeekerOnboardingPage';
 import CompanyOnboardingPage from '../pages/onboarding/CompanyOnboardingPage';
 import IndividualHomePage from '../pages/IndividualHomePage';
@@ -166,6 +167,14 @@ function MainStackNavigator() {
           title: 'Company Onboarding',
         }}
       />
+      <Stack.Screen
+          name="CreateOfferPage"
+          component={CreateOfferPage}
+          options={{
+            headerLeft: () => null,
+            title: 'Create Offer Page',
+          }}
+        />
       <Stack.Screen
         name="LikedCandidatesPage"
         component={LikedCandidatesPage}

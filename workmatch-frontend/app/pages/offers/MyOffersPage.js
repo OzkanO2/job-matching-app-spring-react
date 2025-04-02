@@ -5,6 +5,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import Stomp from 'stompjs';
 import SockJS from 'sockjs-client';
+import { useFocusEffect } from '@react-navigation/native';
+import { useCallback } from 'react';
 
 const MyOffersPage = () => {
     const navigation = useNavigation();
@@ -72,11 +74,14 @@ const MyOffersPage = () => {
         fetchUserData();
     }, []);
 
-    useEffect(() => {
+    useFocusEffect(
+      useCallback(() => {
         if (companyId && userType === 'COMPANY') {
-            fetchJobOffers();
+          fetchJobOffers();
         }
-    }, [companyId, userType]);
+      }, [companyId, userType])
+    );
+
 
     const fetchJobOffers = async () => {
         try {
@@ -108,6 +113,7 @@ const MyOffersPage = () => {
     return (
         <View style={styles.container}>
             <View style={styles.topButtons}>
+
               <TouchableOpacity style={[styles.navButton, { backgroundColor: '#3b82f6' }]} onPress={() => navigation.navigate('ProfilePage')}>
                 <Text style={styles.navButtonText}>Profile</Text>
               </TouchableOpacity>
@@ -143,6 +149,12 @@ const MyOffersPage = () => {
                 </TouchableOpacity>
               )}
             </View>
+            <TouchableOpacity
+              style={[styles.navButton, { backgroundColor: '#4ade80' }]}
+              onPress={() => navigation.navigate('CreateOfferPage')}
+            >
+              <Text style={styles.navButtonText}>➕ Nouvelle offre</Text>
+            </TouchableOpacity>
 
 
             <Text style={styles.title}>Mes Offres d'Emploi</Text>
