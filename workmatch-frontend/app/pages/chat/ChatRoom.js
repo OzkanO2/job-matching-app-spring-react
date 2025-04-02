@@ -255,7 +255,7 @@ useEffect(() => {
       <View style={styles.container}>
 
         <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
-          <Text style={styles.backButtonText}>⬅️ Retour</Text>
+          <Text style={styles.backButtonText}>Retour</Text>
         </TouchableOpacity>
 
         <Text style={styles.header}>Conversation avec {username}</Text>

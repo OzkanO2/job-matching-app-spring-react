@@ -140,32 +140,33 @@ public class MatchController {
         List<SwipedCard> swipedCards = swipedCardRepository.findBySwiperIdAndSwipedId(userId, matchedUserId);
         System.out.println("[getMatchReason] Nombre de swipes trouvés pour company -> individual: " + swipedCards.size());
 
-        List<String> jobOffers = swipedCards.stream()
+        List<String> jobOfferTitles = swipedCards.stream()
                 .map(SwipedCard::getJobOfferId)
                 .filter(offerId -> offerId != null && !offerId.isEmpty())
+                .map(offerId -> jobOfferRepository.findById(offerId).map(JobOffer::getTitle).orElse(null))
+                .filter(title -> title != null)
                 .collect(Collectors.toList());
 
-        if (!jobOffers.isEmpty()) {
-            System.out.println("[getMatchReason] L'entreprise a liké via les offres : " + String.join(", ", jobOffers));
-            matchInfo.put("companyReason", "L'entreprise a liké via les offres : " + String.join(", ", jobOffers));
+        if (!jobOfferTitles.isEmpty()) {
+            matchInfo.put("companyReason", "L'entreprise a liké via les offres : " + String.join(", ", jobOfferTitles));
         } else {
-            System.out.println("[getMatchReason] Aucune offre trouvée pour le swipe !");
             matchInfo.put("companyReason", "L'entreprise a liké directement, sans offre spécifique.");
         }
 
         //Pourquoi `individual` a liké `company` ?
         List<Like> likes = likeRepository.findBySwiperIdAndCompanyId(matchedUserId, userId);
-        List<String> likedOffers = likes.stream()
-                .map(Like::getSwipedId) //`swipedId` est l'ID des offres likées
+        List<String> likedOfferTitles = likes.stream()
+                .map(Like::getSwipedId)
+                .map(offerId -> jobOfferRepository.findById(offerId).map(JobOffer::getTitle).orElse(null))
+                .filter(title -> title != null)
                 .collect(Collectors.toList());
 
-        if (!likedOffers.isEmpty()) {
-            System.out.println("[getMatchReason] Le candidat a liké via les offres : " + String.join(", ", likedOffers));
-            matchInfo.put("individualReason", "Le candidat a liké l'entreprise via les offres : " + String.join(", ", likedOffers));
+        if (!likedOfferTitles.isEmpty()) {
+            matchInfo.put("individualReason", "Le candidat a liké l'entreprise via les offres : " + String.join(", ", likedOfferTitles));
         } else {
-            System.out.println("[getMatchReason] Le candidat a liké directement !");
             matchInfo.put("individualReason", "Le candidat a liké l'entreprise directement, sans offre spécifique.");
         }
+
 
         System.out.println("[getMatchReason] Résultat final envoyé : " + matchInfo);
         return ResponseEntity.ok(matchInfo);
