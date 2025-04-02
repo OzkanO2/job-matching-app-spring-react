@@ -6,6 +6,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { CheckBox } from 'react-native-elements';
 import { Ionicons } from '@expo/vector-icons';
 import { Picker } from '@react-native-picker/picker';
+import SockJS from 'sockjs-client';
 
 const ProfilePage = () => {
     const navigation = useNavigation();
@@ -22,6 +23,28 @@ const ProfilePage = () => {
     const [selectedLocations, setSelectedLocations] = useState([]);
     const [locationDropdowns, setLocationDropdowns] = useState(1);
     const [locationSuccess, setLocationSuccess] = useState(false);
+    const [unreadCount, setUnreadCount] = useState(0);
+
+    useEffect(() => {
+      const connectNotificationWebSocket = async () => {
+        const userId = await AsyncStorage.getItem('userId');
+        if (!userId) return;
+
+        const socket = new SockJS('http://localhost:8080/ws');
+        const stomp = Stomp.over(socket);
+        stomp.debug = null;
+
+        stomp.connect({}, () => {
+          stomp.subscribe(`/topic/notifications/${userId}`, (message) => {
+            const msg = JSON.parse(message.body);
+            console.log('🔔 Notification reçue dans ProfilePage !', msg);
+            setUnreadCount((prev) => prev + 1);
+          });
+        });
+      };
+
+      connectNotificationWebSocket();
+    }, []);
 
     const addLocationDropdown = () => {
       setLocationDropdowns(prev => prev + 1);
@@ -350,8 +373,19 @@ const ProfilePage = () => {
             <Text style={styles.navButtonText}>Main Menu</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={[styles.navButton, { backgroundColor: '#93c5fd' }]} onPress={() => navigation.navigate('ChatPage')}>
-            <Text style={styles.navButtonText}>Chat</Text>
+          <TouchableOpacity
+            style={styles.chatButton}
+            onPress={() => {
+              setUnreadCount(0); // Reset les notifs si on entre dans le chat
+              navigation.navigate("ChatPage");
+            }}
+          >
+            <Text style={styles.buttonText}>Chat</Text>
+            {unreadCount > 0 && (
+              <View style={styles.badge}>
+                <Text style={styles.badgeText}>{unreadCount}</Text>
+              </View>
+            )}
           </TouchableOpacity>
 
           {userType === 'INDIVIDUAL' && (
@@ -607,6 +641,7 @@ const styles = StyleSheet.create({
       color: '#ffffff',
     }
 ,
+
 scroll: {
   flex: 1,
   backgroundColor: '#0f172a',
@@ -659,7 +694,27 @@ navButtonText: {
   fontWeight: 'bold',
   textAlign: 'center',
 },
-
+chatButton: {
+  position: 'relative',
+  backgroundColor: '#3b82f6',
+  padding: 14,
+  borderRadius: 10,
+  alignItems: 'center',
+},
+badge: {
+  position: 'absolute',
+  top: -5,
+  right: -10,
+  backgroundColor: 'red',
+  borderRadius: 10,
+  paddingHorizontal: 6,
+  paddingVertical: 2,
+},
+badgeText: {
+  color: 'white',
+  fontWeight: 'bold',
+  fontSize: 10,
+},
 });
 
 export default ProfilePage;

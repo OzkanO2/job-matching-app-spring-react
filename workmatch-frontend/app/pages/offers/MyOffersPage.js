@@ -3,12 +3,36 @@ import { Button, View, Text, StyleSheet, FlatList, TouchableOpacity } from 'reac
 import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
+import Stomp from 'stompjs';
+import SockJS from 'sockjs-client';
 
 const MyOffersPage = () => {
     const navigation = useNavigation();
     const [userType, setUserType] = useState('');
     const [companyId, setCompanyId] = useState('');
     const [jobOffers, setJobOffers] = useState([]);
+    const [unreadCount, setUnreadCount] = useState(0);
+
+    useEffect(() => {
+          const connectNotificationWebSocket = async () => {
+            const userId = await AsyncStorage.getItem('userId');
+            if (!userId) return;
+
+            const socket = new SockJS('http://localhost:8080/ws');
+            const stomp = Stomp.over(socket);
+            stomp.debug = null;
+
+            stomp.connect({}, () => {
+              stomp.subscribe(`/topic/notifications/${userId}`, (message) => {
+                const msg = JSON.parse(message.body);
+                console.log('🔔 Notification reçue dans CompanyHomePage !', msg);
+                setUnreadCount((prev) => prev + 1);
+              });
+            });
+          };
+
+          connectNotificationWebSocket();
+        }, []);
 
     useEffect(() => {
         const fetchUserData = async () => {
@@ -67,9 +91,21 @@ const MyOffersPage = () => {
                 <Text style={styles.navButtonText}>Main Menu</Text>
               </TouchableOpacity>
 
-              <TouchableOpacity style={[styles.navButton, { backgroundColor: '#93c5fd' }]} onPress={() => navigation.navigate('ChatPage')}>
-                <Text style={styles.navButtonText}>Chat</Text>
-              </TouchableOpacity>
+              <TouchableOpacity
+                  style={styles.chatButton}
+                  onPress={() => {
+                    setUnreadCount(0); // Reset la notif
+                    navigation.navigate("ChatPage");
+                  }}
+                >
+                  <Text style={styles.buttonText}>Chat</Text>
+                  {unreadCount > 0 && (
+                    <View style={styles.badge}>
+                      <Text style={styles.badgeText}>{unreadCount}</Text>
+                    </View>
+                  )}
+                </TouchableOpacity>
+
 
               <TouchableOpacity style={[styles.navButton, { backgroundColor: '#bfdbfe' }]} onPress={() => navigation.navigate('MyOffersPage')}>
                 <Text style={styles.navButtonText}>My Offers</Text>
@@ -231,8 +267,32 @@ deleteButton: {
   alignItems: "center",
   marginTop: 8,
 },
+    badge: {
+      position: 'absolute',
+      top: -5,
+      right: -10,
+      backgroundColor: 'red',
+      borderRadius: 10,
+      paddingHorizontal: 6,
+      paddingVertical: 2,
+    },
+    badgeText: {
+      color: 'white',
+      fontWeight: 'bold',
+      fontSize: 10,
+    },
 
-
+    buttonText: {
+      color: 'white',
+      fontWeight: 'bold',
+    },
+    chatButton: {
+      position: 'relative',
+      backgroundColor: '#3b82f6',
+      padding: 14,
+      borderRadius: 10,
+      alignItems: 'center',
+    },
 });
 
 export default MyOffersPage;
