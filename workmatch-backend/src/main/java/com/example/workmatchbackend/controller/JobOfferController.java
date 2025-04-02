@@ -182,20 +182,22 @@ public class JobOfferController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<JobOffer> updateJobOffer(@PathVariable String id, @RequestBody JobOffer updatedOffer) {
+    public ResponseEntity<?> updateJobOffer(@PathVariable String id, @RequestBody JobOffer updatedOffer) {
         Optional<JobOffer> existingOfferOpt = jobOfferService.getJobOfferById(id);
 
         if (existingOfferOpt.isEmpty()) {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Offre non trouvée.");
         }
         String title = updatedOffer.getTitle() != null ? updatedOffer.getTitle().replaceAll("\\s+", "") : "";
         if (title.length() < 7) {
             return ResponseEntity.badRequest().body("Le titre doit contenir au moins 7 caractères (hors espaces).");
         }
+
         String description = updatedOffer.getDescription() != null ? updatedOffer.getDescription().replaceAll("\\s+", "") : "";
         if (description.length() < 20) {
             return ResponseEntity.badRequest().body("La description doit contenir au moins 20 caractères (hors espaces).");
         }
+
         if (updatedOffer.getSalaryMin() >= updatedOffer.getSalaryMax()) {
             return ResponseEntity.badRequest().body("Le salaire minimum doit être inférieur au salaire maximum.");
         }
@@ -214,8 +216,6 @@ public class JobOfferController {
         }
 
         JobOffer existingOffer = existingOfferOpt.get();
-
-        // Mise à jour des champs
         existingOffer.setTitle(updatedOffer.getTitle());
         existingOffer.setDescription(updatedOffer.getDescription());
         existingOffer.setSalaryMin(updatedOffer.getSalaryMin());

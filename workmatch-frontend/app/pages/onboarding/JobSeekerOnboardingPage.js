@@ -34,8 +34,10 @@ const JobSeekerOnboardingPage = ({ navigation, route }) => {
   const [selectedSkills, setSelectedSkills] = useState({});
   const [isRemote, setIsRemote] = useState(false); // Ajout du remote toggle
   const [selectedLocations, setSelectedLocations] = useState([]); // Ajout pour les villes
-const [salaryMin, setSalaryMin] = useState(30000);
+  const [salaryMin, setSalaryMin] = useState(30000);
   const [salaryMax, setSalaryMax] = useState(60000);
+    const [employmentType, setEmploymentType] = useState('');
+    const [employmentTypeError, setEmploymentTypeError] = useState('');
 
   // Fonction pour ajouter ou retirer une compétence
   const handleSkillToggle = (skill) => {
@@ -102,7 +104,8 @@ const [salaryMin, setSalaryMin] = useState(30000);
 
       const response = await axios.put(
         `http://localhost:8080/jobsearchers/${userInfo.id}/updateUser`, // Nouveau endpoint
-                { skills: formattedSkills, remote: isRemote, locations: selectedLocations, salaryMin, salaryMax },
+                { skills: formattedSkills, remote: isRemote, locations: selectedLocations, salaryMin, salaryMax,
+  employmentType, },
 
         {
           headers: {
@@ -209,6 +212,32 @@ const [salaryMin, setSalaryMin] = useState(30000);
           <Ionicons name="add-circle-outline" size={24} color="#6c757d" />
         </TouchableOpacity>
       </View>
+      <Text style={styles.title}>Quel type de contrat cherches-tu ?</Text>
+      <View style={styles.contractContainer}>
+        {["full_time", "part_time", "internship", "freelance"].map((type) => (
+          <TouchableOpacity
+            key={type}
+            style={[
+              styles.contractButton,
+              employmentType === type && styles.contractSelected,
+            ]}
+            onPress={() => setEmploymentType(type)}
+          >
+            <Text
+              style={[
+                styles.contractText,
+                employmentType === type && styles.contractTextSelected,
+              ]}
+            >
+              {type.replace("_", " ").toUpperCase()}
+            </Text>
+          </TouchableOpacity>
+        ))}
+      </View>
+      {employmentTypeError ? (
+        <Text style={styles.errorText}>{employmentTypeError}</Text>
+      ) : null}
+
       <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>
         <Text style={styles.submitButtonText}>SUBMIT</Text>
       </TouchableOpacity>
@@ -316,7 +345,30 @@ const styles = StyleSheet.create({
     color: "#ffffff",
     fontSize: 16,
     fontWeight: "bold",
-  },
+  },contractText: {
+      fontSize: 12,
+      color: '#3b82f6',
+      fontWeight: 'bold',
+    },
+    contractTextSelected: {
+      color: 'white',
+    },contractButton: {
+        paddingVertical: 6,
+        paddingHorizontal: 10,
+        borderWidth: 2,
+        borderColor: '#3b82f6',
+        borderRadius: 8,
+        margin: 4,
+        backgroundColor: '#1e293b',
+      },
+      contractSelected: {
+        backgroundColor: '#3b82f6',
+      },contractContainer: {
+          flexDirection: 'row',
+          flexWrap: 'wrap',
+          justifyContent: 'center',
+          marginBottom: 10,
+        },
   submitButton: {
     backgroundColor: "#3b82f6",
     paddingVertical: 14,

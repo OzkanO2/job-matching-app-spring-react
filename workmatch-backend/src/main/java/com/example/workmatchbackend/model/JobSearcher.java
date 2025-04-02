@@ -28,10 +28,23 @@ public class JobSearcher {
     private int salaryMin;
     private int salaryMax;
     private List<String> locations = new ArrayList<>();
+    private String employmentType;
 
     public JobSearcher() {
     }
 
+    public JobSearcher(ObjectId userId, String name, String username, String email, List<Skill> skills, int salaryMin, int salaryMax, boolean remote, List<String> locations, String employmentType) {
+        this.userId = userId;
+        this.name = name;
+        this.username = username;
+        this.email = email;
+        this.skills = skills;
+        this.salaryMin = salaryMin;
+        this.salaryMax = salaryMax;
+        this.remote = remote;
+        this.locations = locations;
+        this.employmentType = employmentType;
+    }
     public JobSearcher(ObjectId userId, String name, String username, String email, List<Skill> skills, int salaryMin, int salaryMax, boolean remote, List<String> locations) {
         this.userId = userId;
         this.name = name;
@@ -43,7 +56,6 @@ public class JobSearcher {
         this.remote = remote;
         this.locations = locations;
     }
-
     @Transient
     @JsonIgnore
     private double matchingScore;
@@ -112,6 +124,13 @@ public class JobSearcher {
 
     public void setSkills(List<Skill> skills) {
         this.skills = skills;
+    }
+    public String getEmploymentType() {
+        return employmentType;
+    }
+
+    public void setEmploymentType(String employmentType) {
+        this.employmentType = employmentType;
     }
 
     public List<String> getLocations() {

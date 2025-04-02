@@ -36,7 +36,7 @@ public class SwipeController {
     private JobOfferRepository jobOfferRepository;
 
     @GetMapping("/filteredJobSearchers/{swiperId}/{jobOfferId}")
-    public ResponseEntity<List<JobSearcher>> getFilteredJobSearchers(
+    public ResponseEntity<?> getFilteredJobSearchers(
             @PathVariable String swiperId,
             @PathVariable String jobOfferId) {
 
@@ -112,7 +112,7 @@ public class SwipeController {
     }
 
     @GetMapping("/company/swipes/{companyId}")
-    public Map<String, Map<String, Integer>> getCandidateSwipeCounts(@PathVariable String companyId) {
+    public ResponseEntity<?> getCandidateSwipeCounts(@PathVariable String companyId) {
 
         if (companyId == null || companyId.trim().isEmpty()) {
             return ResponseEntity.badRequest().body("companyId est requis.");
@@ -122,7 +122,7 @@ public class SwipeController {
 
         if (companyOffers.isEmpty()) {
             System.out.println("Aucune offre trouvée pour l'entreprise : " + companyId);
-            return Collections.emptyMap();
+            return ResponseEntity.ok(Collections.emptyMap());
         }
 
         Set<String> companyOfferIds = companyOffers.stream()
@@ -150,11 +150,11 @@ public class SwipeController {
         }
 
         System.out.println("Nombre de swipes trouvés pour chaque candidat : " + swipeCounts);
-        return swipeCounts;
+        return ResponseEntity.ok(swipeCounts);
     }
 
     @GetMapping("/{swiperId}/{jobOfferId}")
-    public ResponseEntity<List<SwipedCard>> getSwipedCardsForOffer(
+    public ResponseEntity<?> getSwipedCardsForOffer(
             @PathVariable String swiperId,
             @PathVariable String jobOfferId) {
 
@@ -170,7 +170,7 @@ public class SwipeController {
     }
 
     @GetMapping("/{swiperId}")
-    public ResponseEntity<List<SwipedCard>> getSwipedCards(@PathVariable String swiperId) {
+    public ResponseEntity<?> getSwipedCards(@PathVariable String swiperId) {
         if (swiperId == null || swiperId.trim().isEmpty()) {
             return ResponseEntity.badRequest().body("swiperId est requis.");
         }
@@ -181,7 +181,7 @@ public class SwipeController {
     }
 
     @GetMapping("/check")
-    public ResponseEntity<Map<String, Boolean>> checkIfSwiped(
+    public ResponseEntity<?> checkIfSwiped(
             @RequestParam String swiperId,
             @RequestParam String swipedId,
             @RequestParam String direction,
@@ -210,7 +210,7 @@ public class SwipeController {
     }
 
     @GetMapping("/filteredJobSearchersNormal/{swiperId}")
-    public ResponseEntity<List<JobSearcher>> getFilteredJobSearchersNormal(@PathVariable String swiperId) {
+    public ResponseEntity<?> getFilteredJobSearchersNormal(@PathVariable String swiperId) {
         if (swiperId == null || swiperId.trim().isEmpty()) {
             return ResponseEntity.badRequest().body("L'identifiant du swiper est requis.");
         }

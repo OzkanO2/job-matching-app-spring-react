@@ -52,7 +52,7 @@ public class LikeController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Like>> getLikesBySwipedId(@RequestParam String swipedId) {
+    public ResponseEntity<?> getLikesBySwipedId(@RequestParam String swipedId) {
         if (swipedId == null || swipedId.trim().isEmpty()) {
             return ResponseEntity.badRequest().body("L'identifiant de l'offre est requis.");
         }
@@ -74,7 +74,7 @@ public class LikeController {
     }
 
     @GetMapping("/liked-offers/{userId}")
-    public ResponseEntity<List<JobOffer>> getLikedOffersByUser(@PathVariable String userId) {
+    public ResponseEntity<?> getLikedOffersByUser(@PathVariable String userId) {
         if (userId == null || userId.trim().isEmpty()) {
             return ResponseEntity.badRequest().body("userId est requis.");
         }
@@ -109,7 +109,7 @@ public class LikeController {
     }
 
     @GetMapping("/liked-candidates/{companyId}")
-    public ResponseEntity<List<JobSearcher>> getLikedCandidates(@PathVariable String companyId) {
+    public ResponseEntity<?> getLikedCandidates(@PathVariable String companyId) {
         if (companyId == null || companyId.trim().isEmpty()) {
             return ResponseEntity.badRequest().body("L'identifiant de l'entreprise est requis.");
         }

@@ -32,12 +32,13 @@ public class JobSearcherController {
     }
 
     @GetMapping("/matching")
-    public List<JobSearcher> getMatchingCandidates(@RequestParam String jobOfferId) {
+    public ResponseEntity<?> getMatchingCandidates(@RequestParam String jobOfferId) {
         if (jobOfferId == null || jobOfferId.trim().isEmpty()) {
             return ResponseEntity.badRequest().body("L'identifiant de l'offre d'emploi (jobOfferId) est requis.");
         }
 
-        return jobSearcherService.findMatchingCandidates(jobOfferId);
+        List<JobSearcher> matchingCandidates = jobSearcherService.findMatchingCandidates(jobOfferId);
+        return ResponseEntity.ok(matchingCandidates);
     }
 
     @PostMapping
@@ -75,13 +76,16 @@ public class JobSearcherController {
         if (jobSearcher.getLocations() == null || jobSearcher.getLocations().isEmpty()) {
             return ResponseEntity.badRequest().body("Veuillez sélectionner au moins une ville.");
         }
-        if (jobSearcher.getSalaryMin() == null || jobSearcher.getSalaryMax() == null) {
-            return ResponseEntity.badRequest().body("Salaire minimum et maximum requis.");
+        if (jobSearcher.getSalaryMin() <= 0 || jobSearcher.getSalaryMax() <= 0) {
+            return ResponseEntity.badRequest().body("Les salaires doivent être des nombres positifs.");
         }
 
         if (jobSearcher.getSalaryMin() >= jobSearcher.getSalaryMax()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body("Le salaire minimum doit être inférieur au salaire maximum.");
+        }
+        if (jobSearcher.getEmploymentType() == null || jobSearcher.getEmploymentType().isEmpty()) {
+            return ResponseEntity.badRequest().body("Le type de contrat est requis.");
         }
         if (existingJobSearcher.isPresent()) {
             JobSearcher updatedJobSearcher = existingJobSearcher.get();
@@ -101,6 +105,7 @@ public class JobSearcherController {
             }
             updatedJobSearcher.setSalaryMin(jobSearcher.getSalaryMin());
             updatedJobSearcher.setSalaryMax(jobSearcher.getSalaryMax());
+            updatedJobSearcher.setEmploymentType(jobSearcher.getEmploymentType());
 
             //Sauvegarde en base de données
             jobSearcherService.saveJobSearcher(updatedJobSearcher);

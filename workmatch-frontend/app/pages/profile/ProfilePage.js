@@ -24,6 +24,8 @@ const ProfilePage = () => {
     const [locationDropdowns, setLocationDropdowns] = useState(1);
     const [locationSuccess, setLocationSuccess] = useState(false);
     const [unreadCount, setUnreadCount] = useState(0);
+    const [employmentType, setEmploymentType] = useState('');
+    const [employmentTypeSuccess, setEmploymentTypeSuccess] = useState(false);
 
     useEffect(() => {
       const connectNotificationWebSocket = async () => {
@@ -137,7 +139,8 @@ const ProfilePage = () => {
         const updatedData = {
           skills: Object.entries(skills).map(([name, experience]) => ({ name, experience })),
           locations: selectedLocations.filter(loc => loc !== ""),
-          remote: isRemotePreferred
+          remote: isRemotePreferred,
+          employmentType,
         };
         console.log("Payload envoyé :", updatedData);
 
@@ -347,6 +350,9 @@ const ProfilePage = () => {
                   if (typeof jobSearcher.remote === 'boolean') {
                     setIsRemotePreferred(jobSearcher.remote);
                   }
+if (jobSearcher.employmentType) {
+  setEmploymentType(jobSearcher.employmentType);
+}
 
             } catch (error) {
               console.error("Erreur lors de la récupération des compétences JobSearcher:", error);
@@ -552,6 +558,34 @@ const ProfilePage = () => {
                   <Text style={!isRemotePreferred ? styles.toggleTextSelected : styles.toggleText}>Non</Text>
                 </TouchableOpacity>
               </View>
+              <View style={{ marginTop: 20 }}>
+                <Text style={styles.sectionTitle}>Quel type de contrat cherches-tu ?</Text>
+                <View style={styles.contractContainer}>
+                  {["full_time", "part_time", "internship", "freelance"].map((type) => (
+                    <TouchableOpacity
+                      key={type}
+                      style={[
+                        styles.contractButton,
+                        employmentType === type && styles.contractSelected,
+                      ]}
+                      onPress={() => setEmploymentType(type)}
+                    >
+                      <Text
+                        style={[
+                          styles.contractText,
+                          employmentType === type && styles.contractTextSelected,
+                        ]}
+                      >
+                        {type.replace("_", " ").toUpperCase()}
+                      </Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+                {employmentTypeSuccess && (
+                  <Text style={{ color: "green", marginTop: 6 }}>✅ Contrat préféré enregistré !</Text>
+                )}
+              </View>
+
         <View style={{ marginTop: 20 }}>
           <Button title="💾 Enregistrer mes préférences" onPress={saveAllPreferencesToBackend} />
           {(skillsSuccess || remoteSuccess || locationSuccess) && (
@@ -763,6 +797,32 @@ dot: {
   position: 'absolute',
   top: -5,
   right: -10,
+},
+contractButton: {
+  paddingVertical: 6,
+  paddingHorizontal: 10,
+  borderWidth: 2,
+  borderColor: '#3b82f6',
+  borderRadius: 8,
+  margin: 4,
+  backgroundColor: '#1e293b',
+},
+contractSelected: {
+  backgroundColor: '#3b82f6',
+},
+contractText: {
+  fontSize: 12,
+  color: '#3b82f6',
+  fontWeight: 'bold',
+},
+contractTextSelected: {
+  color: 'white',
+},
+contractContainer: {
+  flexDirection: 'row',
+  flexWrap: 'wrap',
+  justifyContent: 'center',
+  marginBottom: 10,
 },
 
 });
