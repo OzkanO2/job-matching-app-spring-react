@@ -9,6 +9,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.messaging.handler.annotation.DestinationVariable;
+import org.springframework.messaging.handler.annotation.Payload;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 
 import java.time.Instant;
 import java.util.List;
@@ -16,6 +19,8 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/chat")
 public class ChatController {
+    @Autowired
+    private SimpMessagingTemplate messagingTemplate;
 
     @Autowired
     private ConversationRepository conversationRepository;
@@ -29,10 +34,9 @@ public class ChatController {
         return ResponseEntity.ok(conversations);
     }
 
-    // WebSocket Handler
-    @MessageMapping("/send/{conversationId}")
     @SendTo("/topic/messages/{conversationId}")
-    public Message handleChatMessage(@RequestBody Message messageDetails) {
+    @MessageMapping("/send/{conversationId}")
+    public void handleChatMessage(@DestinationVariable String conversationId, @Payload Message messageDetails) {
         Message message = new Message(
                 messageDetails.getConversationId(),
                 messageDetails.getSenderId(),
@@ -42,8 +46,12 @@ public class ChatController {
         );
 
         Message savedMessage = messageRepository.save(message);
-        System.out.println("📩 Message enregistré et envoyé via WebSocket : " + savedMessage);
-        return savedMessage;
+
+        // Envoie du message pour le chat
+        messagingTemplate.convertAndSend("/topic/messages/" + conversationId, savedMessage);
+
+        // 🔔 Envoie de la notification au receiver
+        messagingTemplate.convertAndSend("/topic/notifications/" + savedMessage.getReceiverId(), savedMessage);
     }
 
     @PostMapping("/sendMessage")

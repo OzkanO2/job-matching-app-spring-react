@@ -4,6 +4,8 @@ import { useNavigation } from '@react-navigation/native';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Swiper from 'react-native-deck-swiper';
+import SockJS from 'sockjs-client';
+import Stomp from 'stompjs';
 
 const IndividualHomePage = () => {
     const navigation = useNavigation();
@@ -12,6 +14,50 @@ const IndividualHomePage = () => {
     const [userId, setUserId] = useState(null);
     const [conversations, setConversations] = useState([]);
     const [userType, setUserType] = useState('');
+    const [unreadCount, setUnreadCount] = useState(0);
+
+    useEffect(() => {
+        const connectWebSocket = async () => {
+          const userId = await AsyncStorage.getItem('userId');
+          if (!userId) return;
+
+          const socket = new SockJS('http://localhost:8080/ws');
+          const stomp = Stomp.over(socket);
+          stomp.debug = null;
+
+          stomp.connect({}, () => {
+            stomp.subscribe(`/topic/messages/${userId}`, (message) => {
+              const msg = JSON.parse(message.body);
+              console.log('📩 Nouveau message reçu (notification) :', msg);
+              setUnreadCount((prev) => prev + 1);
+            });
+          });
+        };
+
+        connectWebSocket();
+      }, []);
+    useEffect(() => {
+      const connectNotificationWebSocket = async () => {
+        const userId = await AsyncStorage.getItem('userId');
+        if (!userId) return;
+
+        const socket = new SockJS('http://localhost:8080/ws');
+        const stomp = Stomp.over(socket);
+        stomp.debug = null;
+
+        stomp.connect({}, () => {
+          stomp.subscribe(`/topic/notifications/${userId}`, (message) => {
+            const msg = JSON.parse(message.body);
+            console.log('🔔 Notification reçue !', msg);
+
+            // On affiche la pastille sauf si on est déjà dans la page de chat
+            setUnreadCount((prev) => prev + 1);
+          });
+        });
+      };
+
+      connectNotificationWebSocket();
+    }, []);
 
     useEffect(() => {
         const fetchUserData = async () => {
@@ -265,9 +311,18 @@ const IndividualHomePage = () => {
                  <Text style={styles.navButtonText}>Main Menu</Text>
                </TouchableOpacity>
 
-               <TouchableOpacity style={[styles.navButton, { backgroundColor: '#93c5fd' }]} onPress={() => navigation.navigate('ChatPage')}>
-                 <Text style={styles.navButtonText}>Chat</Text>
+               <TouchableOpacity style={styles.chatButton} onPress={() => {
+                 setUnreadCount(0);
+                 navigation.navigate("ChatPage");
+               }}>
+                 <Text style={styles.buttonText}>Chat</Text>
+                 {unreadCount > 0 && (
+                   <View style={styles.badge}>
+                     <Text style={styles.badgeText}>{unreadCount}</Text>
+                   </View>
+                 )}
                </TouchableOpacity>
+
 
                <TouchableOpacity style={[styles.navButton, { backgroundColor: '#bfdbfe' }]} onPress={() => navigation.navigate('LikedOffersPage')}>
                  <Text style={styles.navButtonText}>Liked Offers</Text>
@@ -310,10 +365,30 @@ const IndividualHomePage = () => {
 };
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: '#0f172a',
-    },
+    container: { flex: 1, backgroundColor: '#0f172a', padding: 20 },
+      title: { color: 'white', fontSize: 22, fontWeight: 'bold', marginBottom: 20 },
+      chatButton: {
+        position: 'relative',
+        backgroundColor: '#3b82f6',
+        padding: 14,
+        borderRadius: 10,
+        alignItems: 'center',
+      },
+      buttonText: { color: 'white', fontWeight: 'bold' },
+      badge: {
+        position: 'absolute',
+        top: -5,
+        right: -10,
+        backgroundColor: 'red',
+        borderRadius: 10,
+        paddingHorizontal: 6,
+        paddingVertical: 2,
+      },
+      badgeText: {
+        color: 'white',
+        fontWeight: 'bold',
+        fontSize: 10,
+      },
     topButtons: {
       flexDirection: 'row',
       flexWrap: 'wrap',
