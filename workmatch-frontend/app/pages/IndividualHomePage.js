@@ -51,11 +51,25 @@ const IndividualHomePage = () => {
           stomp.subscribe(`/topic/notifications/${userId}`, (message) => {
             const msg = JSON.parse(message.body);
             console.log('🔔 Notification reçue !', msg);
-              setUnreadCount((prev) => {
-              const newCount = prev + 1;
-              AsyncStorage.setItem('unreadMessageCount', newCount.toString());
-              return newCount;
-            });
+              const senderId = msg.senderId;
+
+              if (senderId !== userId) {
+                setUnreadCount((prev) => {
+                  const newCount = prev + 1;
+                  AsyncStorage.setItem('unreadMessageCount', newCount.toString());
+                  return newCount;
+                });
+
+                // Et incrémenter par conversation :
+                AsyncStorage.getItem('unreadByConversation').then((raw) => {
+                  const map = raw ? JSON.parse(raw) : {};
+                  const convId = msg.conversationId;
+
+                  map[convId] = (map[convId] || 0) + 1;
+                  AsyncStorage.setItem('unreadByConversation', JSON.stringify(map));
+                });
+              }
+
           });
         });
       };
@@ -336,6 +350,7 @@ const IndividualHomePage = () => {
                      <Text style={styles.badgeText}>{unreadCount}</Text>
                    </View>
                  )}
+
                </TouchableOpacity>
 
 
@@ -440,7 +455,21 @@ const styles = StyleSheet.create({
       elevation: 10,
       borderWidth: 1,
       borderColor: '#475569',
-    },
+    },badge: {
+        position: 'absolute',
+        top: -5,
+        right: -10,
+        backgroundColor: 'red',
+        borderRadius: 10,
+        paddingHorizontal: 6,
+        paddingVertical: 2,
+      },
+      badgeText: {
+        color: 'white',
+        fontWeight: 'bold',
+        fontSize: 10,
+      },
+
     cardTitle: {
       fontSize: 18,
       fontWeight: 'bold',
@@ -463,7 +492,6 @@ const styles = StyleSheet.create({
       fontSize: 16,
       marginTop: 20,
     },
-
 });
 
 export default IndividualHomePage;

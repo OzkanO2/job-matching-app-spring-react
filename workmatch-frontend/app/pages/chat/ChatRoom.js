@@ -75,6 +75,37 @@ const ChatRoom = () => {
         fetchUserData();
     }, [route.params]);
 
+    useEffect(() => {
+      const clearUnreadForThisConversation = async () => {
+        try {
+          const stored = await AsyncStorage.getItem('unreadByConversation');
+          let map = stored ? JSON.parse(stored) : {};
+
+          // Si ce chat avait des messages non lus
+          const previousCount = map[conversationId] || 0;
+
+          if (previousCount > 0) {
+            map[conversationId] = 0;
+
+            // Mettre à jour la map
+            await AsyncStorage.setItem('unreadByConversation', JSON.stringify(map));
+
+            // Réduire le compteur global
+            const totalUnread = await AsyncStorage.getItem('unreadMessageCount');
+            const newTotal = Math.max(0, parseInt(totalUnread || '0') - previousCount);
+            await AsyncStorage.setItem('unreadMessageCount', newTotal.toString());
+          }
+        } catch (err) {
+          console.error("Erreur réinitialisation compteur unread :", err);
+        }
+      };
+
+      const unsubscribe = navigation.addListener('focus', () => {
+        clearUnreadForThisConversation();
+      });
+
+      return unsubscribe;
+    }, [conversationId, navigation]);
 
 
     useEffect(() => {
@@ -91,6 +122,19 @@ const ChatRoom = () => {
         };
 
         fetchMessages();
+    }, [conversationId]);
+    useEffect(() => {
+      const resetUnreadForConversation = async () => {
+        const raw = await AsyncStorage.getItem("unreadByConversation");
+        if (!raw) return;
+
+        const map = JSON.parse(raw);
+        map[conversationId] = 0;
+
+        await AsyncStorage.setItem("unreadByConversation", JSON.stringify(map));
+      };
+
+      resetUnreadForConversation();
     }, [conversationId]);
 
     useEffect(() => {

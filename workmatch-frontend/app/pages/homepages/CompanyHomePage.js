@@ -30,16 +30,46 @@ const CompanyHomePage = () => {
         stomp.debug = null;
 
         stomp.connect({}, () => {
-          stomp.subscribe(`/topic/notifications/${userId}`, (message) => {
+          stomp.subscribe(`/topic/notifications/${userId}`, async (message) => {
             const msg = JSON.parse(message.body);
             console.log('🔔 Notification reçue dans CompanyHomePage !', msg);
-            setUnreadCount((prev) => {
-              const newCount = prev + 1;
-              AsyncStorage.setItem('unreadMessageCount', newCount.toString());
-              return newCount;
-            });
+
+            const conversationId = msg.conversationId;
+            if (!conversationId) return;
+
+            try {
+              const stored = await AsyncStorage.getItem('unreadByConversation');
+              const unreadMap = stored ? JSON.parse(stored) : {};
+
+              unreadMap[conversationId] = (unreadMap[conversationId] || 0) + 1;
+
+              await AsyncStorage.setItem('unreadByConversation', JSON.stringify(unreadMap));
+            } catch (error) {
+              console.error("❌ Erreur de stockage des unreadByConversation :", error);
+            }
+
+            const senderId = msg.senderId;
+
+            if (senderId !== userId) {
+              setUnreadCount((prev) => {
+                const newCount = prev + 1;
+                AsyncStorage.setItem('unreadMessageCount', newCount.toString());
+                return newCount;
+              });
+
+              // Et incrémenter par conversation :
+              AsyncStorage.getItem('unreadByConversation').then((raw) => {
+                const map = raw ? JSON.parse(raw) : {};
+                const convId = msg.conversationId;
+
+                map[convId] = (map[convId] || 0) + 1;
+                AsyncStorage.setItem('unreadByConversation', JSON.stringify(map));
+              });
+            }
+
           });
         });
+
       };
 
       connectNotificationWebSocket();
@@ -530,6 +560,7 @@ const CompanyHomePage = () => {
                     <Text style={styles.badgeText}>{unreadCount}</Text>
                   </View>
                 )}
+
               </TouchableOpacity>
 
               <TouchableOpacity style={[styles.navButton, { backgroundColor: '#bfdbfe' }]} onPress={() => navigation.navigate('MyOffersPage')}>

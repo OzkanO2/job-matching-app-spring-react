@@ -31,11 +31,25 @@ const CompanyRedirectedPage = () => {
           stomp.subscribe(`/topic/notifications/${userId}`, (message) => {
             const msg = JSON.parse(message.body);
             console.log('🔔 Notification reçue (CompanyRedirectedPage) :', msg);
-            setUnreadCount((prev) => {
-              const newCount = prev + 1;
-              AsyncStorage.setItem('unreadMessageCount', newCount.toString());
-              return newCount;
-            });
+            const senderId = msg.senderId;
+
+            if (senderId !== userId) {
+              setUnreadCount((prev) => {
+                const newCount = prev + 1;
+                AsyncStorage.setItem('unreadMessageCount', newCount.toString());
+                return newCount;
+              });
+
+              // Et incrémenter par conversation :
+              AsyncStorage.getItem('unreadByConversation').then((raw) => {
+                const map = raw ? JSON.parse(raw) : {};
+                const convId = msg.conversationId;
+
+                map[convId] = (map[convId] || 0) + 1;
+                AsyncStorage.setItem('unreadByConversation', JSON.stringify(map));
+              });
+            }
+
           });
         });
       };
@@ -458,18 +472,12 @@ const CompanyRedirectedPage = () => {
               >
                 <Text style={styles.navButtonText}>Chat</Text>
                 {unreadCount > 0 && (
-                  <View style={{
-                    position: 'absolute',
-                    top: -6,
-                    right: -6,
-                    backgroundColor: 'red',
-                    borderRadius: 10,
-                    paddingHorizontal: 6,
-                    paddingVertical: 2,
-                  }}>
-                    <Text style={{ color: 'white', fontWeight: 'bold', fontSize: 10 }}>{unreadCount}</Text>
+                  <View style={styles.badge}>
+                    <Text style={styles.badgeText}>{unreadCount}</Text>
                   </View>
                 )}
+
+
               </TouchableOpacity>
 
               <TouchableOpacity style={styles.navButton} onPress={() => navigation.navigate('MyOffersPage')}>
@@ -560,7 +568,21 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 3,
     margin: 4,
-  },
+  },badge: {
+      position: 'absolute',
+      top: -5,
+      right: -10,
+      backgroundColor: 'red',
+      borderRadius: 10,
+      paddingHorizontal: 6,
+      paddingVertical: 2,
+    },
+    badgeText: {
+      color: 'white',
+      fontWeight: 'bold',
+      fontSize: 10,
+    },
+
   navButtonText: {
     color: '#ffffff',
     fontWeight: 'bold',

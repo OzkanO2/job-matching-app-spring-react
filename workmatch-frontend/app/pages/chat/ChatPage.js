@@ -35,42 +35,74 @@ const ChatPage = ({ route }) => {
     }, [navigation]);
 
     useEffect(() => {
-        const fetchConversations = async () => {
-            try {
-                const token = await AsyncStorage.getItem("userToken");
-                const id = await AsyncStorage.getItem("userId");
-                setLoading(true);
+      const fetchConversations = async () => {
+        try {
+          const token = await AsyncStorage.getItem("userToken");
+          const id = await AsyncStorage.getItem("userId");
+          setLoading(true);
 
-                const response = await axios.get(`http://localhost:8080/api/matches/conversations/${id}`, {
-                    headers: { Authorization: `Bearer ${token}` },
-                });
+          const response = await axios.get(`http://localhost:8080/api/matches/conversations/${id}`, {
+            headers: { Authorization: `Bearer ${token}` },
+          });
 
-                let formattedConversations = response.data.map(conv => ({
-                    conversationId: conv.id,
-                    receiverId: conv.user1Id === id ? conv.user2Id : conv.user1Id,
-                    username: null
-                }));
+          let formattedConversations = response.data.map(conv => ({
+            conversationId: conv.id,
+            receiverId: conv.user1Id === id ? conv.user2Id : conv.user1Id,
+            username: null,
+          }));
 
-                const receiverIds = formattedConversations.map(conv => conv.receiverId);
-                const usersResponse = await axios.post("http://localhost:8080/users/getUsernames", { userIds: receiverIds });
+          const receiverIds = formattedConversations.map(conv => conv.receiverId);
+          const usersResponse = await axios.post("http://localhost:8080/users/getUsernames", {
+            userIds: receiverIds
+          });
+          const userMap = usersResponse.data;
 
-                const userMap = usersResponse.data;
+          const unreadMapRaw = await AsyncStorage.getItem('unreadByConversation');
+          const unreadMap = unreadMapRaw ? JSON.parse(unreadMapRaw) : {};
 
-                formattedConversations = formattedConversations.map(conv => ({
-                    ...conv,
-                    username: userMap[conv.receiverId] || "Utilisateur inconnu"
-                }));
+          formattedConversations = formattedConversations.map(conv => ({
+            ...conv,
+            username: userMap[conv.receiverId] || "Utilisateur inconnu",
+            unread: unreadMap[conv.conversationId] || 0
+          }));
 
-                setConversations(formattedConversations);
-            } catch (error) {
-                console.error("❌ Erreur chargement des conversations :", error);
-            } finally {
-                setLoading(false);
-            }
-        };
+          setConversations(formattedConversations);
 
-        fetchConversations();
+        } catch (error) {
+          console.error("Erreur chargement des conversations :", error);
+        } finally {
+          setLoading(false);
+        }
+      };
+
+      fetchConversations();
     }, []);
+
+
+    useEffect(() => {
+      const loadUnreadByConversation = async () => {
+        try {
+          const stored = await AsyncStorage.getItem('unreadByConversation');
+          const unreadMap = stored ? JSON.parse(stored) : {};
+
+          setConversations(prev =>
+            prev.map(conv => ({
+              ...conv,
+              unread: unreadMap[conv.conversationId] || 0
+            }))
+          );
+        } catch (error) {
+          console.error('Erreur chargement des unreadByConversation :', error);
+        }
+      };
+
+      const unsubscribe = navigation.addListener('focus', () => {
+        loadUnreadByConversation();
+      });
+
+      return unsubscribe;
+    }, [navigation]);
+
 
     return (
         <View style={styles.container}>
@@ -144,30 +176,19 @@ const ChatPage = ({ route }) => {
                             matchedUserName: item.username
                           })}
                         >
-                          <Text style={styles.username}>{item.username}</Text>
-                        </TouchableOpacity>
+                          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                            <Text style={styles.username}>{item.username}</Text>
 
-                        <TouchableOpacity
-                          style={styles.deleteButton}
-                          onPress={async () => {
-                            try {
-                              const token = await AsyncStorage.getItem("userToken");
-                              await axios.delete(`http://localhost:8080/api/conversations/${item.conversationId}`, {
-                                headers: { Authorization: `Bearer ${token}` },
-                              });
+                            {item.unread > 0 && (
+                              <View style={styles.dot} />
+                            )}
 
-                              setConversations(prev =>
-                                prev.filter(c => c.conversationId !== item.conversationId)
-                              );
-                            } catch (err) {
-                              console.error("Erreur suppression conversation :", err);
-                            }
-                          }}
-                        >
-                          <Text style={styles.deleteText}>🗑️</Text>
+                          </View>
                         </TouchableOpacity>
-                      </View>
+                      </View> // ✅ ce </View> manquait !
                     )}
+
+
 
                 />
             )}
@@ -236,6 +257,29 @@ deleteText: {
   color: "white",
   fontWeight: "bold",
 },
+badge: {
+  backgroundColor: 'red',
+  borderRadius: 10,
+  marginLeft: 8,
+  paddingHorizontal: 6,
+  paddingVertical: 2,
+  justifyContent: 'center',
+  alignItems: 'center',
+},
+badgeText: {
+  color: 'white',
+  fontWeight: 'bold',
+  fontSize: 10,
+},
+dot: {
+  width: 10,
+  height: 10,
+  borderRadius: 5,
+  backgroundColor: 'red',
+  marginLeft: 8,
+},
+
+
 
 });
 

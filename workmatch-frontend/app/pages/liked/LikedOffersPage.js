@@ -25,11 +25,25 @@ const LikedOffersPage = () => {
             stomp.subscribe(`/topic/notifications/${userId}`, (message) => {
               const msg = JSON.parse(message.body);
               console.log('🔔 Notification reçue (LikedOffersPage) :', msg);
-              setUnreadCount((prev) => {
-                const newCount = prev + 1;
-                AsyncStorage.setItem('unreadMessageCount', newCount.toString());
-                return newCount;
-              });
+              const senderId = msg.senderId;
+
+              if (senderId !== userId) {
+                setUnreadCount((prev) => {
+                  const newCount = prev + 1;
+                  AsyncStorage.setItem('unreadMessageCount', newCount.toString());
+                  return newCount;
+                });
+
+                // Et incrémenter par conversation :
+                AsyncStorage.getItem('unreadByConversation').then((raw) => {
+                  const map = raw ? JSON.parse(raw) : {};
+                  const convId = msg.conversationId;
+
+                  map[convId] = (map[convId] || 0) + 1;
+                  AsyncStorage.setItem('unreadByConversation', JSON.stringify(map));
+                });
+              }
+
             });
           });
         };
@@ -100,18 +114,12 @@ const LikedOffersPage = () => {
       >
         <Text style={styles.navButtonText}>Chat</Text>
         {unreadCount > 0 && (
-          <View style={{
-            position: 'absolute',
-            top: -6,
-            right: -6,
-            backgroundColor: 'red',
-            borderRadius: 10,
-            paddingHorizontal: 6,
-            paddingVertical: 2,
-          }}>
-            <Text style={{ color: 'white', fontWeight: 'bold', fontSize: 10 }}>{unreadCount}</Text>
+          <View style={styles.badge}>
+            <Text style={styles.badgeText}>{unreadCount}</Text>
           </View>
         )}
+
+
       </TouchableOpacity>
 
       <TouchableOpacity style={[styles.navButton, { backgroundColor: '#bfdbfe' }]} onPress={() => navigation.navigate('LikedOffersPage')}>
@@ -171,6 +179,16 @@ const styles = StyleSheet.create({
   list: {
     paddingBottom: 16,
   },
+  dot: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    backgroundColor: 'red',
+    position: 'absolute',
+    top: -5,
+    right: -10,
+  },
+
   offerCard: {
     backgroundColor: '#334155',
     borderRadius: 12,
@@ -213,6 +231,20 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     textAlign: 'center',
   },
+badge: {
+  position: 'absolute',
+  top: -5,
+  right: -10,
+  backgroundColor: 'red',
+  borderRadius: 10,
+  paddingHorizontal: 6,
+  paddingVertical: 2,
+},
+badgeText: {
+  color: 'white',
+  fontWeight: 'bold',
+  fontSize: 10,
+},
 
 });
 

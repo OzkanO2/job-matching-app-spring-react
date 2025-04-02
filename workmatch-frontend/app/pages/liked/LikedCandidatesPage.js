@@ -28,11 +28,25 @@ const LikedCandidatesPage = () => {
           stomp.subscribe(`/topic/notifications/${userId}`, (message) => {
             const msg = JSON.parse(message.body);
             console.log('🔔 Notification reçue (likedCandidatesPage) :', msg);
-            setUnreadCount((prev) => {
+            const senderId = msg.senderId;
+
+            if (senderId !== userId) {
+              setUnreadCount((prev) => {
                 const newCount = prev + 1;
                 AsyncStorage.setItem('unreadMessageCount', newCount.toString());
                 return newCount;
               });
+
+              // Et incrémenter par conversation :
+              AsyncStorage.getItem('unreadByConversation').then((raw) => {
+                const map = raw ? JSON.parse(raw) : {};
+                const convId = msg.conversationId;
+
+                map[convId] = (map[convId] || 0) + 1;
+                AsyncStorage.setItem('unreadByConversation', JSON.stringify(map));
+              });
+            }
+
           });
         }, (err) => {
           console.error("Erreur WebSocket LikedCandidatesPage:", err);
@@ -132,18 +146,13 @@ const LikedCandidatesPage = () => {
                 >
                   <Text style={styles.navButtonText}>Chat</Text>
                   {unreadCount > 0 && (
-                    <View style={{
-                      position: 'absolute',
-                      top: -6,
-                      right: -6,
-                      backgroundColor: 'red',
-                      borderRadius: 10,
-                      paddingHorizontal: 6,
-                      paddingVertical: 2,
-                    }}>
-                      <Text style={{ color: 'white', fontWeight: 'bold', fontSize: 10 }}>{unreadCount}</Text>
+                    <View style={styles.badge}>
+                      <Text style={styles.badgeText}>{unreadCount}</Text>
                     </View>
                   )}
+
+
+
                 </TouchableOpacity>
 
                 <TouchableOpacity style={[styles.navButton, { backgroundColor: '#bfdbfe' }]} onPress={() => navigation.navigate('MyOffersPage')}>
@@ -183,6 +192,21 @@ const styles = StyleSheet.create({
     gap: 10,
     marginBottom: 20,
   },
+  badge: {
+    position: 'absolute',
+    top: -5,
+    right: -10,
+    backgroundColor: 'red',
+    borderRadius: 10,
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+  },
+  badgeText: {
+    color: 'white',
+    fontWeight: 'bold',
+    fontSize: 10,
+  },
+
   navButton: {
     backgroundColor: '#1e3a8a',
     paddingVertical: 10,
@@ -200,7 +224,21 @@ const styles = StyleSheet.create({
     color: '#ffffff',
     fontWeight: 'bold',
     textAlign: 'center',
-  },
+  },badge: {
+      position: 'absolute',
+      top: -5,
+      right: -10,
+      backgroundColor: 'red',
+      borderRadius: 10,
+      paddingHorizontal: 6,
+      paddingVertical: 2,
+    },
+    badgeText: {
+      color: 'white',
+      fontWeight: 'bold',
+      fontSize: 10,
+    },
+
   pageTitle: { fontSize: 20, color: 'white', fontWeight: 'bold', textAlign: 'center', marginBottom: 16 },
   loading: { color: 'white', textAlign: 'center' },
   card: {

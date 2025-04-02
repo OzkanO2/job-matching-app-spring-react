@@ -26,11 +26,25 @@ const MyOffersPage = () => {
           stomp.subscribe(`/topic/notifications/${userId}`, (message) => {
             const msg = JSON.parse(message.body);
             console.log('🔔 Notification reçue dans CompanyHomePage !', msg);
-            setUnreadCount((prev) => {
+            const senderId = msg.senderId;
+
+            if (senderId !== userId) {
+              setUnreadCount((prev) => {
                 const newCount = prev + 1;
                 AsyncStorage.setItem('unreadMessageCount', newCount.toString());
                 return newCount;
               });
+
+              // Et incrémenter par conversation :
+              AsyncStorage.getItem('unreadByConversation').then((raw) => {
+                const map = raw ? JSON.parse(raw) : {};
+                const convId = msg.conversationId;
+
+                map[convId] = (map[convId] || 0) + 1;
+                AsyncStorage.setItem('unreadByConversation', JSON.stringify(map));
+              });
+            }
+
           });
         });
       };
@@ -119,6 +133,8 @@ const MyOffersPage = () => {
                       <Text style={styles.badgeText}>{unreadCount}</Text>
                     </View>
                   )}
+
+
                 </TouchableOpacity>
 
 
@@ -275,6 +291,16 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     textAlign: 'center',
   },
+  dot: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    backgroundColor: 'red',
+    position: 'absolute',
+    top: -5,
+    right: -10,
+  },
+
 deleteButton: {
   backgroundColor: "#ef4444",
   padding: 10,
