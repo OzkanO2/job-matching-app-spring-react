@@ -43,10 +43,13 @@ public class ConversationController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteConversation(@PathVariable String id) {
+        if (id == null || id.trim().isEmpty()) {
+            return ResponseEntity.badRequest().body("Conversation ID manquant.");
+        }
+
         conversationRepository.deleteById(id);
         messageRepository.deleteAllByConversationId(id);
         return ResponseEntity.ok("Conversation supprimée");
     }
-
 
 }

@@ -284,11 +284,8 @@ const handleDeleteConversation = async (conversationId) => {
                           </View>
 
                         </TouchableOpacity>
-                      </View> // ✅ ce </View> manquait !
+                      </View>
                     )}
-
-
-
                 />
             )}
         </View>

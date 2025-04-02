@@ -204,6 +204,23 @@ public class UserController {
     @PostMapping("/register")
     public ResponseEntity<?> registerUser(@RequestBody User user) {
         System.out.println("Registering user: " + user.getEmail());
+        if (user.getUsername() == null || user.getUsername().trim().isEmpty()) {
+            return ResponseEntity.badRequest().body("Username is required.");
+        }
+        if (user.getUsername().length() < 4 || user.getUsername().length() > 30) {
+            return ResponseEntity.badRequest().body("Username must be between 4 and 30 characters.");
+        }
+
+        if (user.getPassword() == null || user.getPassword().trim().isEmpty()) {
+            return ResponseEntity.badRequest().body("Password is required.");
+        }
+        if (user.getPassword().length() < 4 || user.getPassword().length() > 50) {
+            return ResponseEntity.badRequest().body("Password must be between 4 and 50 characters.");
+        }
+
+        if (user.getUserType() == null) {
+            return ResponseEntity.badRequest().body("User type is required.");
+        }
 
         //Vérification du format de l'email
         List<String> allowedDomains = Arrays.asList("gmail.com", "hotmail.com", "yahoo.com", "outlook.com", "protonmail.com");
