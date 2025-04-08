@@ -27,5 +27,6 @@ public interface JobOfferRepository extends MongoRepository<JobOffer, String> {
     List<JobOffer> findAllByCompanyId(ObjectId companyId);
 
     void deleteByCompanyId(ObjectId companyId);
+    boolean existsByTitle(String title);
 
 }
