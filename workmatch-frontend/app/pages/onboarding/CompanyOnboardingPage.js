@@ -38,6 +38,7 @@ const CompanyOnboardingPage = ({ navigation, route }) => {
 
 const availableLocations = [
   "Chicago, Cook County",
+  "Hollywood, Broward County",
   "San Francisco, San Francisco County",
   "Seattle, King County",
   "Boston, Suffolk County",

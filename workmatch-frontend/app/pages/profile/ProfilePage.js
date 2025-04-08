@@ -70,6 +70,7 @@ const ProfilePage = () => {
 
     const allCities = [
       "Chicago, Cook County",
+      "Hollywood, Broward County",
       "San Francisco, San Francisco County",
       "Seattle, King County",
       "Boston, Suffolk County",
@@ -90,6 +91,7 @@ const ProfilePage = () => {
       "Rockville, Tolland County",
       "Redstone Arsenal, Madison County",
       "Portland, Multnomah County",
+      "Hollywood, Broward County",
       "New York City, New York",
       "Arlington, Arlington County",
       "Concord, Contra Costa County",
