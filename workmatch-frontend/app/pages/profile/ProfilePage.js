@@ -780,10 +780,13 @@ const ProfilePage = () => {
           Authorization: `Bearer ${token}`,
         };
         const updatedData = {
-            skills: Object.entries(skills).map(([name, experience]) => ({
-              name: name.toLowerCase(),   // 🔽 normalisation
-              experience
-            })),
+            skills: skillsList
+              .filter(skill => skill.name.trim() !== '')
+              .map(skill => ({
+                name: skill.name.toLowerCase(),
+                experience: skill.experience
+              })),
+
           locations: selectedLocations.filter(loc => loc !== ""),
           remote: isRemotePreferred,
           employmentType,
