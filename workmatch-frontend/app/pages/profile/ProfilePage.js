@@ -29,6 +29,8 @@ const ProfilePage = () => {
     const [salaryMin, setSalaryMin] = useState(30000);
     const [salaryMax, setSalaryMax] = useState(60000);
     const [skillsList, setSkillsList] = useState([{ name: '', experience: 1 }]);
+    const [skillsError, setSkillsError] = useState('');
+    const [locationError, setLocationError] = useState('');
 
     const addSkillRow = () => {
       setSkillsList([...skillsList, { name: '', experience: 1 }]);
@@ -45,6 +47,26 @@ const ProfilePage = () => {
       updated[index][field] = field === 'experience' ? parseInt(value) : value;
       setSkillsList(updated);
     };
+    const validateProfileInputs = () => {
+      let isValid = true;
+
+      if (skillsList.length === 0 || skillsList.every(skill => !skill.name.trim())) {
+        setSkillsError("Veuillez ajouter au moins une compétence.");
+        isValid = false;
+      } else {
+        setSkillsError('');
+      }
+
+      if (selectedLocations.length === 0 || selectedLocations.every(loc => loc.trim() === '')) {
+        setLocationError("Veuillez sélectionner au moins une localisation.");
+        isValid = false;
+      } else {
+        setLocationError('');
+      }
+
+      return isValid;
+    };
+
 
     const allCities = [
       "Chicago, Cook County",
@@ -1185,7 +1207,15 @@ const ProfilePage = () => {
                   />
                 ))}
               </View>
-              <Button title="Enregistrer les préférences" onPress={savePreferencesToBackend} />
+                <Button
+                  title="💾 Enregistrer mes préférences"
+                  onPress={() => {
+                    const valid = validateProfileInputs();
+                    if (valid) {
+                      saveAllPreferencesToBackend();
+                    }
+                  }}
+                />
             </View>
 
             <View style={{ marginTop: 20 }}>
@@ -1220,6 +1250,9 @@ const ProfilePage = () => {
                   </TouchableOpacity>
                 </View>
               ))}
+                {skillsError ? (
+                  <Text style={{ color: 'red', marginBottom: 10 }}>{skillsError}</Text>
+                ) : null}
 
               <TouchableOpacity onPress={addSkillRow} style={{ marginBottom: 10 }}>
                 <Text style={{ color: '#007bff', textAlign: 'center' }}>+ Ajouter une compétence</Text>
@@ -1248,6 +1281,9 @@ const ProfilePage = () => {
                   </TouchableOpacity>
                 </View>
               ))}
+                {locationError ? (
+                  <Text style={{ color: 'red', marginBottom: 10 }}>{locationError}</Text>
+                ) : null}
 
               <TouchableOpacity onPress={addNewLocation} style={{ marginBottom: 10 }}>
                 <Text style={{ color: '#007bff', textAlign: 'center' }}>+ Ajouter une localisation</Text>
@@ -1333,7 +1369,15 @@ const ProfilePage = () => {
                 </View>
 
         <View style={{ marginTop: 20 }}>
-          <Button title="💾 Enregistrer mes préférences" onPress={saveAllPreferencesToBackend} />
+            <Button
+              title="💾 Enregistrer mes préférences"
+              onPress={() => {
+                const valid = validateProfileInputs();
+                if (valid) {
+                  saveAllPreferencesToBackend();
+                }
+              }}
+            />
           {(skillsSuccess || remoteSuccess || locationSuccess) && (
             <Text style={{ color: 'green', marginTop: 6 }}>
               ✅ Préférences mises à jour avec succès !
