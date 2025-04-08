@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import { Ionicons } from '@expo/vector-icons';
-import { View, Text, TextInput, Button, StyleSheet, Alert, ScrollView, TouchableOpacity } from 'react-native';
+import { View,Picker, Text, TextInput, Button, StyleSheet, Alert, ScrollView, TouchableOpacity } from 'react-native';
 
 const allSkills = [
     "HTML", "CSS", "JavaScript", "TypeScript", "React", "Angular", "Vue.js", "Next.js",
@@ -566,6 +566,8 @@ const EditOfferPage = ({ route, navigation }) => {
     const [employmentType, setEmploymentType] = useState(offer.employmentType);
     const [remote, setRemote] = useState(offer.remote);
     const [category, setCategory] = useState(offer.category);
+    const [locationDropdowns, setLocationDropdowns] = useState(offer.locations?.length || 1);
+
     const [selectedLocations, setSelectedLocations] = useState(offer.locations || []);
     const [selectedSkills, setSelectedSkills] = useState(
       offer.skills.reduce((acc, skill) => {
@@ -587,6 +589,21 @@ const EditOfferPage = ({ route, navigation }) => {
           prev.includes(location) ? prev.filter((l) => l !== location) : [...prev, location]
         );
       };
+const addNewLocation = () => {
+  setSelectedLocations([...selectedLocations, ""]);
+  setLocationDropdowns(prev => prev + 1);
+};
+const updateLocationAtIndex = (index, newValue) => {
+  const updated = [...selectedLocations];
+  updated[index] = newValue;
+  setSelectedLocations(updated);
+};
+const removeLocationAtIndex = (index) => {
+  const updated = [...selectedLocations];
+  updated.splice(index, 1);
+  setSelectedLocations(updated);
+  setLocationDropdowns(prev => Math.max(1, prev - 1));
+};
 
     const handleSkillToggle = (skill) => {
       setSelectedSkills((prev) => {
@@ -803,19 +820,33 @@ const EditOfferPage = ({ route, navigation }) => {
       {categoryError ? <Text style={styles.errorText}>{categoryError}</Text> : null}
 
       <Text style={styles.label}>Villes concernées :</Text>
-      <View style={styles.locationContainer}>
-        {allCities.map((city) => (
-          <TouchableOpacity
-            key={city}
-            style={[styles.locationButton, selectedLocations.includes(city) && styles.selectedLocation]}
-            onPress={() => handleLocationToggle(city)}
-          >
-            <Text style={[styles.locationText, selectedLocations.includes(city) && styles.selectedLocationText]}>
-              {city}
-            </Text>
-          </TouchableOpacity>
+      <View style={{ marginTop: 10, marginBottom: 10 }}>
+        <Text style={styles.label}>Villes concernées :</Text>
+
+        {selectedLocations.map((loc, index) => (
+          <View key={index} style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 10 }}>
+            <Picker
+              selectedValue={loc}
+              onValueChange={(value) => updateLocationAtIndex(index, value)}
+              style={{ flex: 1, height: 50, color: 'white', backgroundColor: '#1e293b' }}
+            >
+              <Picker.Item label="Sélectionner une ville" value="" />
+              {allCities.map((city, i) => (
+                <Picker.Item key={i} label={city} value={city} />
+              ))}
+            </Picker>
+
+            <TouchableOpacity onPress={() => removeLocationAtIndex(index)} style={{ marginLeft: 10 }}>
+              <Ionicons name="trash-outline" size={24} color="#dc3545" />
+            </TouchableOpacity>
+          </View>
         ))}
+
+        <TouchableOpacity onPress={addNewLocation} style={{ marginBottom: 10 }}>
+          <Text style={{ color: '#3b82f6', textAlign: 'center' }}>+ Ajouter une localisation</Text>
+        </TouchableOpacity>
       </View>
+
 
       {locationError ? <Text style={styles.errorText}>{locationError}</Text> : null}
 

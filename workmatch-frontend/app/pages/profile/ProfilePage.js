@@ -776,6 +776,21 @@ const ProfilePage = () => {
         const token = await AsyncStorage.getItem('userToken');
         const userId = await AsyncStorage.getItem('userId');
 
+        if (skillsList.length === 0 || skillsList.every(skill => skill.name.trim() === '')) {
+          Alert.alert("Erreur", "Veuillez ajouter au moins une compétence.");
+          return;
+        }
+
+        if (selectedLocations.length === 0 || selectedLocations.every(loc => loc.trim() === '')) {
+          Alert.alert("Erreur", "Veuillez sélectionner au moins une localisation.");
+          return;
+        }
+
+        if (!employmentType) {
+          Alert.alert("Erreur", "Veuillez sélectionner un type de contrat.");
+          return;
+        }
+
         const headers = {
           Authorization: `Bearer ${token}`,
         };
