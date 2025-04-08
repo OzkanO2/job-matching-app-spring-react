@@ -24,12 +24,67 @@ const CreateOfferPage = ({ navigation }) => {
   const [selectedSkills, setSelectedSkills] = useState({});
   const [skillsError, setSkillsError] = useState('');
 
-  const allSkills = ["JavaScript", "React", "Node.js", "Python", "Java", "C#", "Ruby", "Swift"];
-  const availableLocations = [
-    "Paris, France", "Lyon, France", "Marseille, France", "Bruxelles, Belgium",
-    "Liège, Belgium", "New York, USA", "Los Angeles, USA", "London, UK",
-    "Montreal, Canada", "Bangkok, Thailand"
+const allSkills = [
+    "HTML", "CSS", "JavaScript", "TypeScript", "React", "Angular", "Vue.js", "Next.js",
+    "Node.js", "Express.js", "Spring Boot", "Django", "Flask", "Ruby on Rails", "PHP", "Laravel",
+    "Java", "Python", "C#", "C++", "Go", "Rust", "Kotlin", "Swift", "Ruby",
+    "Docker", "Kubernetes", "CI/CD", "Jenkins", "GitLab CI", "Terraform", "Ansible", "AWS", "Azure", "GCP",
+    "Pandas", "NumPy", "Scikit-learn", "TensorFlow", "Keras", "PyTorch", "Matplotlib", "Seaborn",
+    "CloudFormation", "AWS Lambda", "S3", "EC2", "Cloud Functions", "Firestore",
+    "Cybersecurity", "Penetration Testing", "Network Security", "OWASP", "SIEM", "Firewall",
+    "SQL", "Power BI", "Excel", "Data Analysis", "Tableau", "UML", "Agile", "Scrum",
+    "Git", "GitHub", "Bitbucket", "VS Code", "JIRA", "Postman", "Figma", "Notion"
   ];
+const availableLocations = [
+  "Chicago, Cook County",
+  "San Francisco, San Francisco County",
+  "Seattle, King County",
+  "Boston, Suffolk County",
+  "Austin, Travis County",
+  "Denver, Denver County",
+  "Los Angeles, Los Angeles County",
+  "Dallas, Dallas County",
+  "Miami, Miami-Dade County",
+  "Portland, Oregon",
+  "Vancouver, Clark County",
+  "Atlanta, Fulton County",
+  "Orlando, Orange County",
+  "Philadelphia, Philadelphia County",
+  "Glendale, Los Angeles County",
+  "Greenville, Hunt County",
+  "Myrtle Point, Coos County",
+  "Collierville, Shelby County",
+  "Washington, D.C.",
+  "Bay Village, Cuyahoga County",
+  "Hendersonville, Washington County",
+  "Leawood, Johnson County",
+  "Columbus, Hempstead County",
+  "Framingham, Middlesex County",
+  "Rockville, Tolland County",
+  "Redstone Arsenal, Madison County",
+  "Portland, Multnomah County",
+  "New York City, New York",
+  "Arlington, Arlington County",
+  "Concord, Contra Costa County",
+  "Rochester, Olmsted County",
+  "Salt Lake City, Salt Lake County",
+  "Bee Cave, Travis County",
+  "Minneapolis, Hennepin County",
+  "Ashburn, Loudoun County",
+  "Gurnee, Lake County",
+  "Dahlgren, King George County",
+  "Times Square, King County",
+  "Pioneer Square, King County",
+  "Savage, Anne Arundel County",
+  "Hoxeyville, Wexford County",
+  "South Waltham, Middlesex County",
+  "Harmans, Anne Arundel County",
+  "Mc Lean, Fairfax County",
+  "San Jose, Santa Clara County",
+  "Robertson, Saint Louis County",
+  "Plano, Collin County",
+  "Glenville, Fairfield County"
+];
 
   useEffect(() => {
     const getCompanyId = async () => {
@@ -231,12 +286,19 @@ const CreateOfferPage = ({ navigation }) => {
                   <View style={styles.contractContainer}>
                     {[
                       "Développement Web",
-                      "Ingénieur DevOps",
-                      "Business Developer",
-                      "Software Developer",
-                      "Data Science",
-                      "Marketing",
-                      "Finance",
+                            "Ingénieur DevOps",
+                            "Business Developer",
+                            "Software Developer",
+                            "Data Science",
+                            "Marketing",
+                            "Finance",
+                            "Cybersecurity",
+                            "Support IT",
+                            "Cloud Computing",
+                            "Solution Architect",
+                            "Business Analyst",
+                            "AI/ML",
+                            "Other",
                     ].map((cat) => (
                       <TouchableOpacity
                         key={cat}
