@@ -28,7 +28,25 @@ const ProfilePage = () => {
     const [employmentTypeSuccess, setEmploymentTypeSuccess] = useState(false);
     const [salaryMin, setSalaryMin] = useState(30000);
     const [salaryMax, setSalaryMax] = useState(60000);
-const allCities = [
+    const [skillsList, setSkillsList] = useState([{ name: '', experience: 1 }]);
+
+    const addSkillRow = () => {
+      setSkillsList([...skillsList, { name: '', experience: 1 }]);
+    };
+
+    const removeSkillAtIndex = (index) => {
+      const updated = [...skillsList];
+      updated.splice(index, 1);
+      setSkillsList(updated);
+    };
+
+    const updateSkillAtIndex = (index, field, value) => {
+      const updated = [...skillsList];
+      updated[index][field] = field === 'experience' ? parseInt(value) : value;
+      setSkillsList(updated);
+    };
+
+    const allCities = [
       "Chicago, Cook County",
       "San Francisco, San Francisco County",
       "Seattle, King County",
@@ -36,10 +54,7 @@ const allCities = [
       "Denver, Denver County",
       "Los Angeles, Los Angeles County",
       "Dallas, Dallas County",
-      "Miami, Miami-Dade County",
-      "Portland, Oregon",
-      "Vancouver, Clark County",
-      "Orlando, Orange County",
+      "Miami, Miami-Dade County","Portland, Oregon","Vancouver, Clark County","Orlando, Orange County",
       "Philadelphia, Philadelphia County",
       "Glendale, Los Angeles County",
       "Greenville, Hunt County",
@@ -730,6 +745,7 @@ const allCities = [
       "Vue.js"
     ];
 
+    const normalizedAvailableSkills = availableSkills.map(skill => skill.toLowerCase());
 
     const toggleSkill = (skillName) => {
       setSkills((prev) => {
@@ -764,12 +780,15 @@ const allCities = [
           Authorization: `Bearer ${token}`,
         };
         const updatedData = {
-          skills: Object.entries(skills).map(([name, experience]) => ({ name, experience })),
+            skills: Object.entries(skills).map(([name, experience]) => ({
+              name: name.toLowerCase(),   // 🔽 normalisation
+              experience
+            })),
           locations: selectedLocations.filter(loc => loc !== ""),
           remote: isRemotePreferred,
           employmentType,
-  salaryMin,
-  salaryMax
+            salaryMin,
+            salaryMax
         };
         console.log("Payload envoyé :", updatedData);
 
@@ -796,13 +815,14 @@ const allCities = [
       try {
         const token = await AsyncStorage.getItem('userToken');
         const userId = await AsyncStorage.getItem('userId');
-        const formattedSkills = Object.keys(skills); // ← just the skill names
+        const formattedSkills = skillsList.filter(s => s.name !== '');
 
         await axios.put(`http://localhost:8080/jobsearchers/${userId}/updateUser`, {
-          skills: Object.entries(skills).map(([name, experience]) => ({ name, experience }))
+          skills: formattedSkills
         }, {
           headers: { Authorization: `Bearer ${token}` }
         });
+
         setSkillsSuccess(true);
         setTimeout(() => setSkillsSuccess(false), 3000);
 
@@ -996,6 +1016,24 @@ const allCities = [
                     }
                   });
                   setSkills(formatted);
+                  if (jobSearcher.skills && Array.isArray(jobSearcher.skills)) {
+                    const formatted = {};
+                    const skillsArr = [];
+
+                    jobSearcher.skills.forEach(skill => {
+                      if (skill.name) {
+                        formatted[skill.name] = skill.experience || 1;
+                        skillsArr.push({
+                          name: skill.name,
+                          experience: skill.experience || 1,
+                        });
+                      }
+                    });
+
+                    setSkills(formatted);
+                    setSkillsList(skillsArr); // 🔥 Remplit le formulaire avec les compétences existantes
+                  }
+
                 }
                 if (jobSearcher.locations && Array.isArray(jobSearcher.locations)) {
                     setSelectedLocations(jobSearcher.locations);
@@ -1133,34 +1171,43 @@ const allCities = [
             </View>
 
             <View style={{ marginTop: 20 }}>
-              <Text style={styles.sectionTitle}>Modifier mes compétences</Text>
+              <Text style={styles.sectionTitle}>Compétences</Text>
 
-              {availableSkills.map((skill) => (
-                <View key={skill} style={{ alignItems: 'center', marginVertical: 8 }}>
-                  <TouchableOpacity
-                    onPress={() => toggleSkill(skill)}
-                    style={[styles.skillButton, skills[skill] && styles.selectedSkill]}
+              {skillsList.map((skill, index) => (
+                <View key={index} style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 10 }}>
+                  <Picker
+                    selectedValue={skill.name}
+                    onValueChange={(value) => updateSkillAtIndex(index, 'name', value)}
+                    style={{ flex: 1, height: 50 }}
                   >
-                    <Text style={[styles.skillText, skills[skill] && styles.selectedSkillText]}>
-                      {skill}
-                    </Text>
+                    <Picker.Item label="Sélectionner une compétence" value="" />
+                    {normalizedAvailableSkills.map((s, i) => (
+                      <Picker.Item key={i} label={s} value={s} />
+                    ))}
+
+                  </Picker>
+
+                  <TouchableOpacity onPress={() => updateSkillAtIndex(index, 'experience', skill.experience - 1)}>
+                    <Ionicons name="remove-circle-outline" size={24} color="#6c757d" />
                   </TouchableOpacity>
 
-                  {skills[skill] && (
-                    <View style={styles.experienceContainer}>
-                      <TouchableOpacity onPress={() => changeExperience(skill, -1)}>
-                        <Ionicons name="remove-circle-outline" size={24} color="#6c757d" />
-                      </TouchableOpacity>
-                      <Text style={styles.experienceValue}>{skills[skill]} ans</Text>
-                      <TouchableOpacity onPress={() => changeExperience(skill, 1)}>
-                        <Ionicons name="add-circle-outline" size={24} color="#6c757d" />
-                      </TouchableOpacity>
-                    </View>
-                  )}
+                  <Text style={{ color: 'white', marginHorizontal: 8 }}>{skill.experience} an(s)</Text>
+
+                  <TouchableOpacity onPress={() => updateSkillAtIndex(index, 'experience', skill.experience + 1)}>
+                    <Ionicons name="add-circle-outline" size={24} color="#6c757d" />
+                  </TouchableOpacity>
+
+                  <TouchableOpacity onPress={() => removeSkillAtIndex(index)} style={{ marginLeft: 10 }}>
+                    <Ionicons name="trash-outline" size={24} color="#dc3545" />
+                  </TouchableOpacity>
                 </View>
               ))}
 
+              <TouchableOpacity onPress={addSkillRow} style={{ marginBottom: 10 }}>
+                <Text style={{ color: '#007bff', textAlign: 'center' }}>+ Ajouter une compétence</Text>
+              </TouchableOpacity>
             </View>
+
 
             <View style={{ marginTop: 20 }}>
               <Text style={styles.sectionTitle}>Localisation préférée</Text>
@@ -1505,6 +1552,9 @@ contractContainer: {
   justifyContent: 'center',
   marginBottom: 10,
 },
+skillContainer: {
+  marginBottom: 10,
+}
 
 });
 
