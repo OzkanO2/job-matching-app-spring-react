@@ -570,11 +570,9 @@ const EditOfferPage = ({ route, navigation }) => {
 
     const [selectedLocations, setSelectedLocations] = useState(offer.locations || []);
     const [selectedSkills, setSelectedSkills] = useState(
-      offer.skills.reduce((acc, skill) => {
-        acc[skill.name] = skill.experience;
-        return acc;
-      }, {})
+      offer.skills.map((skill) => ({ name: skill.name, experience: skill.experience }))
     );
+
 
     const [titleError, setTitleError] = useState('');
       const [descriptionError, setDescriptionError] = useState('');
@@ -589,21 +587,39 @@ const EditOfferPage = ({ route, navigation }) => {
           prev.includes(location) ? prev.filter((l) => l !== location) : [...prev, location]
         );
       };
-const addNewLocation = () => {
-  setSelectedLocations([...selectedLocations, ""]);
-  setLocationDropdowns(prev => prev + 1);
-};
-const updateLocationAtIndex = (index, newValue) => {
-  const updated = [...selectedLocations];
-  updated[index] = newValue;
-  setSelectedLocations(updated);
-};
-const removeLocationAtIndex = (index) => {
-  const updated = [...selectedLocations];
-  updated.splice(index, 1);
-  setSelectedLocations(updated);
-  setLocationDropdowns(prev => Math.max(1, prev - 1));
-};
+    const addNewLocation = () => {
+      setSelectedLocations([...selectedLocations, ""]);
+      setLocationDropdowns(prev => prev + 1);
+    };
+    const updateLocationAtIndex = (index, newValue) => {
+      const updated = [...selectedLocations];
+      updated[index] = newValue;
+      setSelectedLocations(updated);
+    };
+    const removeLocationAtIndex = (index) => {
+      const updated = [...selectedLocations];
+      updated.splice(index, 1);
+      setSelectedLocations(updated);
+      setLocationDropdowns(prev => Math.max(1, prev - 1));
+    };
+    const addNewSkill = () => {
+      setSelectedSkills([...selectedSkills, { name: '', experience: 1 }]);
+    };
+
+    const updateSkillAtIndex = (index, key, value) => {
+      setSelectedSkills((prevSkills) => {
+        const updatedSkills = [...prevSkills]; // clone du tableau
+        const updatedSkill = { ...updatedSkills[index], [key]: value }; // clone de l'objet
+        updatedSkills[index] = updatedSkill; // remplacement dans le tableau cloné
+        return updatedSkills;
+      });
+    };
+
+    const removeSkillAtIndex = (index) => {
+      const updated = [...selectedSkills];
+      updated.splice(index, 1);
+      setSelectedSkills(updated);
+    };
 
     const handleSkillToggle = (skill) => {
       setSelectedSkills((prev) => {
@@ -695,10 +711,7 @@ const removeLocationAtIndex = (index) => {
               remote,
               category,
               locations: selectedLocations,
-              skills: Object.entries(selectedSkills).map(([name, experience]) => ({
-                name,
-                experience,
-              })),
+              skills: selectedSkills.filter(skill => skill.name).map(({ name, experience }) => ({ name, experience })),
             };
             try {
             const response = await axios.put(
@@ -851,32 +864,40 @@ const removeLocationAtIndex = (index) => {
       {locationError ? <Text style={styles.errorText}>{locationError}</Text> : null}
 
       <Text style={styles.label}>Compétences requises :</Text>
-      <View style={styles.skillContainer}>
-        {allSkills.map((skill) => (
-          <View key={skill} style={{ alignItems: "center", marginVertical: 8 }}>
-            <TouchableOpacity
-              onPress={() => handleSkillToggle(skill)}
-              style={[styles.skillButton, selectedSkills[skill] && styles.selectedSkill]}
-            >
-              <Text style={[styles.skillText, selectedSkills[skill] && styles.selectedSkillText]}>
-                {skill}
-              </Text>
-            </TouchableOpacity>
 
-            {selectedSkills[skill] && (
-              <View style={styles.experienceContainer}>
-                <TouchableOpacity onPress={() => handleExperienceChange(skill, -1)}>
-                  <Ionicons name="remove-circle-outline" size={24} color="#6c757d" />
-                </TouchableOpacity>
-                <Text style={styles.experienceValue}>{selectedSkills[skill]} years</Text>
-                <TouchableOpacity onPress={() => handleExperienceChange(skill, 1)}>
-                  <Ionicons name="add-circle-outline" size={24} color="#6c757d" />
-                </TouchableOpacity>
-              </View>
-            )}
+      {selectedSkills.map((skill, index) => (
+        <View key={index} style={{ marginBottom: 10 }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+            <Picker
+              selectedValue={skill.name}
+              onValueChange={(value) => updateSkillAtIndex(index, 'name', value)}
+              style={{ flex: 1, height: 50, color: 'white', backgroundColor: '#1e293b' }}
+            >
+              <Picker.Item label="Sélectionner une compétence" value="" />
+              {allSkills.map((s, i) => (
+                <Picker.Item key={i} label={s} value={s} />
+              ))}
+            </Picker>
+            <TouchableOpacity onPress={() => removeSkillAtIndex(index)} style={{ marginLeft: 10 }}>
+              <Ionicons name="trash-outline" size={24} color="#dc3545" />
+            </TouchableOpacity>
           </View>
-        ))}
-      </View>
+
+          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginTop: 6 }}>
+            <TouchableOpacity onPress={() => updateSkillAtIndex(index, 'experience', Math.max(1, skill.experience - 1))}>
+              <Ionicons name="remove-circle-outline" size={24} color="#6c757d" />
+            </TouchableOpacity>
+            <Text style={{ color: 'white', marginHorizontal: 10 }}>{skill.experience} years</Text>
+            <TouchableOpacity onPress={() => updateSkillAtIndex(index, 'experience', skill.experience + 1)}>
+              <Ionicons name="add-circle-outline" size={24} color="#6c757d" />
+            </TouchableOpacity>
+          </View>
+        </View>
+      ))}
+
+      <TouchableOpacity onPress={addNewSkill} style={{ marginBottom: 10 }}>
+        <Text style={{ color: '#3b82f6', textAlign: 'center' }}>+ Ajouter une compétence</Text>
+      </TouchableOpacity>
       {skillsError ? <Text style={styles.errorText}>{skillsError}</Text> : null}
 
       <Button title="Mettre à jour l'offre" onPress={handleUpdate} />
