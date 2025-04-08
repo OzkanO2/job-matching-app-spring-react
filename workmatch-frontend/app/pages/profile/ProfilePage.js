@@ -102,8 +102,15 @@ const ProfilePage = () => {
     };
 
     const availableSkills = [
-      "JavaScript", "React", "Node.js", "Python", "Java",
-      "C#", "Ruby", "Swift"
+      "HTML", "CSS", "JavaScript", "TypeScript", "React", "Angular", "Vue.js", "Next.js",
+      "Node.js", "Express.js", "Spring Boot", "Django", "Flask", "Ruby on Rails", "PHP", "Laravel",
+      "Java", "Python", "C#", "C++", "Go", "Rust", "Kotlin", "Swift", "Ruby",
+      "Docker", "Kubernetes", "CI/CD", "Jenkins", "GitLab CI", "Terraform", "Ansible", "AWS", "Azure", "GCP",
+      "Pandas", "NumPy", "Scikit-learn", "TensorFlow", "Keras", "PyTorch", "Matplotlib", "Seaborn",
+      "CloudFormation", "AWS Lambda", "S3", "EC2", "Cloud Functions", "Firestore",
+      "Cybersecurity", "Penetration Testing", "Network Security", "OWASP", "SIEM", "Firewall",
+      "SQL", "Power BI", "Excel", "Data Analysis", "Tableau", "UML", "Agile", "Scrum",
+      "Git", "GitHub", "Bitbucket", "VS Code", "JIRA", "Postman", "Figma", "Notion"
     ];
 
     const toggleSkill = (skillName) => {
@@ -201,6 +208,7 @@ const ProfilePage = () => {
       "AI/ML",
       "Other"
     ];
+
 
     const savePreferencesToBackend = async () => {
         try {
