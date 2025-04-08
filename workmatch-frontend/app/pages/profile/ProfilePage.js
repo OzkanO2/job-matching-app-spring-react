@@ -674,7 +674,7 @@ const ProfilePage = () => {
         "Git", "GitHub", "Bitbucket", "VS Code", "JIRA", "Postman", "Figma", "Notion"
       ];
 
-    const normalizedAvailableSkills = availableSkills.map(skill => skill.toLowerCase());
+    const normalizedAvailableSkills = allSkills.map(skill => skill.toLowerCase());
 
     const toggleSkill = (skillName) => {
       setSkills((prev) => {

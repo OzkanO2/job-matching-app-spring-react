@@ -550,12 +550,18 @@ const availableLocations = [
     setEmploymentTypeError(!employmentType ? 'Type requis.' : '');
     setCategoryError(!category ? 'Catégorie requise.' : '');
     setLocationError(selectedLocations.length === 0 ? 'Sélectionnez au moins une ville.' : '');
-    setSkillsError(Object.keys(selectedSkills).length === 0 ? 'Ajoutez au moins une compétence.' : '');
+
+    const filledSkills = skillsList.filter(skill => skill.name.trim() !== '');
+    if (filledSkills.length === 0) {
+      setSkillsError('Ajoutez au moins une compétence.');
+    } else {
+      setSkillsError('');
+    }
 
     if (
       titleNoSpace.length < 7 || descNoSpace.length < 20 ||
       salaryMin >= salaryMax || !employmentType || !category ||
-      selectedLocations.length === 0 || Object.keys(selectedSkills).length === 0
+      selectedLocations.length === 0 || filledSkills.length === 0
     ) {
       isValid = false;
     }
@@ -563,12 +569,15 @@ const availableLocations = [
     return isValid;
   };
 
+
   const handleSubmit = async () => {
     if (!validateInputs()) return;
 
     try {
       const token = await AsyncStorage.getItem('userToken');
-      const skills = Object.entries(selectedSkills).map(([name, experience]) => ({ name, experience }));
+        const skills = skillsList
+          .filter(skill => skill.name.trim() !== '')
+          .map(skill => ({ name: skill.name, experience: skill.experience }));
 
       const newOffer = {
         title, description, companyId, salaryMin, salaryMax,
@@ -742,28 +751,39 @@ const availableLocations = [
                   </View>
                   {categoryError ? <Text style={styles.errorText}>{categoryError}</Text> : null}
                   <Text style={styles.label}>Villes concernées :</Text>
-                      <View style={styles.locationContainer}>
-                        {availableLocations.map((city) => (
-                            <TouchableOpacity
-                              key={city}
-                              style={[
-                                styles.locationButton,
-                                selectedLocations.includes(city) && styles.selectedLocation,
-                              ]}
-                              onPress={() => handleLocationToggle(city)}
-                            >
-                              <Text
-                                style={[
-                                  styles.locationText,
-                                  selectedLocations.includes(city) && styles.selectedLocationText,
-                                ]}
-                              >
-                                {city}
-                              </Text>
-                            </TouchableOpacity>
-                          ))}
-                      </View>
-                      {locationError ? <Text style={styles.errorText}>{locationError}</Text> : null}
+
+                  {selectedLocations.map((loc, index) => (
+                    <View key={index} style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 10 }}>
+                      <Picker
+                        selectedValue={loc}
+                        onValueChange={(value) => {
+                          const updated = [...selectedLocations];
+                          updated[index] = value;
+                          setSelectedLocations(updated);
+                        }}
+                        style={{ flex: 1, height: 50, color: '#fff', backgroundColor: '#1e293b' }}
+                      >
+                        <Picker.Item label="Sélectionner une ville" value="" />
+                        {availableLocations.map((city, i) => (
+                          <Picker.Item key={i} label={city} value={city} />
+                        ))}
+                      </Picker>
+
+                      <TouchableOpacity onPress={() => {
+                        const updated = [...selectedLocations];
+                        updated.splice(index, 1);
+                        setSelectedLocations(updated);
+                      }} style={{ marginLeft: 10 }}>
+                        <Ionicons name="trash-outline" size={24} color="#dc3545" />
+                      </TouchableOpacity>
+                    </View>
+                  ))}
+
+                  <TouchableOpacity onPress={() => setSelectedLocations([...selectedLocations, ""])} style={{ marginBottom: 10 }}>
+                    <Text style={{ color: '#3b82f6', textAlign: 'center' }}>+ Ajouter une localisation</Text>
+                  </TouchableOpacity>
+
+                  {locationError ? <Text style={styles.errorText}>{locationError}</Text> : null}
 
                       <Text style={styles.label}>Compétences requises :</Text>
 
