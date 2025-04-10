@@ -660,17 +660,17 @@ const ProfilePage = () => {
       setSelectedLocations(updated);
     };
 
-    const allSkills = [
-        "HTML", "CSS", "JavaScript", "TypeScript", "React", "Angular", "Vue.js", "Next.js",
-        "Node.js", "Express.js", "Spring Boot", "Django", "Flask", "Ruby on Rails", "PHP", "Laravel",
-        "Java", "Python", "C#", "C++", "Go", "Rust", "Kotlin", "Swift", "Ruby",
-        "Docker", "Kubernetes", "CI/CD", "Jenkins", "GitLab CI", "Terraform", "Ansible", "AWS", "Azure", "GCP",
-        "Pandas", "NumPy", "Scikit-learn", "TensorFlow", "Keras", "PyTorch", "Matplotlib", "Seaborn",
-        "CloudFormation", "AWS Lambda", "S3", "EC2", "Cloud Functions", "Firestore",
-        "Cybersecurity", "Penetration Testing", "Network Security", "OWASP", "SIEM", "Firewall",
-        "SQL", "Power BI", "Excel", "Data Analysis", "Tableau", "UML", "Agile", "Scrum",
-        "Git", "GitHub", "Bitbucket", "VS Code", "JIRA", "Postman", "Figma", "Notion"
-      ];
+const allSkills = [
+  "html", "css", "javascript", "typescript", "react", "angular", "vue.js", "next.js",
+  "node.js", "express.js", "spring boot", "django", "flask", "ruby on rails", "php", "laravel",
+  "java", "python", "c#", "c++", "go", "rust", "kotlin", "swift", "ruby",
+  "docker", "kubernetes", "ci/cd", "jenkins", "gitlab ci", "terraform", "ansible", "aws", "azure", "gcp",
+  "pandas", "numpy", "scikit-learn", "tensorflow", "keras", "pytorch", "matplotlib", "seaborn",
+  "cloudformation", "aws lambda", "s3", "ec2", "cloud functions", "firestore",
+  "cybersecurity", "penetration testing", "network security", "owasp", "siem", "firewall",
+  "sql", "power bi", "excel", "data analysis", "tableau", "uml", "agile", "scrum",
+  "git", "github", "bitbucket", "vs code", "jira", "postman", "figma", "notion"
+];
 
     const normalizedAvailableSkills = allSkills.map(skill => skill.toLowerCase());
 

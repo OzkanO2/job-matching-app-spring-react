@@ -1,6 +1,8 @@
 import React, { useState } from "react";
+import { Picker } from "@react-native-picker/picker";
+
 import {
-  View, Text, TouchableOpacity, StyleSheet, FlatList
+  View, Alert, Text, TouchableOpacity, StyleSheet, FlatList
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons"; // ✅ Ajout d'icônes
 import axios from "axios";
@@ -9,19 +11,18 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 const JobSeekerOnboardingPage = ({ navigation, route }) => {
   const { userInfo } = route.params;
 
-  // Liste des compétences possibles
-const allSkills = [
-    "HTML", "CSS", "JavaScript", "TypeScript", "React", "Angular", "Vue.js", "Next.js",
-    "Node.js", "Express.js", "Spring Boot", "Django", "Flask", "Ruby on Rails", "PHP", "Laravel",
-    "Java", "Python", "C#", "C++", "Go", "Rust", "Kotlin", "Swift", "Ruby",
-    "Docker", "Kubernetes", "CI/CD", "Jenkins", "GitLab CI", "Terraform", "Ansible", "AWS", "Azure", "GCP",
-    "Pandas", "NumPy", "Scikit-learn", "TensorFlow", "Keras", "PyTorch", "Matplotlib", "Seaborn",
-    "CloudFormation", "AWS Lambda", "S3", "EC2", "Cloud Functions", "Firestore",
-    "Cybersecurity", "Penetration Testing", "Network Security", "OWASP", "SIEM", "Firewall",
-    "SQL", "Power BI", "Excel", "Data Analysis", "Tableau", "UML", "Agile", "Scrum",
-    "Git", "GitHub", "Bitbucket", "VS Code", "JIRA", "Postman", "Figma", "Notion"
-  ];
 
+const allSkills = [
+  "html", "css", "javascript", "typescript", "react", "angular", "vue.js", "next.js",
+  "node.js", "express.js", "spring boot", "django", "flask", "ruby on rails", "php", "laravel",
+  "java", "python", "c#", "c++", "go", "rust", "kotlin", "swift", "ruby",
+  "docker", "kubernetes", "ci/cd", "jenkins", "gitlab ci", "terraform", "ansible", "aws", "azure", "gcp",
+  "pandas", "numpy", "scikit-learn", "tensorflow", "keras", "pytorch", "matplotlib", "seaborn",
+  "cloudformation", "aws lambda", "s3", "ec2", "cloud functions", "firestore",
+  "cybersecurity", "penetration testing", "network security", "owasp", "siem", "firewall",
+  "sql", "power bi", "excel", "data analysis", "tableau", "uml", "agile", "scrum",
+  "git", "github", "bitbucket", "vs code", "jira", "postman", "figma", "notion"
+];
 const availableLocations = [
   "Chicago, Cook County",
   "Hollywood, Broward County",
@@ -477,13 +478,42 @@ const availableLocations = [
   "Hawthorne, Los Angeles County"
 ];
   // État pour stocker les compétences sélectionnées et leur expérience
-  const [selectedSkills, setSelectedSkills] = useState({});
-  const [isRemote, setIsRemote] = useState(false); // Ajout du remote toggle
+  const [skillsList, setSkillsList] = useState([{ name: '', experience: 1 }]);  const [isRemote, setIsRemote] = useState(false); // Ajout du remote toggle
   const [selectedLocations, setSelectedLocations] = useState([]); // Ajout pour les villes
   const [salaryMin, setSalaryMin] = useState(30000);
   const [salaryMax, setSalaryMax] = useState(60000);
     const [employmentType, setEmploymentType] = useState('');
     const [employmentTypeError, setEmploymentTypeError] = useState('');
+
+// Gestion des compétences
+const addSkillRow = () => {
+  setSkillsList([...skillsList, { name: '', experience: 1 }]);
+};
+
+const removeSkillAtIndex = (index) => {
+  setSkillsList(skillsList.filter((_, i) => i !== index));
+};
+
+const updateSkillAtIndex = (index, field, value) => {
+  const updated = [...skillsList];
+  updated[index][field] = field === 'experience' ? parseInt(value) : value;
+  setSkillsList(updated);
+};
+
+// Gestion des localisations
+const addLocation = () => {
+  setSelectedLocations([...selectedLocations, ""]);
+};
+
+const updateLocationAtIndex = (index, value) => {
+  const updated = [...selectedLocations];
+  updated[index] = value;
+  setSelectedLocations(updated);
+};
+
+const removeLocationAtIndex = (index) => {
+  setSelectedLocations(selectedLocations.filter((_, i) => i !== index));
+};
 
   // Fonction pour ajouter ou retirer une compétence
   const handleSkillToggle = (skill) => {
@@ -525,92 +555,136 @@ const availableLocations = [
         }
       };
   // Fonction pour soumettre les données
+  const [skillsError, setSkillsError] = useState('');
+  const [locationsError, setLocationsError] = useState('');
+
   const handleSubmit = async () => {
+    console.log("handleSubmit triggered"); // <- AJOUTE ÇA
+
+    // Validation des champs
+    const hasAtLeastOneSkill = skillsList.some(skill => skill.name.trim() !== '');
+    const hasAtLeastOneLocation = selectedLocations.some(loc => loc.trim() !== '');
+    const hasSelectedContract = employmentType !== '';
+
+    if (!hasAtLeastOneSkill || !hasAtLeastOneLocation || !hasSelectedContract) {
+      setSkillsError(!hasAtLeastOneSkill ? "Veuillez sélectionner au moins une compétence." : '');
+      setLocationsError(!hasAtLeastOneLocation ? "Veuillez sélectionner au moins une localisation." : '');
+      setEmploymentTypeError(!hasSelectedContract ? "Veuillez choisir un type de contrat." : '');
+      return;
+    }
+
     try {
-      if (!userInfo.id) {
-        console.error("Erreur : userInfo.id est undefined !");
-        alert("User ID is missing. Please try again.");
-        return;
-      }
+      const token = await AsyncStorage.getItem("userToken");
 
-      // Transformation des compétences en JSON correct
-      const formattedSkills = Object.entries(selectedSkills).map(([skill, experience]) => ({
-        name: skill,
-        experience,
-      }));
+      const formattedSkills = skillsList
+        .filter(skill => skill.name.trim() !== '')
+        .map(skill => ({
+          name: skill.name,
+          experience: skill.experience
+        }));
 
-      // Vérification du JSON avant envoi
-      console.log("Envoi des données :", JSON.stringify({
-      skills: formattedSkills,
-      remote: isRemote,
-      locations: selectedLocations, // Envoi des villes sélectionnées
-        salaryMin,
-        salaryMax
-      }));
-
-      const response = await axios.put(
-        `http://localhost:8080/jobsearchers/${userInfo.id}/updateUser`, // Nouveau endpoint
-                { skills: formattedSkills, remote: isRemote, locations: selectedLocations, salaryMin, salaryMax,
-  employmentType, },
-
+      await axios.put(
+        `http://localhost:8080/jobsearchers/${userInfo.id}/updateUser`,
         {
-          headers: {
-            Authorization: `Bearer ${await AsyncStorage.getItem("userToken")}`,
-            "Content-Type": "application/json",
-          },
-        }
+          skills: formattedSkills,
+          remote: isRemote,
+          locations: selectedLocations.filter(loc => loc !== ""),
+          salaryMin,
+          salaryMax,
+          employmentType
+        },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+console.log("Compte mis à jour, on affiche l'alerte");
+
+      // ✅ Affichage d'un message de confirmation puis redirection vers SignIn
+      // Remplace ceci :
+      Alert.alert(
+        "Compte créé",
+        "Votre compte a été créé avec succès. Veuillez vous connecter.",
+        [
+          {
+            text: "OK",
+            onPress: () => navigation.replace("SignIn")
+          }
+        ]
       );
 
-      console.log("User data updated successfully!", response.data);
+      // Par ça :
+      window.alert("Votre compte a été créé avec succès. Veuillez vous connecter.");
+      navigation.replace("SignIn");
 
-      await AsyncStorage.setItem("userType", userInfo.userType);
-      await AsyncStorage.setItem("userId", userInfo.id);
-
-      if (userInfo.userType === "INDIVIDUAL") {
-        navigation.replace("IndividualHome", { userInfo });
-      } else if (userInfo.userType === "COMPANY") {
-        navigation.replace("CompanyHome", { userInfo });
-      }
     } catch (error) {
-      console.error("Failed to update user data:", error.response ? error.response.data : error);
-      alert("Failed to update user data. Please try again.");
+      console.error("Error:", error);
+      alert("Update failed. Please try again.");
     }
   };
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Select Your Skills and Experience:</Text>
+      {/* Pour les compétences */}
+      {skillsList.map((skill, index) => (
+        <View key={index} style={styles.rowContainer}>
+          <Picker
+            selectedValue={skill.name}
+            onValueChange={(itemValue) => updateSkillAtIndex(index, 'name', itemValue)}
+            style={styles.picker}
+            mode="dropdown"
+          >
+            <Picker.Item label="Select skill" value="" />
+            {allSkills.map((s, i) => (
+              <Picker.Item key={`skill-${i}`} label={s} value={s} />
+            ))}
+          </Picker>
 
-      <FlatList
-        data={allSkills}
-        keyExtractor={(item) => item}
-        renderItem={({ item }) => (
-          <View style={styles.skillContainer}>
-            <TouchableOpacity
-              onPress={() => handleSkillToggle(item)}
-              style={[styles.skillButton, selectedSkills[item] && styles.selectedSkill]}
-            >
-              <Text style={[styles.skillText, selectedSkills[item] && styles.selectedSkillText]}>
-                {item}
-              </Text>
+
+          <View style={styles.experienceControls}>
+            <TouchableOpacity onPress={() => updateSkillAtIndex(index, 'experience', skill.experience - 1)}>
+              <Ionicons name="remove-circle-outline" size={24} color="#6c757d" />
             </TouchableOpacity>
-
-            {selectedSkills[item] && (
-              <View style={styles.experienceContainer}>
-                <TouchableOpacity onPress={() => handleExperienceChange(item, -1)}>
-                  <Ionicons name="remove-circle-outline" size={24} color="#6c757d" />
-                </TouchableOpacity>
-
-                <Text style={styles.experienceValue}>{selectedSkills[item]} years</Text>
-
-                <TouchableOpacity onPress={() => handleExperienceChange(item, 1)}>
-                  <Ionicons name="add-circle-outline" size={24} color="#6c757d" />
-                </TouchableOpacity>
-              </View>
-            )}
+            <Text style={styles.experienceValue}>{skill.experience} year(s)</Text>
+            <TouchableOpacity onPress={() => updateSkillAtIndex(index, 'experience', skill.experience + 1)}>
+              <Ionicons name="add-circle-outline" size={24} color="#6c757d" />
+            </TouchableOpacity>
           </View>
-        )}
-      />
+
+          <TouchableOpacity onPress={() => removeSkillAtIndex(index)}>
+            <Ionicons name="trash-outline" size={24} color="#dc3545" />
+          </TouchableOpacity>
+        </View>
+      ))}
+
+      <TouchableOpacity onPress={addSkillRow} style={styles.addButton}>
+        <Text style={styles.addButtonText}>+ Add Skill</Text>
+      </TouchableOpacity>
+{skillsError ? <Text style={styles.errorText}>{skillsError}</Text> : null}
+
+      {/* Pour les localisations */}
+      {selectedLocations.map((location, index) => (
+        <View key={`loc-${index}`} style={styles.rowContainer}>
+          <Picker
+            selectedValue={location}
+            onValueChange={(itemValue) => updateLocationAtIndex(index, itemValue)}
+            style={styles.picker}
+            mode="dropdown"
+          >
+            <Picker.Item label="Select location" value="" />
+            {availableLocations.map((loc, i) => (
+              <Picker.Item key={`loc-${i}`} label={loc} value={loc} />
+            ))}
+          </Picker>
+
+
+          <TouchableOpacity onPress={() => removeLocationAtIndex(index)}>
+            <Ionicons name="trash-outline" size={24} color="#dc3545" />
+          </TouchableOpacity>
+        </View>
+      ))}
+
+      <TouchableOpacity onPress={addLocation} style={styles.addButton}>
+        <Text style={styles.addButtonText}>+ Add Location</Text>
+      </TouchableOpacity>
+{locationsError ? <Text style={styles.errorText}>{locationsError}</Text> : null}
 
       <View style={styles.remoteContainer}>
         <Text style={styles.remoteText}>Remote:</Text>
@@ -622,21 +696,6 @@ const availableLocations = [
         </TouchableOpacity>
       </View>
 
-      <Text style={styles.title}>Select Locations:</Text>
-      <FlatList
-        data={availableLocations}
-        keyExtractor={(item) => item}
-        renderItem={({ item }) => (
-          <TouchableOpacity
-            style={[styles.locationButton, selectedLocations.includes(item) && styles.selectedLocation]}
-            onPress={() => handleLocationToggle(item)}
-          >
-            <Text style={[styles.locationText, selectedLocations.includes(item) && styles.selectedLocationText]}>
-              {item}
-            </Text>
-          </TouchableOpacity>
-        )}
-      />
       <Text style={styles.title}>Select Your Salary Range:</Text>
               <View style={styles.salaryContainer}>
 <Text style={{ color: "#ffffff", fontWeight: "bold" }}>Min Salary:</Text>
@@ -687,6 +746,7 @@ const availableLocations = [
       <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>
         <Text style={styles.submitButtonText}>SUBMIT</Text>
       </TouchableOpacity>
+
     </View>
   );
 };
@@ -826,6 +886,44 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     fontSize: 18,
     textAlign: "center",
+  },
+  rowContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 10,
+  },
+  picker: {
+    flex: 1,
+    height: 50,
+    color: "#ffffff",
+    backgroundColor: "#1e293b",
+  },
+  experienceControls: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginLeft: 10,
+  },
+  errorText: {
+    color: "#dc3545",
+    fontSize: 14,
+    textAlign: "center",
+    marginBottom: 10,
+  }
+,
+  experienceValue: {
+    color: "#ffffff",
+    marginHorizontal: 8,
+  },
+  addButton: {
+    backgroundColor: "#3b82f6",
+    padding: 10,
+    borderRadius: 8,
+    alignItems: "center",
+    marginBottom: 15,
+  },
+  addButtonText: {
+    color: "#ffffff",
+    fontWeight: "bold",
   },
 });
 
