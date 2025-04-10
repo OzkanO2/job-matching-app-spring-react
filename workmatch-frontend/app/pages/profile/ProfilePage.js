@@ -31,6 +31,7 @@ const ProfilePage = () => {
     const [skillsList, setSkillsList] = useState([{ name: '', experience: 1 }]);
     const [skillsError, setSkillsError] = useState('');
     const [locationError, setLocationError] = useState('');
+    const [categorySuccess, setCategorySuccess] = useState(false);
 
     const addSkillRow = () => {
       setSkillsList([...skillsList, { name: '', experience: 1 }]);
@@ -97,17 +98,11 @@ const ProfilePage = () => {
       "Concord, Contra Costa County",
       "Rochester, Olmsted County",
       "Salt Lake City, Salt Lake County",
+      "Hunt Valley, Baltimore County",
       "Bee Cave, Travis County",
       "Minneapolis, Hennepin County",
-      "Ashburn, Loudoun County",
-      "Gurnee, Lake County",
-      "Dahlgren, King George County",
-      "Times Square, King County",
-      "Pioneer Square, King County",
-      "Savage, Anne Arundel County",
-      "Hoxeyville, Wexford County",
-      "South Waltham, Middlesex County",
-      "Harmans, Anne Arundel County",
+      "Ashburn, Loudoun County","Gurnee, Lake County","Dahlgren, King George County","Times Square, King County","Pioneer Square, King County","Savage, Anne Arundel County","Hoxeyville, Wexford County",
+      "South Waltham, Middlesex County","Harmans, Anne Arundel County",
       "Mc Lean, Fairfax County",
       "San Jose, Santa Clara County",
       "Robertson, Saint Louis County",
@@ -703,6 +698,40 @@ const ProfilePage = () => {
       updated.splice(index, 1);
       setSelectedLocations(updated);
     };
+
+    const saveCategoryPreferences = async () => {
+      try {
+        const token = await AsyncStorage.getItem('userToken');
+        const userId = await AsyncStorage.getItem('userId');
+
+        const headers = {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json"
+        };
+
+        const payload = {
+          preferredCategories: tempSelectedCategories
+        };
+
+        const response = await axios.put(
+          `http://localhost:8080/users/${userId}/preferences`,
+          payload,
+          { headers }
+        );
+
+        setSelectedCategories([...tempSelectedCategories]);
+        setCategorySuccess(true); // ✅ affiche confirmation
+
+        setTimeout(() => {
+          setCategorySuccess(false); // ✅ disparaît après 3 secondes
+        }, 3000);
+
+      } catch (error) {
+        console.error("Erreur sauvegarde catégories :", error);
+        Alert.alert("Erreur", "Impossible d'enregistrer les catégories.");
+      }
+    };
+
     const saveAllPreferencesToBackend = async () => {
       try {
         const token = await AsyncStorage.getItem('userToken');
@@ -1118,14 +1147,17 @@ const ProfilePage = () => {
                 ))}
               </View>
                 <Button
-                  title="💾 Enregistrer mes préférences"
+                  title="Enregistrer mes préférences"
                   onPress={() => {
                     const valid = validateProfileInputs();
                     if (valid) {
-                      saveAllPreferencesToBackend();
+                      saveCategoryPreferences();
                     }
                   }}
                 />
+                {categorySuccess && (
+                  <Text style={{ color: 'green', marginTop: 6 }}>✅ Catégories enregistrées avec succès !</Text>
+                )}
             </View>
 
             <View style={{ marginTop: 20 }}>
@@ -1280,7 +1312,7 @@ const ProfilePage = () => {
 
         <View style={{ marginTop: 20 }}>
             <Button
-              title="💾 Enregistrer mes préférences"
+              title="Enregistrer mes préférences"
               onPress={() => {
                 const valid = validateProfileInputs();
                 if (valid) {
@@ -1290,7 +1322,7 @@ const ProfilePage = () => {
             />
           {(skillsSuccess || remoteSuccess || locationSuccess) && (
             <Text style={{ color: 'green', marginTop: 6 }}>
-              ✅ Préférences mises à jour avec succès !
+              Préférences mises à jour avec succès !
             </Text>
           )}
         </View>
