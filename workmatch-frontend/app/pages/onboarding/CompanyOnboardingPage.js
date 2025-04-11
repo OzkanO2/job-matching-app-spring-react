@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Ionicons } from "@expo/vector-icons";
-import { View, Text, TextInput, Button, StyleSheet, Alert, TouchableOpacity, ScrollView } from 'react-native';
+import { Picker, View, Text, TextInput, Button, StyleSheet, Alert, TouchableOpacity, ScrollView } from 'react-native';
 
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -496,6 +496,21 @@ const availableLocations = [
           : [...prevLocations, location]
       );
     };
+    const [skillsList, setSkillsList] = useState([{ name: '', experience: 1 }]);
+
+    const addSkillRow = () => {
+      setSkillsList([...skillsList, { name: '', experience: 1 }]);
+    };
+
+    const removeSkillAtIndex = (index) => {
+      setSkillsList(skillsList.filter((_, i) => i !== index));
+    };
+
+    const updateSkillAtIndex = (index, field, value) => {
+      const updated = [...skillsList];
+      updated[index][field] = field === 'experience' ? parseInt(value) : value;
+      setSkillsList(updated);
+    };
 
     const handleSkillToggle = (skill) => {
       setSelectedSkills((prevSkills) => {
@@ -552,23 +567,42 @@ const availableLocations = [
         } else {
           setCategoryError('');
         }
+
         if (selectedLocations.length === 0) {
           setLocationError("Veuillez sélectionner au moins une ville.");
           isValid = false;
         } else {
           setLocationError('');
         }
-        if (Object.keys(selectedSkills).length === 0) {
+        if (!skillsList.some(skill => skill.name.trim() !== '')) {
           setSkillsError("Veuillez sélectionner au moins une compétence.");
           isValid = false;
         } else {
           setSkillsError('');
         }
+        if (selectedLocations.filter(loc => loc.trim() !== "").length === 0) {
+          setLocationError("Veuillez sélectionner au moins une ville.");
+          isValid = false;
+        } else {
+          setLocationError('');
+        }
 
         return isValid;
       };
+const updateLocationAtIndex = (index, value) => {
+  const updated = [...selectedLocations];
+  updated[index] = value;
+  setSelectedLocations(updated);
+
+  // Enlève l'erreur si une vraie ville a été sélectionnée
+  if (updated.some(loc => loc.trim() !== "")) {
+    setLocationError('');
+  }
+};
 
    const handleSubmit = async () => {
+     console.log("Submit clicked");
+
     if (!validateInputs()) return;
 
        try {
@@ -579,7 +613,12 @@ const availableLocations = [
            Alert.alert("Champs requis", "Merci de remplir tous les champs.");
            return;
          }
-         const skills = Object.entries(selectedSkills).map(([name, experience]) => ({ name, experience }));
+        const skills = skillsList
+          .filter(skill => skill.name.trim() !== '')
+          .map(skill => ({
+            name: skill.name,
+            experience: skill.experience
+          }));
 
          const newOffer = {
            title,
@@ -604,13 +643,28 @@ const availableLocations = [
                },
              }
            );
+        console.log("Response data:", response.data);
 
-         if (response.status === 201 || response.status === 200) {
-             Alert.alert("Offre créée !", "Votre première offre a été enregistrée.");
-             navigation.replace('CompanyHome');
-           } else {
-             Alert.alert("Erreur", "Impossible de créer l’offre.");
-           }
+       Alert.alert(
+         "Offre créée !",
+         "Votre première offre a été enregistrée.",
+         [
+           {
+             text: "OK",
+             onPress: async () => {
+               navigation.replace("SignIn");
+               // nettoyage après redirection (non bloquant)
+               setTimeout(() => {
+                 AsyncStorage.multiRemove(["userToken", "userType"]);
+               }, 300);
+             },
+           },
+         ]
+       );
+
+window.alert("Votre compte a été créé avec succès. Veuillez vous connecter.");
+      navigation.replace("SignIn");
+
        } catch (error) {
          console.error('Erreur lors de la création de l\'offre :', error);
          Alert.alert("Erreur", "Impossible de créer l'offre.");
@@ -733,12 +787,13 @@ const availableLocations = [
                   ].map((cat) => (
                     <TouchableOpacity
                       key={cat}
-                      style={[
-                        styles.contractButton,
-                        category === cat && styles.contractSelected,
-                      ]}
-                      onPress={() => setCategory(cat)}
+                      style={[styles.contractButton, category === cat && styles.contractSelected]}
+                      onPress={() => {
+                        setCategory(cat);
+                        setCategoryError("");
+                      }}
                     >
+
                       <Text
                         style={[
                           styles.contractText,
@@ -752,61 +807,72 @@ const availableLocations = [
                 </View>
                 {categoryError ? <Text style={styles.errorText}>{categoryError}</Text> : null}
                 <Text style={styles.label}>Villes concernées :</Text>
-                    <View style={styles.locationContainer}>
-                      {availableLocations.map((city) => (
-                          <TouchableOpacity
-                            key={city}
-                            style={[
-                              styles.locationButton,
-                              selectedLocations.includes(city) && styles.selectedLocation,
-                            ]}
-                            onPress={() => handleLocationToggle(city)}
-                          >
-                            <Text
-                              style={[
-                                styles.locationText,
-                                selectedLocations.includes(city) && styles.selectedLocationText,
-                              ]}
-                            >
-                              {city}
-                            </Text>
-                          </TouchableOpacity>
-                        ))}
+                {selectedLocations.map((location, index) => (
+                  <View key={`loc-${index}`} style={styles.rowContainer}>
+                    <Picker
+                      selectedValue={location}
+                      onValueChange={(itemValue) => updateLocationAtIndex(index, itemValue)}
+                      style={styles.picker}
+                      mode="dropdown"
+                    >
+                      <Picker.Item label="Sélectionnez une ville" value="" />
+
+                      {availableLocations.map((loc, i) => (
+                        <Picker.Item key={`loc-${i}`} label={loc} value={loc} />
+                      ))}
+                    </Picker>
+
+                    <TouchableOpacity onPress={() => removeLocationAtIndex(index)}>
+                      <Ionicons name="trash-outline" size={24} color="#dc3545" />
+                    </TouchableOpacity>
+                  </View>
+                ))}
+
+
+                <TouchableOpacity onPress={() => setSelectedLocations([...selectedLocations, ""])} style={styles.addButton}>
+                  <Text style={styles.addButtonText}>+ Ajouter une ville</Text>
+                </TouchableOpacity>
+
+                {locationError ? <Text style={styles.errorText}>{locationError}</Text> : null}
+
+                <Text style={styles.label}>Compétences requises :</Text>
+                {skillsList.map((skill, index) => (
+                  <View key={index} style={styles.rowContainer}>
+                    <Picker
+                      selectedValue={skill.name}
+                      onValueChange={(itemValue) => updateSkillAtIndex(index, 'name', itemValue)}
+                      style={styles.picker}
+                      mode="dropdown"
+                    >
+                      <Picker.Item label="Choisissez une compétence" value="" />
+                      {allSkills.map((s, i) => (
+                        <Picker.Item key={`skill-${i}`} label={s} value={s} />
+                      ))}
+                    </Picker>
+
+                    <View style={styles.experienceControls}>
+                      <TouchableOpacity onPress={() => updateSkillAtIndex(index, 'experience', Math.max(1, skill.experience - 1))}>
+                        <Ionicons name="remove-circle-outline" size={24} color="#6c757d" />
+                      </TouchableOpacity>
+                      <Text style={styles.experienceValue}>{skill.experience} year(s)</Text>
+                      <TouchableOpacity onPress={() => updateSkillAtIndex(index, 'experience', skill.experience + 1)}>
+                        <Ionicons name="add-circle-outline" size={24} color="#6c757d" />
+                      </TouchableOpacity>
                     </View>
-                    {locationError ? <Text style={styles.errorText}>{locationError}</Text> : null}
 
-                    <Text style={styles.label}>Compétences requises :</Text>
+                    <TouchableOpacity onPress={() => removeSkillAtIndex(index)}>
+                      <Ionicons name="trash-outline" size={24} color="#dc3545" />
+                    </TouchableOpacity>
+                  </View>
+                ))}
 
-                    <View style={styles.skillContainer}>
-                      {allSkills.map((skill) => (
-                        <View key={skill} style={{ alignItems: "center", marginVertical: 8 }}>
+                <TouchableOpacity onPress={addSkillRow} style={styles.addButton}>
+                  <Text style={styles.addButtonText}>+ Add Skill</Text>
+                </TouchableOpacity>
 
-                          <TouchableOpacity
-                            onPress={() => handleSkillToggle(skill)}
-                            style={[styles.skillButton, selectedSkills[skill] && styles.selectedSkill]}
-                          >
-                            <Text style={[styles.skillText, selectedSkills[skill] && styles.selectedSkillText]}>
-                              {skill}
-                            </Text>
-                          </TouchableOpacity>
+                {skillsError ? <Text style={styles.errorText}>{skillsError}</Text> : null}
 
-                          {selectedSkills[skill] && (
-                            <View style={styles.experienceContainer}>
-                              <TouchableOpacity onPress={() => handleExperienceChange(skill, -1)}>
-                                <Ionicons name="remove-circle-outline" size={24} color="#6c757d" />
-                              </TouchableOpacity>
-                              <Text style={styles.experienceValue}>{selectedSkills[skill]} years</Text>
-                              <TouchableOpacity onPress={() => handleExperienceChange(skill, 1)}>
-                                <Ionicons name="add-circle-outline" size={24} color="#6c757d" />
-                              </TouchableOpacity>
-                            </View>
-                          )}
-                        </View>
-    ))}
-    </View>
-    {skillsError ? <Text style={styles.errorText}>{skillsError}</Text> : null}
-
-     <Button title="Soumettre l'offre" onPress={handleSubmit} />
+                        <Button title="Soumettre l'offre" onPress={handleSubmit} />
    </ScrollView>
    );
 };
@@ -852,6 +918,46 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     gap: 8,
   },
+  rowContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 10,
+  },
+  experienceControls: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginLeft: 10,
+  },
+  experienceValue: {
+    color: "#ffffff",
+    marginHorizontal: 8,
+    fontWeight: "bold",
+  },
+  picker: {
+    flex: 1,
+    height: 50,
+    color: "#ffffff",
+    backgroundColor: "#1e293b",
+  },
+
+  picker: {
+    flex: 1,
+    height: 50,
+    color: "#ffffff",
+    backgroundColor: "#1e293b",
+  },
+  addButton: {
+    backgroundColor: "#3b82f6",
+    padding: 10,
+    borderRadius: 8,
+    alignItems: "center",
+    marginBottom: 15,
+  },
+  addButtonText: {
+    color: "#ffffff",
+    fontWeight: "bold",
+  },
+
   salaryValue: {
     fontSize: 14,
     fontWeight: 'bold',
