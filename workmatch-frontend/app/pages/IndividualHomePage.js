@@ -6,6 +6,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import Swiper from 'react-native-deck-swiper';
 import SockJS from 'sockjs-client';
 import Stomp from 'stompjs';
+import { useRef } from 'react';
 
 const IndividualHomePage = () => {
     const navigation = useNavigation();
@@ -15,6 +16,116 @@ const IndividualHomePage = () => {
     const [conversations, setConversations] = useState([]);
     const [userType, setUserType] = useState('');
     const [unreadCount, setUnreadCount] = useState(0);
+    const [currentPage, setCurrentPage] = useState(0);
+    const [isFetchingMore, setIsFetchingMore] = useState(false);
+    const [hasMoreOffers, setHasMoreOffers] = useState(true);
+    const [swipedCount, setSwipedCount] = useState(0);
+    const swiperIndexRef = useRef(0);
+    const fetchJobOffers = async (page = 0) => {
+        try {
+            setIsFetchingMore(true);
+            setIsLoading(true);
+
+            const token = await AsyncStorage.getItem('userToken');
+            const swiperId = await AsyncStorage.getItem("userId");
+
+            if (!token || !swiperId) {
+                console.error("Token ou swiperId manquant !");
+                setIsLoading(false);
+                return;
+            }
+
+            console.log("Récupération des offres d'emploi filtrées...");
+
+            const response = await axios.get(
+                `http://localhost:8080/joboffers/user/${swiperId}?page=${page}&size=10`,
+                { headers: { Authorization: `Bearer ${token}` } }
+            );
+
+            const allJobOffers = response.data;
+
+            if (allJobOffers.length === 0) {
+                setHasMoreOffers(false); // fin de pagination
+                return;
+            }
+
+            // 🟢 Ajouter ici la vraie requête vers les offres déjà swipées
+            const swipedResponse = await axios.get(
+                `http://localhost:8080/api/swiped/${swiperId}`,
+                { headers: { Authorization: `Bearer ${token}` } }
+            );
+
+            const swipedData = swipedResponse.data;
+            const swipedIds = new Set(swipedData.map(item => item.swipedId.toString()));
+
+            const filteredJobOffers = allJobOffers.filter(
+                offer => !swipedIds.has(offer._id.toString())
+            );
+
+            console.log("Liste des offres après filtrage :", filteredJobOffers);
+
+            // Garde uniquement les offres uniques
+            const uniqueJobOffers = filteredJobOffers.reduce((acc, offer) => {
+                if (!acc.some(o => o._id === offer._id)) acc.push(offer);
+                return acc;
+            }, []);
+
+            console.log("IDs des offres uniques après filtrage :", uniqueJobOffers.map(o => o._id));
+
+            const blockedByCompaniesForSpecificOffers = new Set();
+            const blockedByCompaniesForAllOffers = new Set();
+
+            for (const offer of uniqueJobOffers) {
+                const companyId = offer.companyId?.toString() || offer.company?.id?.toString();
+                if (!companyId) continue;
+
+                try {
+                    const [specificRes, normalRes] = await Promise.all([
+                        axios.get(
+                            `http://localhost:8080/api/swiped/checkCompanySwipe?companyId=${companyId}&userId=${swiperId}&jobOfferId=${offer._id}`,
+                            { headers: { Authorization: `Bearer ${token}` } }
+                        ),
+                        axios.get(
+                            `http://localhost:8080/api/swiped/checkCompanySwipeNormal?companyId=${companyId}&userId=${swiperId}`,
+                            { headers: { Authorization: `Bearer ${token}` } }
+                        ),
+                    ]);
+
+                    if (specificRes.data.exists) {
+                        blockedByCompaniesForSpecificOffers.add(offer._id.toString());
+                    }
+
+                    if (normalRes.data.exists) {
+                        blockedByCompaniesForAllOffers.add(companyId);
+                    }
+                } catch (error) {
+                    console.error("Erreur lors du filtre entreprise:", error);
+                }
+            }
+
+            const finalJobOffers = uniqueJobOffers.filter(
+                offer =>
+                    !blockedByCompaniesForSpecificOffers.has(offer._id.toString()) &&
+                    !blockedByCompaniesForAllOffers.has(offer.companyId)
+            );
+
+            console.log("Liste finale des offres après TOUS les filtres :", finalJobOffers);
+
+            if (finalJobOffers.length === 0) {
+                setHasMoreOffers(false);
+                return;
+            }
+
+            setJobOffers(prev => [...prev, ...finalJobOffers]);
+            setCurrentPage(page);
+
+        } catch (error) {
+            console.error(' Error fetching job offers:', error);
+        } finally {
+            setIsFetchingMore(false);
+            setIsLoading(false);
+        }
+    };
 
     useEffect(() => {
         const connectWebSocket = async () => {
@@ -86,123 +197,15 @@ const IndividualHomePage = () => {
     }, []);
 
     useEffect(() => {
-        const fetchUserData = async () => {
-            const storedUserId = await AsyncStorage.getItem('userId');
-            setUserId(storedUserId);
-            console.log("ID utilisateur récupéré :", storedUserId);
-        };
+      const fetchUserData = async () => {
+        const storedUserId = await AsyncStorage.getItem('userId');
+        setUserId(storedUserId);
+        console.log("ID utilisateur récupéré :", storedUserId);
+      };
 
-        const fetchJobOffers = async () => {
-            try {
-                setIsLoading(true);
-                const token = await AsyncStorage.getItem('userToken');
-                const swiperId = await AsyncStorage.getItem("userId");
-
-                if (!token || !swiperId) {
-                    console.error("Token ou swiperId manquant !");
-                    setIsLoading(false);
-                    return;
-                }
-
-                console.log("Récupération des offres d'emploi filtrées...");
-
-                //Récupère toutes les offres
-                const response = await axios.get(`http://localhost:8080/joboffers/user/${swiperId}`, {
-                    headers: { Authorization: `Bearer ${token}` },
-                });
-
-                const allJobOffers = response.data;
-                console.log("Toutes les offres récupérées :", allJobOffers);
-
-                //Récupère toutes les offres déjà swipées
-                const swipedResponse = await axios.get(`http://localhost:8080/api/swiped/${swiperId}`, {
-                    headers: { Authorization: `Bearer ${token}` },
-                });
-
-                const swipedData = swipedResponse.data;
-                console.log("Offres déjà swipées :", swipedData);
-
-                //Transforme les IDs en String pour assurer la compatibilité
-                const swipedIds = new Set(swipedData.map(item => item.swipedId.toString()));
-                console.log("Swiped IDs Set :", swipedIds);
-
-                //Filtrage des offres déjà swipées
-                const filteredJobOffers = allJobOffers.filter(offer => !swipedIds.has(offer._id.toString()));
-
-                console.log("Liste des offres après filtrage :", filteredJobOffers);
-
-                //Garde uniquement les offres uniques
-                const uniqueJobOffers = filteredJobOffers.reduce((acc, offer) => {
-                    if (!acc.some(o => o._id === offer._id)) acc.push(offer);
-                    return acc;
-                }, []);
-
-                console.log("IDs des offres uniques après filtrage :", uniqueJobOffers.map(o => o._id));
-
-                //Récupérer les entreprises qui ont déjà swipé l'utilisateur à gauche sur une offre spécifique
-                const blockedByCompaniesForSpecificOffers = new Set();
-                for (const offer of uniqueJobOffers) {
-                    const companyId = offer.companyId?.toString() || offer.company?.id?.toString();
-                    if (!companyId) continue;
-
-                    try {
-                        const companySwipeResponse = await axios.get(
-                            `http://localhost:8080/api/swiped/checkCompanySwipe?companyId=${companyId}&userId=${swiperId}&jobOfferId=${offer._id}`,
-                            { headers: { Authorization: `Bearer ${token}` } }
-                        );
-
-                        if (companySwipeResponse.data.exists) {
-                            console.log(` Offre ${offer._id} bloquée : L'entreprise ${companyId} a déjà swipé ce user sur CETTE offre.`);
-                            blockedByCompaniesForSpecificOffers.add(offer._id.toString());
-                        }
-                    } catch (error) {
-                        console.error(`Erreur lors de la vérification des swipes de la company ${companyId}:`, error);
-                    }
-                }
-
-                //Récupérer les entreprises qui ont swipé l'utilisateur à gauche DANS LA PAGE NORMALE
-                const blockedByCompaniesForAllOffers = new Set();
-                for (const offer of uniqueJobOffers) {
-                const companyId = offer.companyId?.toString() || offer.company?.id?.toString();
-                    if (!companyId) continue;
-
-                    try {
-                        const companySwipeResponse = await axios.get(
-                            `http://localhost:8080/api/swiped/checkCompanySwipeNormal?companyId=${companyId}&userId=${swiperId}`,
-                            { headers: { Authorization: `Bearer ${token}` } }
-                        );
-
-                        if (companySwipeResponse.data.exists) {
-                            console.log(` Toutes les offres de l'entreprise ${companyId} sont bloquées car elle a déjà swipé ce user.`);
-                            blockedByCompaniesForAllOffers.add(companyId);
-                        }
-                    } catch (error) {
-                        console.error(`Erreur lors de la vérification des swipes normaux de la company ${companyId}:`, error);
-                    }
-                }
-
-                //Appliquer le filtre final avant de setter jobOffers
-                const finalJobOffers = uniqueJobOffers.filter(
-                    offer => !blockedByCompaniesForSpecificOffers.has(offer._id.toString()) &&
-                             !blockedByCompaniesForAllOffers.has(offer.companyId)
-                );
-
-                console.log("Liste finale des offres après TOUS les filtres :", finalJobOffers);
-
-                //Mise à jour du state (on garde uniquement les offres non bloquées)
-                setJobOffers(finalJobOffers);
-
-            } catch (error) {
-                console.error(' Error fetching job offers:', error);
-            } finally {
-                setIsLoading(false);
-            }
-        };
-
-        fetchUserData();
-        fetchJobOffers();
+      fetchUserData();
+      fetchJobOffers(0); // juste ça ici
     }, []);
-
 
     const handleSwipeRight = async (index) => {
         const swipedJobOffer = jobOffers[index];
@@ -364,26 +367,47 @@ const IndividualHomePage = () => {
                  <Text style={styles.noOffers}>Aucune offre disponible</Text>
                  ) : (
                      <Swiper
-                         key={jobOffers.length}
-                         cards={jobOffers}
-                         renderCard={(offer) => (
-                             <View key={offer._id} style={styles.card}>
-                                 <Text style={styles.cardTitle}>{offer.title || "Titre indisponible"}</Text>
-                                 <Text style={styles.cardDescription}>
-                                     {offer.description
-                                         ? offer.description.length > 150
-                                             ? `${offer.description.slice(0, 150)}...`
-                                             : offer.description
-                                         : "Description indisponible"}
-                                 </Text>
+                       cards={jobOffers}
+                       renderCard={(offer) => {
+                         if (!offer || !offer.title) {
+                           return (
+                             <View style={styles.card}>
+                               <Text style={styles.cardTitle}>Aucune autre offre</Text>
+                               <Text style={styles.cardDescription}>Vous avez terminé cette catégorie.</Text>
                              </View>
-                         )}
-                         onSwipedRight={(cardIndex) => handleSwipeRight(cardIndex)}
-                         onSwipedLeft={(cardIndex) => handleSwipeLeft(cardIndex)}
-                         cardIndex={0}
-                         backgroundColor={'#0f172a'}
-                         stackSize={Math.min(jobOffers.length, 3)}
-                         infinite={false}
+                           );
+                         }
+
+                         return (
+                           <View key={offer._id} style={styles.card}>
+                             <Text style={styles.cardTitle}>{offer.title}</Text>
+                             <Text style={styles.cardDescription}>
+                               {offer.description
+                                 ? offer.description.length > 150
+                                   ? `${offer.description.slice(0, 150)}...`
+                                   : offer.description
+                                 : "Description indisponible"}
+                             </Text>
+                           </View>
+                         );
+                       }}
+
+                       onSwiped={(cardIndex) => {
+                         swiperIndexRef.current = cardIndex + 1; // met à jour l'index courant
+
+                         const remainingCards = jobOffers.length - (cardIndex + 1);
+
+                         if (remainingCards <= 2 && hasMoreOffers && !isFetchingMore) {
+                           setTimeout(() => {
+                             fetchJobOffers(currentPage + 1);
+                           }, 300); // petit délai pour ne pas perturber le swipe
+                         }
+                       }}
+                       onSwipedRight={(cardIndex) => handleSwipeRight(cardIndex)}
+                       onSwipedLeft={(cardIndex) => handleSwipeLeft(cardIndex)}
+                       cardIndex={swiperIndexRef.current} // ici on gère nous-même la position
+                       backgroundColor={'#0f172a'}
+                       stackSize={3}
                      />
                  )}
              </View>

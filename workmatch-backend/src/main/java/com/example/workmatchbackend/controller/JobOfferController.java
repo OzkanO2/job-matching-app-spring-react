@@ -18,12 +18,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.example.workmatchbackend.repository.LikeRepository;
 import com.example.workmatchbackend.repository.SwipedCardRepository;
+import com.example.workmatchbackend.model.SwipedCard;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.time.LocalDate;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/joboffers")
@@ -34,6 +36,8 @@ public class JobOfferController {
 
     @Autowired
     private JobOfferService jobOfferService;
+    @Autowired
+    private SwipedCardRepository swipedCardRepository;
 
     @Autowired
     private CompanyService companyService;
@@ -157,9 +161,12 @@ public class JobOfferController {
     }
 
     @GetMapping("/user/{userId}")
-    public ResponseEntity<List<JobOffer>> getJobOffersForUser(@PathVariable String userId) {
-        Optional<User> userOptional = userRepository.findById(userId);
+    public ResponseEntity<List<JobOffer>> getJobOffersForUser(
+            @PathVariable String userId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
 
+        Optional<User> userOptional = userRepository.findById(userId);
         if (userOptional.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(List.of());
         }
@@ -167,19 +174,36 @@ public class JobOfferController {
         User user = userOptional.get();
         List<String> preferredCategories = user.getPreferredCategories();
 
-        // Si l'utilisateur n'a pas de préférences, on retourne toutes les offres
-        List<JobOffer> allJobOffers = jobOfferRepository.findAll();
+        List<JobOffer> filteredOffers;
+
         if (preferredCategories == null || preferredCategories.isEmpty()) {
-            return ResponseEntity.ok(allJobOffers);
+            filteredOffers = jobOfferRepository.findAll();
+        } else {
+            filteredOffers = jobOfferRepository.findAll().stream()
+                    .filter(offer -> preferredCategories.contains(offer.getCategory()))
+                    .collect(Collectors.toList());
         }
 
-        // On filtre les offres en fonction des catégories préférées
-        List<JobOffer> filteredJobOffers = allJobOffers.stream()
-                .filter(offer -> preferredCategories.contains(offer.getCategory()))
+        List<SwipedCard> swipes = swipedCardRepository.findBySwiperId(userId);
+        Set<String> swipedIds = swipes.stream()
+                .map(SwipedCard::getSwipedId)
+                .collect(Collectors.toSet());
+
+        List<JobOffer> notSwiped = filteredOffers.stream()
+                .filter(offer -> !swipedIds.contains(offer.getId()))
                 .collect(Collectors.toList());
 
-        return ResponseEntity.ok(filteredJobOffers);
+        // Pagination
+        int start = page * size;
+        int end = Math.min(start + size, notSwiped.size());
+        if (start >= notSwiped.size()) {
+            return ResponseEntity.ok(List.of());
+        }
+
+        List<JobOffer> paginatedOffers = notSwiped.subList(start, end);
+        return ResponseEntity.ok(paginatedOffers);
     }
+
 
     @PutMapping("/{id}")
     public ResponseEntity<?> updateJobOffer(@PathVariable String id, @RequestBody JobOffer updatedOffer) {
