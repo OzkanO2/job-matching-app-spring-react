@@ -9,7 +9,10 @@ import com.example.workmatchbackend.repository.JobOfferRepository;
 import com.example.workmatchbackend.repository.JobSearcherRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import java.util.Map;
+import java.util.HashMap;
 
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import java.util.List;
 import java.util.Optional;
 
@@ -33,7 +36,8 @@ public class MatchService {
 
     @Autowired
     private JobSearcherRepository jobSearcherRepository;
-
+    @Autowired
+    private SimpMessagingTemplate messagingTemplate;
     public List<Match> getMatchesForUser(String userId) {
         return matchRepository.findByIndividualUserIdOrCompanyUserId(userId, userId);
     }
@@ -108,32 +112,34 @@ public class MatchService {
         }
     }
 
-    public void checkAndCreateMatchAfterCompanyLike(String companyUserId, String candidateUserId) {
-        // Est-ce que le candidat a déjà liké une offre de cette entreprise ?
+    public boolean checkAndCreateMatchAfterCompanyLike(String companyUserId, String candidateUserId) {
         List<Like> candidateLikes = likeRepository.findAllBySwiperId(candidateUserId);
 
         boolean hasLikedCompany = candidateLikes.stream()
                 .anyMatch(like -> like.getCompanyId().equals(companyUserId));
 
         if (hasLikedCompany) {
-            // Vérifie si le match existe déjà
             boolean matchExists = matchRepository.existsByIndividualUserIdAndCompanyUserId(candidateUserId, companyUserId);
             if (!matchExists) {
                 Match match = new Match(candidateUserId, companyUserId);
                 matchRepository.save(match);
                 System.out.println("Nouveau match créé entre " + candidateUserId + " et " + companyUserId);
-            }
 
-            // Vérifie si la conversation existe déjà
-            boolean convExists = conversationRepository.existsByUser1IdAndUser2Id(candidateUserId, companyUserId)
-                    || conversationRepository.existsByUser1IdAndUser2Id(companyUserId, candidateUserId);
+                boolean convExists = conversationRepository.existsByUser1IdAndUser2Id(candidateUserId, companyUserId)
+                        || conversationRepository.existsByUser1IdAndUser2Id(companyUserId, candidateUserId);
 
-            if (!convExists) {
-                conversationRepository.save(new Conversation(candidateUserId, companyUserId));
-                System.out.println("Conversation créée !");
+                if (!convExists) {
+                    conversationRepository.save(new Conversation(candidateUserId, companyUserId));
+                    System.out.println("Conversation créée !");
+                }
+
+                return true;
             }
-        } else {
-            System.out.println("Pas encore de like du candidat vers l'entreprise.");
         }
+
+        System.out.println("Pas encore de like du candidat vers l'entreprise.");
+        return false;
     }
+
+
 }

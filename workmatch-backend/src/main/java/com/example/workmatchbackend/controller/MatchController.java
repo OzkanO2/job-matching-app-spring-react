@@ -252,8 +252,40 @@ public class MatchController {
             return ResponseEntity.badRequest().body("Champs manquants");
         }
 
-        matchService.checkAndCreateMatchAfterCompanyLike(companyUserId, candidateUserId);
-        return ResponseEntity.ok("Match check exécuté.");
+        boolean matchWasCreated = matchService.checkAndCreateMatchAfterCompanyLike(companyUserId, candidateUserId);
+
+        if (matchWasCreated) {
+            // Créer conversation si besoin
+            boolean conversationExists = conversationRepository.existsByUser1IdAndUser2Id(companyUserId, candidateUserId) ||
+                    conversationRepository.existsByUser1IdAndUser2Id(candidateUserId, companyUserId);
+
+            if (!conversationExists) {
+                conversationRepository.save(new Conversation(companyUserId, candidateUserId));
+            }
+
+            // Envoyer les notifications WebSocket
+            Map<String, String> notif1 = new HashMap<>();
+            notif1.put("type", "match");
+            notif1.put("message", "Nouveau match !");
+            notif1.put("withUserId", candidateUserId);
+            notif1.put("conversationId", companyUserId + "_" + candidateUserId);
+            notif1.put("senderId", candidateUserId);
+
+            Map<String, String> notif2 = new HashMap<>();
+            notif2.put("type", "match");
+            notif2.put("message", "Nouveau match !");
+            notif2.put("withUserId", companyUserId);
+            notif2.put("conversationId", companyUserId + "_" + candidateUserId);
+            notif2.put("senderId", companyUserId);
+
+            messagingTemplate.convertAndSend("/topic/notifications/" + companyUserId, notif1);
+            messagingTemplate.convertAndSend("/topic/notifications/" + candidateUserId, notif2);
+
+            return ResponseEntity.ok("Match créé, conversation et notifications envoyées.");
+        }
+
+        return ResponseEntity.ok("Pas encore de match.");
     }
+
 
 }

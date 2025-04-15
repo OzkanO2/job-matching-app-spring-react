@@ -427,7 +427,7 @@ const CompanyHomePage = () => {
             console.log("Like enregistré avec succès.");
 
             //Appel simple de match check
-            await axios.post(
+            const matchResponse = await axios.post(
               "http://localhost:8080/api/matches/simple-company-match-check",
               {
                 candidateUserId: swipedId,
