@@ -30,6 +30,7 @@ import java.util.stream.Collectors;
 import com.example.workmatchbackend.model.SwipedCard;
 import com.example.workmatchbackend.repository.SwipedCardRepository;
 import com.example.workmatchbackend.repository.LikeRepository;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 
 
 @RestController
@@ -50,6 +51,8 @@ public class MatchController {
     private LikeRepository likeRepository;
     @Autowired
     private ConversationRepository conversationRepository;
+    @Autowired
+    private SimpMessagingTemplate messagingTemplate;
 
     private static final Logger logger = LoggerFactory.getLogger(MatchController.class);
 
@@ -221,7 +224,20 @@ public class MatchController {
                 System.out.println("Conversation créée entre " + swiperId + " et " + swipedId);
             }
 
-            return ResponseEntity.ok("Match confirmé et conversation créée !");
+            Map<String, String> matchNotif1 = new HashMap<>();
+            matchNotif1.put("type", "match");
+            matchNotif1.put("message", "Nouveau match !");
+            matchNotif1.put("withUserId", swipedId);
+
+            Map<String, String> matchNotif2 = new HashMap<>();
+            matchNotif2.put("type", "match");
+            matchNotif2.put("message", "Nouveau match !");
+            matchNotif2.put("withUserId", swiperId);
+
+            messagingTemplate.convertAndSend("/topic/notifications/" + swiperId, matchNotif1);
+            messagingTemplate.convertAndSend("/topic/notifications/" + swipedId, matchNotif2);
+
+            return ResponseEntity.ok("Match confirmé, conversation créée et notification envoyée !");
         }
 
         return ResponseEntity.ok("Pas encore de match, conversation non créée.");

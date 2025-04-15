@@ -164,8 +164,8 @@ const IndividualHomePage = () => {
             console.log('Notification reçue !', msg);
               const senderId = msg.senderId;
 
-              if (senderId !== userId) {
-                setUnreadCount(1); // juste pour forcer l’affichage de la bulle
+              if (msg.type === "match") {
+                setUnreadCount((prev) => prev + 1);
 
 
                 // Et incrémenter par conversation :
