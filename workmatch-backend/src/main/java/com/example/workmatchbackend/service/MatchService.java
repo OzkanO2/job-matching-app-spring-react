@@ -70,17 +70,15 @@ public class MatchService {
         String companyUserId = null;
 
         if (companyId == null || companyId.isEmpty()) {
-            //On regarde si le jobseeker (swipedId) a liké une offre de la company (swiperId)
             List<Like> likesByJobSeeker = likeRepository.findAllBySwiperId(swipedId);
             isMutualLike = likesByJobSeeker.stream()
-                    .anyMatch(like -> swiperId.equals(like.getCompanyId())); // match sur companyId
+                    .anyMatch(like -> swiperId.equals(like.getCompanyId()));
 
             if (isMutualLike) {
                 individualUserId = swipedId;
                 companyUserId = swiperId;
             }
         } else {
-            //Ici on vérifie si la company (companyId) a liké ce jobseeker (swiperId)
             Optional<Like> companyLike = likeRepository.findBySwiperIdAndSwipedId(companyId, swiperId);
             if (companyLike.isPresent()) {
                 isMutualLike = true;
@@ -103,10 +101,27 @@ public class MatchService {
                     conversationRepository.existsByUser1IdAndUser2Id(companyUserId, individualUserId);
 
             if (!conversationExists) {
-                Conversation conversation = new Conversation(individualUserId, companyUserId);
-                conversationRepository.save(conversation);
+                conversationRepository.save(new Conversation(individualUserId, companyUserId));
                 System.out.println("Conversation créée entre " + individualUserId + " et " + companyUserId);
             }
+
+            Map<String, String> notifToIndividual = new HashMap<>();
+            notifToIndividual.put("type", "match");
+            notifToIndividual.put("message", "Nouveau match !");
+            notifToIndividual.put("withUserId", companyUserId);
+            notifToIndividual.put("conversationId", individualUserId + "_" + companyUserId);
+            notifToIndividual.put("senderId", companyUserId); // L'expéditeur est la company
+
+            Map<String, String> notifToCompany = new HashMap<>();
+            notifToCompany.put("type", "match");
+            notifToCompany.put("message", "Nouveau match !");
+            notifToCompany.put("withUserId", individualUserId);
+            notifToCompany.put("conversationId", individualUserId + "_" + companyUserId);
+            notifToCompany.put("senderId", individualUserId); // L'expéditeur est l'individu
+
+            messagingTemplate.convertAndSend("/topic/notifications/" + individualUserId, notifToIndividual);
+            messagingTemplate.convertAndSend("/topic/notifications/" + companyUserId, notifToCompany);
+
         } else {
             System.out.println("Aucun like mutuel détecté entre " + swiperId + " et " + swipedId);
         }
