@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 
-@Component
+/*@Component
 public class CorsFilter implements Filter {
 
     @Override
@@ -22,5 +22,13 @@ public class CorsFilter implements Filter {
         res.setHeader("Access-Control-Allow-Headers", "Authorization, Content-Type");
         res.setHeader("Access-Control-Allow-Credentials", "true");
         chain.doFilter(request, response);
+    }
+}*/
+@Component
+public class CorsFilter implements Filter {
+    @Override
+    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
+            throws IOException, ServletException {
+        chain.doFilter(request, response); // Ne rien faire
     }
 }
