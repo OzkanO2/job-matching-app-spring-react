@@ -7,6 +7,7 @@ import Swiper from 'react-native-deck-swiper';
 import SockJS from 'sockjs-client';
 import Stomp from 'stompjs';
 import { useRef } from 'react';
+import { BASE_URL } from '../../constants/api'; // adapte le chemin selon la profondeur
 
 const IndividualHomePage = () => {
     const navigation = useNavigation();
@@ -38,7 +39,7 @@ const IndividualHomePage = () => {
             console.log("Récupération des offres d'emploi filtrées...");
 
             const response = await axios.get(
-                `process.env.REACT_APP_BACKEND_URL/joboffers/user/${swiperId}?page=${page}&size=10`,
+                `${BASE_URL}/joboffers/user/${swiperId}?page=${page}&size=10`,
                 { headers: { Authorization: `Bearer ${token}` } }
             );
 
@@ -51,7 +52,7 @@ const IndividualHomePage = () => {
 
             // 🟢 Ajouter ici la vraie requête vers les offres déjà swipées
             const swipedResponse = await axios.get(
-                `process.env.REACT_APP_BACKEND_URL/api/swiped/${swiperId}`,
+                `${BASE_URL}/api/swiped/${swiperId}`,
                 { headers: { Authorization: `Bearer ${token}` } }
             );
 
@@ -82,11 +83,11 @@ const IndividualHomePage = () => {
                 try {
                     const [specificRes, normalRes] = await Promise.all([
                         axios.get(
-                            `process.env.REACT_APP_BACKEND_URL/api/swiped/checkCompanySwipe?companyId=${companyId}&userId=${swiperId}&jobOfferId=${offer._id}`,
+                            `${BASE_URL}/api/swiped/checkCompanySwipe?companyId=${companyId}&userId=${swiperId}&jobOfferId=${offer._id}`,
                             { headers: { Authorization: `Bearer ${token}` } }
                         ),
                         axios.get(
-                            `process.env.REACT_APP_BACKEND_URL/api/swiped/checkCompanySwipeNormal?companyId=${companyId}&userId=${swiperId}`,
+                            `${BASE_URL}/api/swiped/checkCompanySwipeNormal?companyId=${companyId}&userId=${swiperId}`,
                             { headers: { Authorization: `Bearer ${token}` } }
                         ),
                     ]);
