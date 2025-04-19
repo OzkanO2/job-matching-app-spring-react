@@ -1,6 +1,7 @@
 import axios from 'axios';
+import Constants from 'expo-constants';
 
-const BASE_URL = 'process.env.REACT_APP_BACKEND_URL';
+const BASE_URL = Constants.expoConfig.extra.backendUrl;
 
 export const fetchJobsFromBackend = async () => {
     try {
