@@ -2,14 +2,17 @@ import React, { useState } from 'react';
 import { View,TouchableOpacity, Text, TextInput, Button, Alert, StyleSheet } from 'react-native';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import Constants from 'expo-constants';
 
 export default function SignInPage({ navigation }) {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
+    const backendUrl = Constants.expoConfig.extra.backendUrl;
 
     const handleSignIn = async () => {
         try {
-            const response = await axios.post('process.env.REACT_APP_BACKEND_URL/users/login', { username, password });
+            const response = await axios.post(`${backendUrl}/users/login`, { username, password });
+
             const token = response.data.token;
             const userType = response.data.userType;
             const userId = response.data.userId;
