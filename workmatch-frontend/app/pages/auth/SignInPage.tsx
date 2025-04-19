@@ -7,10 +7,12 @@ import Constants from 'expo-constants';
 export default function SignInPage({ navigation }) {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
-    const backendUrl = Constants.expoConfig.extra.backendUrl;
+const backendUrl = process.env.EXPO_PUBLIC_BACKEND_URL;
 
     const handleSignIn = async () => {
         try {
+            console.log("Backend URL utilisée :", backendUrl);
+
             const response = await axios.post(`${backendUrl}/users/login`, { username, password });
 
             const token = response.data.token;
