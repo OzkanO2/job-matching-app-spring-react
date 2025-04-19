@@ -2,7 +2,7 @@ import axios from 'axios';
 import Constants from 'expo-constants';
 
 // 🔁 Change ici uniquement pour local vs distant
-const isLocal = true; // ⬅️ true = localhost | false = Render
+const isLocal = false; // ⬅️ true = localhost | false = Render
 
 const BASE_URL = isLocal
     ? 'http://localhost:8080' // BACKEND local
