@@ -7,7 +7,7 @@ import Constants from 'expo-constants';
 export default function SignInPage({ navigation }) {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
-const backendUrl = process.env.EXPO_PUBLIC_BACKEND_URL;
+    const backendUrl = Constants.expoConfig?.extra?.backendUrl || 'https://projet-workmatch.onrender.com';
 
     const handleSignIn = async () => {
         try {
