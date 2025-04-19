@@ -1,7 +1,12 @@
 import axios from 'axios';
 import Constants from 'expo-constants';
 
-const BASE_URL = Constants.expoConfig.extra.backendUrl;
+// 🔁 Change ici uniquement pour local vs distant
+const USE_LOCALHOST = true; // ⬅️ true = localhost | false = Render
+
+const BASE_URL = USE_LOCALHOST
+    ? 'http://localhost:8080' // BACKEND local
+  : 'https://projet-workmatch.onrender.com';
 
 export const fetchJobsFromBackend = async () => {
     try {
@@ -12,3 +17,4 @@ export const fetchJobsFromBackend = async () => {
         throw error;
     }
 };
+export { BASE_URL };

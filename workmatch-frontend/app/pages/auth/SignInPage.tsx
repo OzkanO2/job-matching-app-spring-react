@@ -2,18 +2,21 @@ import React, { useState } from 'react';
 import { View,TouchableOpacity, Text, TextInput, Button, Alert, StyleSheet } from 'react-native';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import Constants from 'expo-constants';
+//import Constants from 'expo-constants';
+import { BASE_URL } from '../../../constants/api'; // adapte le chemin si nécessaire
+
 
 export default function SignInPage({ navigation }) {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
-    const backendUrl = Constants.expoConfig?.extra?.backendUrl || 'https://projet-workmatch.onrender.com';
+    //const backendUrl = Constants.expoConfig?.extra?.backendUrl || 'https://projet-workmatch.onrender.com';
 
     const handleSignIn = async () => {
         try {
-            console.log("Backend URL utilisée :", backendUrl);
+            //console.log("Backend URL utilisée :", backendUrl);
+            console.log(" URL utilisée :", BASE_URL);
 
-            const response = await axios.post(`${backendUrl}/users/login`, { username, password });
+            const response = await axios.post(`${BASE_URL}/users/login`, { username, password });
 
             const token = response.data.token;
             const userType = response.data.userType;
