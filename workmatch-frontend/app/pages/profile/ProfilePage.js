@@ -593,7 +593,7 @@ const ProfilePage = () => {
         const userId = await AsyncStorage.getItem('userId');
         if (!userId) return;
 
-        const socket = new SockJS('http://localhost:8080/ws');
+        const socket = new SockJS('process.env.REACT_APP_BACKEND_URL/ws');
         const stomp = Stomp.over(socket);
         stomp.debug = null;
 
@@ -714,7 +714,7 @@ const allSkills = [
         };
 
         const response = await axios.put(
-          `http://localhost:8080/users/${userId}/preferences`,
+          `process.env.REACT_APP_BACKEND_URL/users/${userId}/preferences`,
           payload,
           { headers }
         );
@@ -771,7 +771,7 @@ const allSkills = [
         };
         console.log("Payload envoyé :", updatedData);
 
-        await axios.put(`http://localhost:8080/jobsearchers/${userId}/updateUser`, updatedData, {
+        await axios.put(`process.env.REACT_APP_BACKEND_URL/jobsearchers/${userId}/updateUser`, updatedData, {
           headers
         });
 
@@ -796,7 +796,7 @@ const allSkills = [
         const userId = await AsyncStorage.getItem('userId');
         const formattedSkills = skillsList.filter(s => s.name !== '');
 
-        await axios.put(`http://localhost:8080/jobsearchers/${userId}/updateUser`, {
+        await axios.put(`process.env.REACT_APP_BACKEND_URL/jobsearchers/${userId}/updateUser`, {
           skills: formattedSkills
         }, {
           headers: { Authorization: `Bearer ${token}` }
@@ -837,7 +837,7 @@ const allSkills = [
             console.log("Catégories enregistrées :", tempSelectedCategories);
 
             const response = await axios.put(
-                `http://localhost:8080/users/${userId}/preferences`,
+                `process.env.REACT_APP_BACKEND_URL/users/${userId}/preferences`,
                 { preferredCategories: tempSelectedCategories },
                 {
                     headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
@@ -858,7 +858,7 @@ const allSkills = [
         const token = await AsyncStorage.getItem('userToken');
         const userId = await AsyncStorage.getItem('userId');
 
-        await axios.put(`http://localhost:8080/jobsearchers/${userId}/updateUser`, {
+        await axios.put(`process.env.REACT_APP_BACKEND_URL/jobsearchers/${userId}/updateUser`, {
           locations: selectedLocations.filter(loc => loc !== "") // retire les vides
         }, {
           headers: { Authorization: `Bearer ${token}` }
@@ -876,7 +876,7 @@ const allSkills = [
         const token = await AsyncStorage.getItem('userToken');
         const userId = await AsyncStorage.getItem('userId');
 
-        await axios.put(`http://localhost:8080/jobsearchers/${userId}/updateUser`, {
+        await axios.put(`process.env.REACT_APP_BACKEND_URL/jobsearchers/${userId}/updateUser`, {
           remote: isRemotePreferred
         }, {
           headers: { Authorization: `Bearer ${token}` }
@@ -913,7 +913,7 @@ const allSkills = [
 
                 console.log("Récupération des préférences utilisateur...");
 
-                const response = await axios.get(`http://localhost:8080/users/id/${userId}`, {
+                const response = await axios.get(`process.env.REACT_APP_BACKEND_URL/users/id/${userId}`, {
                     headers: { Authorization: `Bearer ${token}` },
                 });
 
@@ -962,7 +962,7 @@ const allSkills = [
 
             const bearerToken = `${token}`;
 
-            const userResponse = await axios.get(`http://localhost:8080/users/${username}`, {
+            const userResponse = await axios.get(`process.env.REACT_APP_BACKEND_URL/users/${username}`, {
               headers: {
                 Authorization: bearerToken,
               },
@@ -973,7 +973,7 @@ const allSkills = [
             console.log("Infos User:", userData);
 
             try {
-              const jobSearcherRes = await axios.get(`http://localhost:8080/jobsearchers/${userId}`, {
+              const jobSearcherRes = await axios.get(`process.env.REACT_APP_BACKEND_URL/jobsearchers/${userId}`, {
                 headers: { Authorization: bearerToken }
               });
               const jobSearcher = jobSearcherRes.data;

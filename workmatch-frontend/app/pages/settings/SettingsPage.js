@@ -27,7 +27,7 @@ const SettingsPage = () => {
       const token = await AsyncStorage.getItem("userToken");
       const userId = await AsyncStorage.getItem("userId");
 
-      const response = await axios.delete(`http://localhost:8080/users/${userId}`, {
+      const response = await axios.delete(`process.env.REACT_APP_BACKEND_URL/users/${userId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 

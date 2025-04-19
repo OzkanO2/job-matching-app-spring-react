@@ -9,7 +9,7 @@ export default function SignInPage({ navigation }) {
 
     const handleSignIn = async () => {
         try {
-            const response = await axios.post('http://localhost:8080/users/login', { username, password });
+            const response = await axios.post('process.env.REACT_APP_BACKEND_URL/users/login', { username, password });
             const token = response.data.token;
             const userType = response.data.userType;
             const userId = response.data.userId;

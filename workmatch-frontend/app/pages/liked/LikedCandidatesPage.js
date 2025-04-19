@@ -19,7 +19,7 @@ const LikedCandidatesPage = () => {
 
         console.log("Connexion WebSocket depuis LikedCandidatesPage");
 
-        const socket = new SockJS('http://localhost:8080/ws');
+        const socket = new SockJS('process.env.REACT_APP_BACKEND_URL/ws');
         const stomp = Stomp.over(socket);
         stomp.debug = null;
 
@@ -72,7 +72,7 @@ const LikedCandidatesPage = () => {
         const token = await AsyncStorage.getItem("userToken");
         const companyId = await AsyncStorage.getItem("userId");
 
-        const response = await axios.get(`http://localhost:8080/likes/liked-candidates/${companyId}`, {
+        const response = await axios.get(`process.env.REACT_APP_BACKEND_URL/likes/liked-candidates/${companyId}`, {
           headers: { Authorization: `Bearer ${token}` }
         });
 
@@ -94,7 +94,7 @@ const LikedCandidatesPage = () => {
         const token = await AsyncStorage.getItem("userToken");
         const companyId = await AsyncStorage.getItem("userId");
 
-        const response = await axios.get(`http://localhost:8080/likes/liked-candidates/${companyId}`, {
+        const response = await axios.get(`process.env.REACT_APP_BACKEND_URL/likes/liked-candidates/${companyId}`, {
           headers: { Authorization: `Bearer ${token}` }
         });
 

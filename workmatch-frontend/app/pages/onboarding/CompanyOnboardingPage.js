@@ -634,7 +634,7 @@ const updateLocationAtIndex = (index, value) => {
          };
 
          const response = await axios.post(
-             'http://localhost:8080/joboffers',
+             'process.env.REACT_APP_BACKEND_URL/joboffers',
              newOffer,
              {
                headers: {

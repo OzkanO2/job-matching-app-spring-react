@@ -41,7 +41,7 @@ const ChatRoom = () => {
                 console.log("[fetchMatchInfo] Récupération des raisons du match entre", id1, "et", id2);
 
                 const response = await axios.get(
-                    `http://localhost:8080/api/matches/reason/${id1}/${id2}`,
+                    `process.env.REACT_APP_BACKEND_URL/api/matches/reason/${id1}/${id2}`,
                     { headers: { Authorization: `Bearer ${token}` } }
                 );
 
@@ -132,7 +132,7 @@ const ChatRoom = () => {
         const fetchMessages = async () => {
             try {
                 const token = await AsyncStorage.getItem("userToken");
-                const response = await axios.get(`http://localhost:8080/api/chat/${conversationId}/messages`, {
+                const response = await axios.get(`process.env.REACT_APP_BACKEND_URL/api/chat/${conversationId}/messages`, {
                     headers: { Authorization: `Bearer ${token}` },
                 });
                 setMessages(response.data);
@@ -158,7 +158,7 @@ const ChatRoom = () => {
     }, [conversationId]);
 
     useEffect(() => {
-        const socket = new SockJS("http://localhost:8080/ws", null, {
+        const socket = new SockJS("process.env.REACT_APP_BACKEND_URL/ws", null, {
             transports: ["websocket", "xhr-streaming", "xhr-polling"],
             withCredentials: false,
         });

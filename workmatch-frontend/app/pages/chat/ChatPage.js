@@ -63,7 +63,7 @@ const ChatPage = ({ route }) => {
       const connectSocket = async () => {
         const userId = await AsyncStorage.getItem("userId");
 
-        socket = new SockJS("http://localhost:8080/ws");
+        socket = new SockJS("process.env.REACT_APP_BACKEND_URL/ws");
         stomp = Stomp.over(socket);
         stomp.debug = null;
 
@@ -113,7 +113,7 @@ const ChatPage = ({ route }) => {
           const id = await AsyncStorage.getItem("userId");
           setLoading(true);
 
-          const response = await axios.get(`http://localhost:8080/api/matches/conversations/${id}`, {
+          const response = await axios.get(`process.env.REACT_APP_BACKEND_URL/api/matches/conversations/${id}`, {
             headers: { Authorization: `Bearer ${token}` },
           });
 
@@ -124,7 +124,7 @@ const ChatPage = ({ route }) => {
           }));
 
           const receiverIds = formattedConversations.map(conv => conv.receiverId);
-          const usersResponse = await axios.post("http://localhost:8080/users/getUsernames", {
+          const usersResponse = await axios.post("process.env.REACT_APP_BACKEND_URL/users/getUsernames", {
             userIds: receiverIds
           });
           const userMap = usersResponse.data;
@@ -152,7 +152,7 @@ const ChatPage = ({ route }) => {
 const handleDeleteConversation = async (conversationId) => {
   try {
     const token = await AsyncStorage.getItem('userToken');
-    await axios.delete(`http://localhost:8080/api/conversations/${conversationId}`, {
+    await axios.delete(`process.env.REACT_APP_BACKEND_URL/api/conversations/${conversationId}`, {
       headers: { Authorization: `Bearer ${token}` },
     });
 

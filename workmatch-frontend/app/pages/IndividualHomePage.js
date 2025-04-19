@@ -38,7 +38,7 @@ const IndividualHomePage = () => {
             console.log("Récupération des offres d'emploi filtrées...");
 
             const response = await axios.get(
-                `http://localhost:8080/joboffers/user/${swiperId}?page=${page}&size=10`,
+                `process.env.REACT_APP_BACKEND_URL/joboffers/user/${swiperId}?page=${page}&size=10`,
                 { headers: { Authorization: `Bearer ${token}` } }
             );
 
@@ -51,7 +51,7 @@ const IndividualHomePage = () => {
 
             // 🟢 Ajouter ici la vraie requête vers les offres déjà swipées
             const swipedResponse = await axios.get(
-                `http://localhost:8080/api/swiped/${swiperId}`,
+                `process.env.REACT_APP_BACKEND_URL/api/swiped/${swiperId}`,
                 { headers: { Authorization: `Bearer ${token}` } }
             );
 
@@ -82,11 +82,11 @@ const IndividualHomePage = () => {
                 try {
                     const [specificRes, normalRes] = await Promise.all([
                         axios.get(
-                            `http://localhost:8080/api/swiped/checkCompanySwipe?companyId=${companyId}&userId=${swiperId}&jobOfferId=${offer._id}`,
+                            `process.env.REACT_APP_BACKEND_URL/api/swiped/checkCompanySwipe?companyId=${companyId}&userId=${swiperId}&jobOfferId=${offer._id}`,
                             { headers: { Authorization: `Bearer ${token}` } }
                         ),
                         axios.get(
-                            `http://localhost:8080/api/swiped/checkCompanySwipeNormal?companyId=${companyId}&userId=${swiperId}`,
+                            `process.env.REACT_APP_BACKEND_URL/api/swiped/checkCompanySwipeNormal?companyId=${companyId}&userId=${swiperId}`,
                             { headers: { Authorization: `Bearer ${token}` } }
                         ),
                     ]);
@@ -132,7 +132,7 @@ const IndividualHomePage = () => {
           const userId = await AsyncStorage.getItem('userId');
           if (!userId) return;
 
-          const socket = new SockJS('http://localhost:8080/ws');
+          const socket = new SockJS('process.env.REACT_APP_BACKEND_URL/ws');
           const stomp = Stomp.over(socket);
           stomp.debug = null;
 
@@ -154,7 +154,7 @@ const IndividualHomePage = () => {
         const userId = await AsyncStorage.getItem('userId');
         if (!userId) return;
 
-        const socket = new SockJS('http://localhost:8080/ws');
+        const socket = new SockJS('process.env.REACT_APP_BACKEND_URL/ws');
         const stomp = Stomp.over(socket);
         stomp.debug = null;
 
@@ -246,7 +246,7 @@ const IndividualHomePage = () => {
             });
 
             const response = await axios.post(
-                "http://localhost:8080/api/matches/swipe/individual",
+                "process.env.REACT_APP_BACKEND_URL/api/matches/swipe/individual",
                 { swiperId, swipedId, companyId },
                 {
                     headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
@@ -254,14 +254,14 @@ const IndividualHomePage = () => {
             );
 
             await axios.post(
-                "http://localhost:8080/api/swiped/save",
+                "process.env.REACT_APP_BACKEND_URL/api/swiped/save",
                 { swiperId, swipedId, direction },
                 {
                     headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
                 }
             );
             const matchResponse = await axios.post(
-                "http://localhost:8080/api/matches/match",
+                "process.env.REACT_APP_BACKEND_URL/api/matches/match",
                 { swiperId, swipedId },
                 { headers: { Authorization: `Bearer ${token}` } }
             );
@@ -309,7 +309,7 @@ const IndividualHomePage = () => {
             console.log(" Token utilisé pour la requête :", token);
 
             await axios.post(
-                "http://localhost:8080/api/swiped/save",
+                "process.env.REACT_APP_BACKEND_URL/api/swiped/save",
                 { swiperId, swipedId, direction },
                 {
                     headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
@@ -317,7 +317,7 @@ const IndividualHomePage = () => {
             );
 
             const matchResponse = await axios.post(
-                "http://localhost:8080/api/matches/match",
+                "process.env.REACT_APP_BACKEND_URL/api/matches/match",
                 { swiperId, swipedId },
                 { headers: { Authorization: `Bearer ${token}` } }
             );

@@ -18,7 +18,7 @@ const EditProfilePage = () => {
 
                 const bearerToken = `Bearer ${token}`;
 
-                const response = await axios.get(`http://localhost:8080/users/${storedUsername}`, {
+                const response = await axios.get(`process.env.REACT_APP_BACKEND_URL/users/${storedUsername}`, {
                     headers: {
                         Authorization: bearerToken,
                     },
@@ -45,7 +45,7 @@ const EditProfilePage = () => {
            console.log('Bearer Token Sent in EditProfilePage:', bearerToken);
 
            const response = await axios.put(
-               'http://localhost:8080/users/updateUsername',
+               'process.env.REACT_APP_BACKEND_URL/users/updateUsername',
                {
                    oldUsername: userInfo.username,
                    newUsername: username,

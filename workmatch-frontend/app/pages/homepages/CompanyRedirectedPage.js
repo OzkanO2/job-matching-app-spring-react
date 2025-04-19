@@ -23,7 +23,7 @@ const CompanyRedirectedPage = () => {
         const userId = await AsyncStorage.getItem('userId');
         if (!userId) return;
 
-        const socket = new SockJS('http://localhost:8080/ws');
+        const socket = new SockJS('process.env.REACT_APP_BACKEND_URL/ws');
         const stomp = Stomp.over(socket);
         stomp.debug = null;
 
@@ -92,14 +92,14 @@ const CompanyRedirectedPage = () => {
 
             console.log("Chargement des candidats pour :", jobOffer.title);
 
-            const response = await axios.get(`http://localhost:8080/api/swiped/filteredJobSearchers/${swiperId}/${jobOffer._id}`, {
+            const response = await axios.get(`process.env.REACT_APP_BACKEND_URL/api/swiped/filteredJobSearchers/${swiperId}/${jobOffer._id}`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
 
             let candidates = response.data;
             console.log("Candidats avant filtrage :", candidates.map(c => c.userId));
 
-            const scoreResponse = await axios.get(`http://localhost:8080/jobsearchers/matching?jobOfferId=${jobOffer._id}`, {
+            const scoreResponse = await axios.get(`process.env.REACT_APP_BACKEND_URL/jobsearchers/matching?jobOfferId=${jobOffer._id}`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
 
@@ -124,7 +124,7 @@ const CompanyRedirectedPage = () => {
             let candidateSwipeData = {};
 
             try {
-                const swipesResponse = await axios.get(`http://localhost:8080/api/swiped/company/swipes/${companyId}`, {
+                const swipesResponse = await axios.get(`process.env.REACT_APP_BACKEND_URL/api/swiped/company/swipes/${companyId}`, {
                     headers: { Authorization: `Bearer ${token}` },
                 });
 
@@ -154,7 +154,7 @@ const CompanyRedirectedPage = () => {
             //Récupérer les swipes à gauche POUR CETTE OFFRE (isFromRedirection = true)
             let swipedIdsForOffer = new Set();
             try {
-                const swipedResponse = await axios.get(`http://localhost:8080/api/swiped/${swiperId}/${jobOffer._id}`, {
+                const swipedResponse = await axios.get(`process.env.REACT_APP_BACKEND_URL/api/swiped/${swiperId}/${jobOffer._id}`, {
                     headers: { Authorization: `Bearer ${token}` },
                 });
 
@@ -173,7 +173,7 @@ const CompanyRedirectedPage = () => {
             //Récupérer les swipes à gauche GLOBALEMENT (hors redirection)
             let globallySwipedLeft = new Set();
             try {
-                const swipedGlobalResponse = await axios.get(`http://localhost:8080/api/swiped/${swiperId}`, {
+                const swipedGlobalResponse = await axios.get(`process.env.REACT_APP_BACKEND_URL/api/swiped/${swiperId}`, {
                     headers: { Authorization: `Bearer ${token}` },
                 });
 
@@ -235,7 +235,7 @@ const CompanyRedirectedPage = () => {
             console.log("Chargement des candidats pour l'entreprise...");
 
             //Récupérer la liste des candidats
-            const response = await axios.get(`http://localhost:8080/jobsearchers/matching/company?companyId=${companyId}`, {
+            const response = await axios.get(`process.env.REACT_APP_BACKEND_URL/jobsearchers/matching/company?companyId=${companyId}`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
 
@@ -245,7 +245,7 @@ const CompanyRedirectedPage = () => {
             //Récupérer les candidats déjà swipés de manière globale (hors redirection)
             let swipedIds = new Set();
             try {
-                const swipedResponse = await axios.get(`http://localhost:8080/api/swiped/${companyId}`, {
+                const swipedResponse = await axios.get(`process.env.REACT_APP_BACKEND_URL/api/swiped/${companyId}`, {
                     headers: { Authorization: `Bearer ${token}` },
                 });
 
@@ -297,12 +297,12 @@ const CompanyRedirectedPage = () => {
 
             console.log("JWT Token récupéré :", token);
 
-            const response = await axios.get('http://localhost:8080/jobsearchers', {
+            const response = await axios.get('process.env.REACT_APP_BACKEND_URL/jobsearchers', {
                 headers: { Authorization: `Bearer ${token}` },
             });
             const allJobSearchers = response.data;
 
-            const swipedResponse = await axios.get(`http://localhost:8080/api/swiped/${swiperId}`, {
+            const swipedResponse = await axios.get(`process.env.REACT_APP_BACKEND_URL/api/swiped/${swiperId}`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
             const swipedData = swipedResponse.data;
@@ -354,7 +354,7 @@ const CompanyRedirectedPage = () => {
 
         try {
             const token = await AsyncStorage.getItem('userToken');
-            const checkSwipe = await axios.get(`http://localhost:8080/api/swiped/check`, {
+            const checkSwipe = await axios.get(`process.env.REACT_APP_BACKEND_URL/api/swiped/check`, {
                 params: {
                     swiperId,
                     swipedId,
@@ -371,7 +371,7 @@ const CompanyRedirectedPage = () => {
             }
 
             const response = await axios.post(
-                "http://localhost:8080/api/matches/swipe/company",
+                "process.env.REACT_APP_BACKEND_URL/api/matches/swipe/company",
                 { swiperId, swipedId },
                 {
                     headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
@@ -379,7 +379,7 @@ const CompanyRedirectedPage = () => {
             );
 
             await axios.post(
-                "http://localhost:8080/api/swiped/save",
+                "process.env.REACT_APP_BACKEND_URL/api/swiped/save",
                 { swiperId, swipedId, direction, jobOfferId, isFromRedirection },
                 {
                     headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
@@ -387,7 +387,7 @@ const CompanyRedirectedPage = () => {
             );
 
             const matchResponse = await axios.post(
-                "http://localhost:8080/api/matches/match",
+                "process.env.REACT_APP_BACKEND_URL/api/matches/match",
                 { swiperId, swipedId },
                 { headers: { Authorization: `Bearer ${token}` } }
             );
@@ -433,7 +433,7 @@ const CompanyRedirectedPage = () => {
              console.log("Token utilisé pour la requête :", token);
 
              await axios.post(
-                 "http://localhost:8080/api/swiped/save",
+                 "process.env.REACT_APP_BACKEND_URL/api/swiped/save",
                  { swiperId, swipedId, direction, jobOfferId, isFromRedirection },
                  {
                      headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },

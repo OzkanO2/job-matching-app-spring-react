@@ -39,7 +39,7 @@ const ChangePasswordPage = ({ navigation }) => {
       const token = await AsyncStorage.getItem('userToken');
       const username = await AsyncStorage.getItem('username');
 
-      const response = await axios.post('http://localhost:8080/users/change-password', {
+      const response = await axios.post('process.env.REACT_APP_BACKEND_URL/users/change-password', {
         username,
         currentPassword,
         newPassword,

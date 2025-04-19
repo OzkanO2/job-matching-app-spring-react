@@ -25,7 +25,7 @@ const CompanyHomePage = () => {
         const userId = await AsyncStorage.getItem('userId');
         if (!userId) return;
 
-        const socket = new SockJS('http://localhost:8080/ws');
+        const socket = new SockJS('process.env.REACT_APP_BACKEND_URL/ws');
         const stomp = Stomp.over(socket);
         stomp.debug = null;
 
@@ -118,7 +118,7 @@ const CompanyHomePage = () => {
         })));
 
             //Récupérer tous les candidats correspondant à l'offre
-            const response = await axios.get(`http://localhost:8080/jobsearchers/matching?jobOfferId=${jobOffer._id}`, {
+            const response = await axios.get(`process.env.REACT_APP_BACKEND_URL/jobsearchers/matching?jobOfferId=${jobOffer._id}`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
 
@@ -132,7 +132,7 @@ const CompanyHomePage = () => {
             //Récupérer les job searchers déjà swipés à gauche par cette entreprise pour CETTE offre
             let swipedIdsForOffer = new Set();
             try {
-                const swipedResponse = await axios.get(`http://localhost:8080/api/swiped/${swiperId}/${jobOffer._id}`, {
+                const swipedResponse = await axios.get(`process.env.REACT_APP_BACKEND_URL/api/swiped/${swiperId}/${jobOffer._id}`, {
                     headers: { Authorization: `Bearer ${token}` },
                 });
                 console.log("Swipes récupérés (JSON brut) :", swipedResponse.data);
@@ -172,7 +172,7 @@ const CompanyHomePage = () => {
         //Récupérer les utilisateurs ayant liké cette offre
         let likedUsers = [];
         try {
-            const likesResponse = await axios.get(`http://localhost:8080/likes?swipedId=${jobOffer._id}`, {
+            const likesResponse = await axios.get(`process.env.REACT_APP_BACKEND_URL/likes?swipedId=${jobOffer._id}`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
 
@@ -223,7 +223,7 @@ const CompanyHomePage = () => {
             console.log("Chargement des candidats pour l'entreprise...");
 
             //Récupérer la liste des candidats
-            const response = await axios.get(`http://localhost:8080/jobsearchers/matching/company?companyId=${companyId}`, {
+            const response = await axios.get(`process.env.REACT_APP_BACKEND_URL/jobsearchers/matching/company?companyId=${companyId}`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
 
@@ -233,7 +233,7 @@ const CompanyHomePage = () => {
             //Récupérer les candidats déjà swipés de manière globale (sans offre spécifique)
             let swipedIds = new Set();
             try {
-                const swipedResponse = await axios.get(`http://localhost:8080/api/swiped/${companyId}`, {
+                const swipedResponse = await axios.get(`process.env.REACT_APP_BACKEND_URL/api/swiped/${companyId}`, {
                     headers: { Authorization: `Bearer ${token}` },
                 });
 
@@ -258,7 +258,7 @@ const CompanyHomePage = () => {
             }
             let swipeStats = {};
             try {
-                const swipeStatsResponse = await axios.get(`http://localhost:8080/api/swiped/company/swipes/${companyId}`, {
+                const swipeStatsResponse = await axios.get(`process.env.REACT_APP_BACKEND_URL/api/swiped/company/swipes/${companyId}`, {
                     headers: { Authorization: `Bearer ${token}` },
                 });
 
@@ -316,7 +316,7 @@ const CompanyHomePage = () => {
             console.log("📡 Récupération des candidats non swipés dans l'entrée normale...");
 
             //Récupérer tous les job searchers disponibles
-            const response = await axios.get(`http://localhost:8080/api/jobsearchers/all`, {
+            const response = await axios.get(`process.env.REACT_APP_BACKEND_URL/api/jobsearchers/all`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
 
@@ -324,7 +324,7 @@ const CompanyHomePage = () => {
             console.log("Liste complète des job searchers :", allJobSearchers);
 
             //Récupérer les swipedCards avec les critères spécifiés
-            const swipedResponse = await axios.get(`http://localhost:8080/api/swiped/${companyId}`, {
+            const swipedResponse = await axios.get(`process.env.REACT_APP_BACKEND_URL/api/swiped/${companyId}`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
 
@@ -397,7 +397,7 @@ const CompanyHomePage = () => {
             const token = await AsyncStorage.getItem('userToken');
 
             //Vérifier si le swipe existe déjà
-            const checkSwipe = await axios.get(`http://localhost:8080/api/swiped/check`, {
+            const checkSwipe = await axios.get(`process.env.REACT_APP_BACKEND_URL/api/swiped/check`, {
                 params: { swiperId, swipedId, direction, offerId, isFromRedirection },
                 headers: { Authorization: `Bearer ${token}` },
             });
@@ -410,7 +410,7 @@ const CompanyHomePage = () => {
 
             //Enregistrer le swipe (like)
             await axios.post(
-                "http://localhost:8080/api/swiped/save",
+                "process.env.REACT_APP_BACKEND_URL/api/swiped/save",
                 { swiperId, swipedId, direction, offerId, isFromRedirection },
                 { headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" } }
             );
@@ -419,7 +419,7 @@ const CompanyHomePage = () => {
 
             //Enregistrer le like SEULEMENT après confirmation du swipe
             await axios.post(
-                "http://localhost:8080/likes/like",
+                "process.env.REACT_APP_BACKEND_URL/likes/like",
                 { swiperId, swipedId, companyId: swiperId, offerId, isFromRedirection },
                 { headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" } }
             );
@@ -428,7 +428,7 @@ const CompanyHomePage = () => {
 
             //Appel simple de match check
             const matchResponse = await axios.post(
-              "http://localhost:8080/api/matches/simple-company-match-check",
+              "process.env.REACT_APP_BACKEND_URL/api/matches/simple-company-match-check",
               {
                 candidateUserId: swipedId,
                 companyUserId: swiperId
@@ -493,7 +493,7 @@ const CompanyHomePage = () => {
             const token = await AsyncStorage.getItem('userToken');
 
             //Vérifier si le swipe EXACTEMENT IDENTIQUE existe déjà
-            const checkSwipe = await axios.get(`http://localhost:8080/api/swiped/check`, {
+            const checkSwipe = await axios.get(`process.env.REACT_APP_BACKEND_URL/api/swiped/check`, {
                 params: { swiperId, swipedId, direction, jobOfferId, isFromRedirection },
                 headers: { Authorization: `Bearer ${token}` },
             });
@@ -506,7 +506,7 @@ const CompanyHomePage = () => {
 
             //Enregistrer le swipe (ignore)
             await axios.post(
-                "http://localhost:8080/api/swiped/save",
+                "process.env.REACT_APP_BACKEND_URL/api/swiped/save",
                 { swiperId, swipedId, direction, jobOfferId, isFromRedirection },
                 { headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" } }
             );

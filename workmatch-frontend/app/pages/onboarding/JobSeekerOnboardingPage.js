@@ -584,7 +584,7 @@ const removeLocationAtIndex = (index) => {
         }));
 
       await axios.put(
-        `http://localhost:8080/jobsearchers/${userInfo.id}/updateUser`,
+        `process.env.REACT_APP_BACKEND_URL/jobsearchers/${userInfo.id}/updateUser`,
         {
           skills: formattedSkills,
           remote: isRemote,

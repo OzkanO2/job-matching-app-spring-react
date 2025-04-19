@@ -31,7 +31,7 @@ export default function SignUpPage({ navigation }) {
     }
 
     try {
-      const response = await axios.get(`http://localhost:8080/users/checkUsername/${username}`);
+      const response = await axios.get(`process.env.REACT_APP_BACKEND_URL/users/checkUsername/${username}`);
       if (response.status === 200) {
         setUsernameError('');
         setIsUsernameValid(true);
@@ -101,7 +101,7 @@ export default function SignUpPage({ navigation }) {
     };
 
     try {
-      const response = await axios.post('http://localhost:8080/users/register', userData);
+      const response = await axios.post('process.env.REACT_APP_BACKEND_URL/users/register', userData);
 
       if (response.status === 201) {
         Alert.alert('Success', 'User registered successfully');
@@ -110,7 +110,7 @@ export default function SignUpPage({ navigation }) {
         console.log("User registered:", userInfo);
 
         //Auto-login après inscription
-        const loginResponse = await axios.post('http://localhost:8080/users/login', {
+        const loginResponse = await axios.post('process.env.REACT_APP_BACKEND_URL/users/login', {
           username: userInfo.username,
           password: password,
         });

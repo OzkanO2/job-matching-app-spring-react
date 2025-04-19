@@ -17,7 +17,7 @@ const LikedOffersPage = () => {
           const userId = await AsyncStorage.getItem('userId');
           if (!userId) return;
 
-          const socket = new SockJS('http://localhost:8080/ws');
+          const socket = new SockJS('process.env.REACT_APP_BACKEND_URL/ws');
           const stomp = Stomp.over(socket);
           stomp.debug = null;
 
@@ -64,7 +64,7 @@ const LikedOffersPage = () => {
             const token = await AsyncStorage.getItem("userToken");
             const userId = await AsyncStorage.getItem("userId");
 
-            const response = await axios.get(`http://localhost:8080/likes/liked-offers/${userId}`, {
+            const response = await axios.get(`process.env.REACT_APP_BACKEND_URL/likes/liked-offers/${userId}`, {
               headers: { Authorization: `Bearer ${token}` }
             });
 
