@@ -7,6 +7,7 @@ import SockJS from "sockjs-client";
 import Stomp from "stompjs";
 import { ActivityIndicator } from 'react-native';
 import { TouchableOpacity } from 'react-native';
+import { BASE_URL } from '../../../constants/api';
 
 const ChatRoom = () => {
     const route = useRoute();
@@ -41,7 +42,7 @@ const ChatRoom = () => {
                 console.log("[fetchMatchInfo] Récupération des raisons du match entre", id1, "et", id2);
 
                 const response = await axios.get(
-                    `process.env.REACT_APP_BACKEND_URL/api/matches/reason/${id1}/${id2}`,
+                    `${BASE_URL}/api/matches/reason/${id1}/${id2}`,
                     { headers: { Authorization: `Bearer ${token}` } }
                 );
 
@@ -132,7 +133,7 @@ const ChatRoom = () => {
         const fetchMessages = async () => {
             try {
                 const token = await AsyncStorage.getItem("userToken");
-                const response = await axios.get(`process.env.REACT_APP_BACKEND_URL/api/chat/${conversationId}/messages`, {
+                const response = await axios.get(`${BASE_URL}/api/chat/${conversationId}/messages`, {
                     headers: { Authorization: `Bearer ${token}` },
                 });
                 setMessages(response.data);

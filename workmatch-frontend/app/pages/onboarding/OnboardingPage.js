@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, Button, StyleSheet, Alert } from 'react-native';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { BASE_URL } from '../../../constants/api';
 
 const OnboardingPage = ({ navigation, route }) => {
   const { userInfo } = route.params;
@@ -10,10 +11,10 @@ const OnboardingPage = ({ navigation, route }) => {
     const updatedUserInfo = { ...userInfo, userType };
 
     try {
-      const updateResponse = await axios.post('process.env.REACT_APP_BACKEND_URL/users/updateUserType', updatedUserInfo);
+      const updateResponse = await axios.post('${BASE_URL}/users/updateUserType', updatedUserInfo);
 
       if (updateResponse.status === 200) {
-        const loginResponse = await axios.post('process.env.REACT_APP_BACKEND_URL/users/login', {
+        const loginResponse = await axios.post('${BASE_URL}/users/login', {
           username: updatedUserInfo.username,
           password: updatedUserInfo.password,
         });

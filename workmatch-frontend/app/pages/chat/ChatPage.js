@@ -8,6 +8,7 @@ import { useCallback } from 'react';
 import SockJS from "sockjs-client";
 import Stomp from "stompjs";
 import { Ionicons } from '@expo/vector-icons';
+import { BASE_URL } from '../../../constants/api';
 
 const ChatPage = ({ route }) => {
     const navigation = useNavigation();
@@ -63,7 +64,7 @@ const ChatPage = ({ route }) => {
       const connectSocket = async () => {
         const userId = await AsyncStorage.getItem("userId");
 
-        socket = new SockJS("process.env.REACT_APP_BACKEND_URL/ws");
+        socket = new SockJS("${BASE_URL}/ws");
         stomp = Stomp.over(socket);
         stomp.debug = null;
 
@@ -113,7 +114,7 @@ const ChatPage = ({ route }) => {
           const id = await AsyncStorage.getItem("userId");
           setLoading(true);
 
-          const response = await axios.get(`process.env.REACT_APP_BACKEND_URL/api/matches/conversations/${id}`, {
+          const response = await axios.get(`${BASE_URL}/api/matches/conversations/${id}`, {
             headers: { Authorization: `Bearer ${token}` },
           });
 
@@ -124,7 +125,7 @@ const ChatPage = ({ route }) => {
           }));
 
           const receiverIds = formattedConversations.map(conv => conv.receiverId);
-          const usersResponse = await axios.post("process.env.REACT_APP_BACKEND_URL/users/getUsernames", {
+          const usersResponse = await axios.post("${BASE_URL}/users/getUsernames", {
             userIds: receiverIds
           });
           const userMap = usersResponse.data;
@@ -152,7 +153,7 @@ const ChatPage = ({ route }) => {
 const handleDeleteConversation = async (conversationId) => {
   try {
     const token = await AsyncStorage.getItem('userToken');
-    await axios.delete(`process.env.REACT_APP_BACKEND_URL/api/conversations/${conversationId}`, {
+    await axios.delete(`${BASE_URL}/api/conversations/${conversationId}`, {
       headers: { Authorization: `Bearer ${token}` },
     });
 

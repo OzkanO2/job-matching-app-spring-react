@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, Button, StyleSheet, Alert, TouchableOpacity } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
+import { BASE_URL } from '../../../constants/api';
 
 const ChangePasswordPage = ({ navigation }) => {
   const [currentPassword, setCurrentPassword] = useState('');
@@ -39,7 +40,7 @@ const ChangePasswordPage = ({ navigation }) => {
       const token = await AsyncStorage.getItem('userToken');
       const username = await AsyncStorage.getItem('username');
 
-      const response = await axios.post('process.env.REACT_APP_BACKEND_URL/users/change-password', {
+      const response = await axios.post('${BASE_URL}/users/change-password', {
         username,
         currentPassword,
         newPassword,

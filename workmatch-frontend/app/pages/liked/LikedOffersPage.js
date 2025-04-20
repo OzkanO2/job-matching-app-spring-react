@@ -5,6 +5,7 @@ import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import SockJS from 'sockjs-client';
+import { BASE_URL } from '../../../constants/api';
 
 const LikedOffersPage = () => {
   const [likedOffers, setLikedOffers] = useState([]);
@@ -64,7 +65,7 @@ const LikedOffersPage = () => {
             const token = await AsyncStorage.getItem("userToken");
             const userId = await AsyncStorage.getItem("userId");
 
-            const response = await axios.get(`process.env.REACT_APP_BACKEND_URL/likes/liked-offers/${userId}`, {
+            const response = await axios.get(`${BASE_URL}/likes/liked-offers/${userId}`, {
               headers: { Authorization: `Bearer ${token}` }
             });
 

@@ -3,6 +3,7 @@ import { Button, View, Text, StyleSheet, TextInput,TouchableOpacity , Alert } fr
 import { useNavigation } from '@react-navigation/native';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { BASE_URL } from '../../../constants/api';
 
 const EditProfilePage = () => {
     const navigation = useNavigation();
@@ -18,7 +19,7 @@ const EditProfilePage = () => {
 
                 const bearerToken = `Bearer ${token}`;
 
-                const response = await axios.get(`process.env.REACT_APP_BACKEND_URL/users/${storedUsername}`, {
+                const response = await axios.get(`${BASE_URL}/users/${storedUsername}`, {
                     headers: {
                         Authorization: bearerToken,
                     },
@@ -45,7 +46,7 @@ const EditProfilePage = () => {
            console.log('Bearer Token Sent in EditProfilePage:', bearerToken);
 
            const response = await axios.put(
-               'process.env.REACT_APP_BACKEND_URL/users/updateUsername',
+               '${BASE_URL}/users/updateUsername',
                {
                    oldUsername: userInfo.username,
                    newUsername: username,

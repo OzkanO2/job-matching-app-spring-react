@@ -7,6 +7,7 @@ import Stomp from 'stompjs';
 import SockJS from 'sockjs-client';
 import { useFocusEffect } from '@react-navigation/native';
 import { useCallback } from 'react';
+import { BASE_URL } from '../../../constants/api';
 
 const MyOffersPage = () => {
     const navigation = useNavigation();
@@ -20,7 +21,7 @@ const MyOffersPage = () => {
         const userId = await AsyncStorage.getItem('userId');
         if (!userId) return;
 
-        const socket = new SockJS('process.env.REACT_APP_BACKEND_URL/ws');
+        const socket = new SockJS('${BASE_URL}/ws');
         const stomp = Stomp.over(socket);
         stomp.debug = null;
 
@@ -87,7 +88,7 @@ const MyOffersPage = () => {
         try {
             const token = await AsyncStorage.getItem("userToken");
             console.log("Envoi de la requête Axios avec companyId:", companyId);
-            const response = await axios.get(`process.env.REACT_APP_BACKEND_URL/joboffers/company/${companyId}`, {
+            const response = await axios.get(`${BASE_URL}/joboffers/company/${companyId}`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
 
@@ -101,7 +102,7 @@ const MyOffersPage = () => {
     const handleDeleteOffer = async (offerId) => {
         try {
             const token = await AsyncStorage.getItem("userToken");
-            await axios.delete(`process.env.REACT_APP_BACKEND_URL/joboffers/${offerId}`, {
+            await axios.delete(`${BASE_URL}/joboffers/${offerId}`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
             setJobOffers(prev => prev.filter((offer) => offer._id !== offerId));
@@ -191,7 +192,7 @@ const MyOffersPage = () => {
                         onPress={async () => {
                           try {
                             const token = await AsyncStorage.getItem("userToken");
-                            await axios.delete(`process.env.REACT_APP_BACKEND_URL/joboffers/${item._id}`, {
+                            await axios.delete(`${BASE_URL}/joboffers/${item._id}`, {
                               headers: { Authorization: `Bearer ${token}` },
                             });
                             setJobOffers(prev => prev.filter(o => o._id !== item._id));

@@ -7,6 +7,7 @@ import {
 import { Ionicons } from "@expo/vector-icons"; // ✅ Ajout d'icônes
 import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { BASE_URL } from '../../../constants/api';
 
 const JobSeekerOnboardingPage = ({ navigation, route }) => {
   const { userInfo } = route.params;
@@ -584,7 +585,7 @@ const removeLocationAtIndex = (index) => {
         }));
 
       await axios.put(
-        `process.env.REACT_APP_BACKEND_URL/jobsearchers/${userInfo.id}/updateUser`,
+        `${BASE_URL}/jobsearchers/${userInfo.id}/updateUser`,
         {
           skills: formattedSkills,
           remote: isRemote,

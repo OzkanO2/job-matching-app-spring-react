@@ -10,6 +10,7 @@ import {
 import { useNavigation } from '@react-navigation/native';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { BASE_URL } from '../../../constants/api';
 
 const SettingsPage = () => {
   const navigation = useNavigation();
@@ -27,7 +28,7 @@ const SettingsPage = () => {
       const token = await AsyncStorage.getItem("userToken");
       const userId = await AsyncStorage.getItem("userId");
 
-      const response = await axios.delete(`process.env.REACT_APP_BACKEND_URL/users/${userId}`, {
+      const response = await axios.delete(`${BASE_URL}/users/${userId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 

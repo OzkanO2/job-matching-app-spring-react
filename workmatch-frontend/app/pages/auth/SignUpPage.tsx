@@ -3,6 +3,7 @@ import { View, Text, TextInput, Button, Alert, StyleSheet, TouchableOpacity } fr
 import { Picker } from '@react-native-picker/picker';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { BASE_URL } from '../../../constants/api';
 
 export default function SignUpPage({ navigation }) {
   const [userType, setUserType] = useState('');
@@ -31,7 +32,7 @@ export default function SignUpPage({ navigation }) {
     }
 
     try {
-      const response = await axios.get(`process.env.REACT_APP_BACKEND_URL/users/checkUsername/${username}`);
+      const response = await axios.get(`${BASE_URL}/users/checkUsername/${username}`);
       if (response.status === 200) {
         setUsernameError('');
         setIsUsernameValid(true);
@@ -101,7 +102,7 @@ export default function SignUpPage({ navigation }) {
     };
 
     try {
-      const response = await axios.post('process.env.REACT_APP_BACKEND_URL/users/register', userData);
+      const response = await axios.post('${BASE_URL}/users/register', userData);
 
       if (response.status === 201) {
         Alert.alert('Success', 'User registered successfully');
@@ -110,7 +111,7 @@ export default function SignUpPage({ navigation }) {
         console.log("User registered:", userInfo);
 
         //Auto-login après inscription
-        const loginResponse = await axios.post('process.env.REACT_APP_BACKEND_URL/users/login', {
+        const loginResponse = await axios.post('${BASE_URL}/users/login', {
           username: userInfo.username,
           password: password,
         });

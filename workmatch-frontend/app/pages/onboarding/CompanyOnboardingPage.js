@@ -4,6 +4,7 @@ import { Picker, View, Text, TextInput, Button, StyleSheet, Alert, TouchableOpac
 
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { BASE_URL } from '../../../constants/api';
 
 const CompanyOnboardingPage = ({ navigation, route }) => {
     const { userInfo } = route.params;
@@ -634,7 +635,7 @@ const updateLocationAtIndex = (index, value) => {
          };
 
          const response = await axios.post(
-             'process.env.REACT_APP_BACKEND_URL/joboffers',
+             '${BASE_URL}/joboffers',
              newOffer,
              {
                headers: {
