@@ -382,13 +382,13 @@ const IndividualHomePage = () => {
                          return (
                            <View key={offer._id} style={styles.card}>
                              <Text style={styles.cardTitle}>{offer.title}</Text>
-                             <Text style={styles.cardDescription}>
-                               {offer.description
-                                 ? offer.description.length > 150
-                                   ? `${offer.description.slice(0, 150)}...`
-                                   : offer.description
-                                 : "Description indisponible"}
+                             <Text style={styles.cardDate}>
+                               {offer.createdAt ? `Créée le ${new Date(offer.createdAt).toLocaleDateString('fr-FR')}` : ''}
                              </Text>
+
+                             <Text style={styles.cardDescription}>
+                                     {offer.description || "Description indisponible"}
+                                   </Text>
                            </View>
                          );
                        }}
@@ -447,7 +447,13 @@ const styles = StyleSheet.create({
       justifyContent: 'center',
       gap: 10,
       marginBottom: 20,
-    },
+    },cardDate: {
+        fontSize: 12,
+        color: '#cbd5e1',
+        marginBottom: 8,
+        textAlign: 'center',
+      }
+,
     navButton: {
       backgroundColor: '#1e3a8a',
       paddingVertical: 10,
