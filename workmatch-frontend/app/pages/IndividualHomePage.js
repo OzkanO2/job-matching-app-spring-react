@@ -133,7 +133,7 @@ const IndividualHomePage = () => {
           const userId = await AsyncStorage.getItem('userId');
           if (!userId) return;
 
-          const socket = new SockJS('${BASE_URL}/ws');
+          const socket = new SockJS(`${BASE_URL}/ws`);
           const stomp = Stomp.over(socket);
           stomp.debug = null;
 
@@ -155,7 +155,7 @@ const IndividualHomePage = () => {
         const userId = await AsyncStorage.getItem('userId');
         if (!userId) return;
 
-        const socket = new SockJS('${BASE_URL}/ws');
+        const socket = new SockJS(`${BASE_URL}/ws`);
         const stomp = Stomp.over(socket);
         stomp.debug = null;
 
@@ -247,7 +247,7 @@ const IndividualHomePage = () => {
             });
 
             const response = await axios.post(
-                '${BASE_URL}/api/matches/swipe/individual',
+                `${BASE_URL}/api/matches/swipe/individual`,
                 { swiperId, swipedId, companyId },
                 {
                     headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
@@ -255,14 +255,14 @@ const IndividualHomePage = () => {
             );
 
             await axios.post(
-                '${BASE_URL}/api/swiped/save',
+                `${BASE_URL}/api/swiped/save`,
                 { swiperId, swipedId, direction },
                 {
                     headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
                 }
             );
             const matchResponse = await axios.post(
-                '${BASE_URL}/api/matches/match',
+                `${BASE_URL}/api/matches/match`,
                 { swiperId, swipedId },
                 { headers: { Authorization: `Bearer ${token}` } }
             );
@@ -310,7 +310,7 @@ const IndividualHomePage = () => {
             console.log(" Token utilisé pour la requête :", token);
 
             await axios.post(
-                '${BASE_URL}/api/swiped/save',
+                `${BASE_URL}/api/swiped/save`,
                 { swiperId, swipedId, direction },
                 {
                     headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
@@ -318,7 +318,7 @@ const IndividualHomePage = () => {
             );
 
             const matchResponse = await axios.post(
-                '${BASE_URL}/api/matches/match',
+                `${BASE_URL}/api/matches/match`,
                 { swiperId, swipedId },
                 { headers: { Authorization: `Bearer ${token}` } }
             );

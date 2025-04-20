@@ -11,10 +11,10 @@ const OnboardingPage = ({ navigation, route }) => {
     const updatedUserInfo = { ...userInfo, userType };
 
     try {
-      const updateResponse = await axios.post('${BASE_URL}/users/updateUserType', updatedUserInfo);
+      const updateResponse = await axios.post(`${BASE_URL}/users/updateUserType`, updatedUserInfo);
 
       if (updateResponse.status === 200) {
-        const loginResponse = await axios.post('${BASE_URL}/users/login', {
+        const loginResponse = await axios.post(`${BASE_URL}/users/login`, {
           username: updatedUserInfo.username,
           password: updatedUserInfo.password,
         });

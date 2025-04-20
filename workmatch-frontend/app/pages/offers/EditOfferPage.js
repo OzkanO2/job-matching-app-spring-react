@@ -716,7 +716,7 @@ const EditOfferPage = ({ route, navigation }) => {
             };
             try {
             const response = await axios.put(
-                `process.env.REACT_APP_BACKEND_URL/joboffers/${offer._id}`,
+                `${BASE_URL}/joboffers/${offer._id}`,
                 updatedOffer,
                 {
                   headers: {

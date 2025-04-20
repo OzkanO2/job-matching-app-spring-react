@@ -46,7 +46,7 @@ const EditProfilePage = () => {
            console.log('Bearer Token Sent in EditProfilePage:', bearerToken);
 
            const response = await axios.put(
-               '${BASE_URL}/users/updateUsername',
+               `${BASE_URL}/users/updateUsername`,
                {
                    oldUsername: userInfo.username,
                    newUsername: username,

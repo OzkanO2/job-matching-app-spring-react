@@ -102,7 +102,7 @@ export default function SignUpPage({ navigation }) {
     };
 
     try {
-      const response = await axios.post('${BASE_URL}/users/register', userData);
+      const response = await axios.post(`${BASE_URL}/users/register`, userData);
 
       if (response.status === 201) {
         Alert.alert('Success', 'User registered successfully');
@@ -111,7 +111,7 @@ export default function SignUpPage({ navigation }) {
         console.log("User registered:", userInfo);
 
         //Auto-login après inscription
-        const loginResponse = await axios.post('${BASE_URL}/users/login', {
+        const loginResponse = await axios.post(`${BASE_URL}/users/login`, {
           username: userInfo.username,
           password: password,
         });

@@ -40,7 +40,7 @@ const ChangePasswordPage = ({ navigation }) => {
       const token = await AsyncStorage.getItem('userToken');
       const username = await AsyncStorage.getItem('username');
 
-      const response = await axios.post('${BASE_URL}/users/change-password', {
+      const response = await axios.post(`${BASE_URL}/users/change-password`, {
         username,
         currentPassword,
         newPassword,

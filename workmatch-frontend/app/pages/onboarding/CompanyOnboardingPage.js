@@ -635,7 +635,7 @@ const updateLocationAtIndex = (index, value) => {
          };
 
          const response = await axios.post(
-             '${BASE_URL}/joboffers',
+             `${BASE_URL}/joboffers`,
              newOffer,
              {
                headers: {

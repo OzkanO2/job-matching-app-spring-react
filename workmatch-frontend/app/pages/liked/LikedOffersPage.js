@@ -18,7 +18,7 @@ const LikedOffersPage = () => {
           const userId = await AsyncStorage.getItem('userId');
           if (!userId) return;
 
-          const socket = new SockJS('process.env.REACT_APP_BACKEND_URL/ws');
+          const socket = new SockJS(`${BASE_URL}/ws`);
           const stomp = Stomp.over(socket);
           stomp.debug = null;
 

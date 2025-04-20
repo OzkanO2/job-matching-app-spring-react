@@ -26,7 +26,7 @@ const CompanyHomePage = () => {
         const userId = await AsyncStorage.getItem('userId');
         if (!userId) return;
 
-        const socket = new SockJS('process.env.REACT_APP_BACKEND_URL/ws');
+        const socket = new SockJS(`${BASE_URL}/ws`);
         const stomp = Stomp.over(socket);
         stomp.debug = null;
 
@@ -411,7 +411,7 @@ const CompanyHomePage = () => {
 
             //Enregistrer le swipe (like)
             await axios.post(
-                "process.env.REACT_APP_BACKEND_URL/api/swiped/save",
+                `${BASE_URL}/api/swiped/save`,
                 { swiperId, swipedId, direction, offerId, isFromRedirection },
                 { headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" } }
             );
@@ -420,7 +420,7 @@ const CompanyHomePage = () => {
 
             //Enregistrer le like SEULEMENT après confirmation du swipe
             await axios.post(
-                "process.env.REACT_APP_BACKEND_URL/likes/like",
+                `${BASE_URL}/likes/like`,
                 { swiperId, swipedId, companyId: swiperId, offerId, isFromRedirection },
                 { headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" } }
             );
@@ -429,7 +429,7 @@ const CompanyHomePage = () => {
 
             //Appel simple de match check
             const matchResponse = await axios.post(
-              "process.env.REACT_APP_BACKEND_URL/api/matches/simple-company-match-check",
+              `${BASE_URL}/api/matches/simple-company-match-check`,
               {
                 candidateUserId: swipedId,
                 companyUserId: swiperId
@@ -507,7 +507,7 @@ const CompanyHomePage = () => {
 
             //Enregistrer le swipe (ignore)
             await axios.post(
-                "process.env.REACT_APP_BACKEND_URL/api/swiped/save",
+                `${BASE_URL}/api/swiped/save`,
                 { swiperId, swipedId, direction, jobOfferId, isFromRedirection },
                 { headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" } }
             );

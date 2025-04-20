@@ -20,7 +20,7 @@ const LikedCandidatesPage = () => {
 
         console.log("Connexion WebSocket depuis LikedCandidatesPage");
 
-        const socket = new SockJS('process.env.REACT_APP_BACKEND_URL/ws');
+        const socket = new SockJS(`${BASE_URL}/ws`);
         const stomp = Stomp.over(socket);
         stomp.debug = null;
 

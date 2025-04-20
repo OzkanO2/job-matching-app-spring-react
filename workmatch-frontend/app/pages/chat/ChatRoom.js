@@ -159,7 +159,7 @@ const ChatRoom = () => {
     }, [conversationId]);
 
     useEffect(() => {
-        const socket = new SockJS("process.env.REACT_APP_BACKEND_URL/ws", null, {
+        const socket = new SockJS(`${BASE_URL}/ws`, null, {
             transports: ["websocket", "xhr-streaming", "xhr-polling"],
             withCredentials: false,
         });

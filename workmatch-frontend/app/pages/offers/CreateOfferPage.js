@@ -584,7 +584,7 @@ const availableLocations = [
         employmentType, remote, category, locations: selectedLocations, skills,
       };
 
-      const res = await axios.post('process.env.REACT_APP_BACKEND_URL/joboffers', newOffer, {
+      const res = await axios.post(`${BASE_URL}/joboffers`, newOffer, {
         headers: {
           Authorization: token,
           'Content-Type': 'application/json',
