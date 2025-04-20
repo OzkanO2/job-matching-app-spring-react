@@ -26,33 +26,33 @@ const ChatRoom = () => {
 
     useEffect(() => {
         const fetchMatchInfo = async () => {
-            try {
-                const storedUserId = await AsyncStorage.getItem('userId');
+          try {
+            const userId = await AsyncStorage.getItem("userId");
+            const token = await AsyncStorage.getItem("userToken");
+            const userType = await AsyncStorage.getItem("userType");
 
-                if (!storedUserId || !matchedUserId) {
-                    console.warn("[fetchMatchInfo] userId ou matchedUserId manquant !");
-                    return;
-                }
-
-                const token = await AsyncStorage.getItem('userToken');
-
-                //Mettre les IDs dans l'ordre lexicographique
-                const [id1, id2] = [storedUserId, matchedUserId].sort();
-
-                console.log("[fetchMatchInfo] Récupération des raisons du match entre", id1, "et", id2);
-
-                const response = await axios.get(
-                    `${BASE_URL}/api/matches/reason/${id1}/${id2}`,
-                    { headers: { Authorization: `Bearer ${token}` } }
-                );
-
-                console.log("Données reçues :", response.data);
-                setMatchInfo(response.data);
-            } catch (error) {
-                console.error("Erreur lors de la récupération des raisons du match :", error);
-            } finally {
-                setLoading(false);
+            if (!userId || !matchedUserId) {
+              console.warn("⛔ userId ou matchedUserId manquant");
+              return;
             }
+
+            const individualId = userType === "INDIVIDUAL" ? userId : matchedUserId;
+            const companyId = userType === "INDIVIDUAL" ? matchedUserId : userId;
+
+            const url = `${BASE_URL}/api/matches/reason/individual/${individualId}/${companyId}`;
+            console.log("✅ URL appelée :", url);
+
+            const response = await axios.get(url, {
+              headers: { Authorization: `Bearer ${token}` },
+            });
+
+            console.log("✅ Données reçues :", response.data);
+            setMatchInfo(response.data);
+          } catch (e) {
+            console.error("❌ Erreur fetchMatchInfo :", e);
+          } finally {
+            setLoading(false);
+          }
         };
 
         fetchMatchInfo();

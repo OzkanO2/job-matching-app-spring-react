@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import com.example.workmatchbackend.service.LikeService;
 import com.example.workmatchbackend.model.Like;
+import com.example.workmatchbackend.model.UserType;
 
 import java.util.Optional;
 
@@ -133,16 +134,19 @@ public class MatchController {
         return ResponseEntity.status(HttpStatus.CREATED).body(savedLike);
     }
 
-    @GetMapping("/reason/{userId}/{matchedUserId}")
-    public ResponseEntity<Map<String, Object>> getMatchReason(@PathVariable String userId, @PathVariable String matchedUserId) {
+    @GetMapping("/reason/individual/{individualId}/{companyId}")
+    public ResponseEntity<Map<String, Object>> getMatchReasonForIndividual(
+            @PathVariable String individualId,
+            @PathVariable String companyId) {
+
         Map<String, Object> matchInfo = new HashMap<>();
 
-        System.out.println("[getMatchReason] Requête reçue pour userId: " + userId + " et matchedUserId: " + matchedUserId);
+        System.out.println("[getMatchReasonForIndividual] Appel pour INDIVIDUAL user");
+        System.out.println("individualId = " + individualId);
+        System.out.println("companyId = " + companyId);
 
-        //Pourquoi `company` a liké `individual` ?
-        List<SwipedCard> swipedCards = swipedCardRepository.findBySwiperIdAndSwipedId(userId, matchedUserId);
-        System.out.println("[getMatchReason] Nombre de swipes trouvés pour company -> individual: " + swipedCards.size());
-
+        // Raisons du like de l'entreprise
+        List<SwipedCard> swipedCards = swipedCardRepository.findBySwiperIdAndSwipedId(companyId, individualId);
         List<String> jobOfferTitles = swipedCards.stream()
                 .map(SwipedCard::getJobOfferId)
                 .filter(offerId -> offerId != null && !offerId.isEmpty())
@@ -156,8 +160,8 @@ public class MatchController {
             matchInfo.put("companyReason", "L'entreprise a liké directement, sans offre spécifique.");
         }
 
-        //Pourquoi `individual` a liké `company` ?
-        List<Like> likes = likeRepository.findBySwiperIdAndCompanyId(matchedUserId, userId);
+        // Raisons du like du candidat
+        List<Like> likes = likeRepository.findBySwiperIdAndCompanyId(individualId, companyId);
         List<String> likedOfferTitles = likes.stream()
                 .map(Like::getSwipedId)
                 .map(offerId -> jobOfferRepository.findById(offerId).map(JobOffer::getTitle).orElse(null))
@@ -170,8 +174,6 @@ public class MatchController {
             matchInfo.put("individualReason", "Le candidat a liké l'entreprise directement, sans offre spécifique.");
         }
 
-
-        System.out.println("[getMatchReason] Résultat final envoyé : " + matchInfo);
         return ResponseEntity.ok(matchInfo);
     }
 
