@@ -4,6 +4,7 @@ import { View,Text, TextInput, Button, StyleSheet, Alert, TouchableOpacity, Scro
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Picker } from '@react-native-picker/picker';
+import { BASE_URL } from '../../../constants/api';
 
 const CreateOfferPage = ({ navigation }) => {
   const [companyId, setCompanyId] = useState(null);

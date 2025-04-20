@@ -188,8 +188,20 @@ const MyOffersPage = () => {
                       </TouchableOpacity>
 
                       <TouchableOpacity
-                        style={styles.deleteButton}
+                        style={[
+                            styles.deleteButton,
+                            jobOffers.length === 1 && { opacity: 0.5 } // grisé si une seule offre
+                          ]}
+                        disabled={jobOffers.length === 1} // désactive le bouton si une seule offre
+
+
+
                         onPress={async () => {
+                            if (jobOffers.length === 1) {
+                                  alert("Vous ne pouvez pas supprimer votre dernière offre.");
+                                  return;
+                                }
+
                           try {
                             const token = await AsyncStorage.getItem("userToken");
                             await axios.delete(`${BASE_URL}/joboffers/${item._id}`, {
