@@ -64,7 +64,7 @@ const ChatPage = ({ route }) => {
       const connectSocket = async () => {
         const userId = await AsyncStorage.getItem("userId");
 
-        socket = new SockJS("${BASE_URL}/ws");
+        socket = new SockJS('${BASE_URL}/ws');
         stomp = Stomp.over(socket);
         stomp.debug = null;
 
@@ -125,7 +125,7 @@ const ChatPage = ({ route }) => {
           }));
 
           const receiverIds = formattedConversations.map(conv => conv.receiverId);
-          const usersResponse = await axios.post("${BASE_URL}/users/getUsernames", {
+          const usersResponse = await axios.post('${BASE_URL}/users/getUsernames', {
             userIds: receiverIds
           });
           const userMap = usersResponse.data;
