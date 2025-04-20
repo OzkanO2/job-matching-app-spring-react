@@ -811,16 +811,12 @@ const allSkills = [
       }
     };
     const categories = [
-      "Développement Web",
-      "Ingénieur DevOps",
-      "Business Developer",
       "Software Developer",
       "Data Science",
       "Marketing",
       "Finance",
       "Cybersecurity",
       "Support IT",
-      "Cloud Computing",
       "Solution Architect",
       "Business Analyst",
       "AI/ML",
