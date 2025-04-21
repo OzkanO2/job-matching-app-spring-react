@@ -26,7 +26,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.time.LocalDate;
-
+import org.bson.types.ObjectId;
 @RestController
 @RequestMapping("/joboffers")
 @CrossOrigin(origins = "*", allowedHeaders = "*")
@@ -106,9 +106,27 @@ public class JobOfferController {
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteJobOffer(@PathVariable String id) {
         logger.info("Deleting job offer and its dependencies for ID: {}", id);
+
+        JobOffer offer = jobOfferRepository.findById(id).orElse(null);
+        if (offer == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Offre introuvable");
+        }
+
+        // 🟢 Ici on récupère bien un ObjectId
+        ObjectId companyId = offer.getCompanyId();
+
+        // 🟢 On utilise la méthode du repository qui prend un ObjectId
+        long count = jobOfferRepository.countByCompanyId(companyId);
+
+        if (count <= 1) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Impossible de supprimer la dernière offre.");
+        }
+
         jobOfferService.deleteJobOfferAndDependencies(id);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
+
+
 
     @PostMapping("/like")
     public ResponseEntity<?> likeOffer(@RequestBody Map<String, String> payload) {

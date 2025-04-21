@@ -3,7 +3,7 @@ package com.example.workmatchbackend.repository;
 import com.example.workmatchbackend.model.JobOffer;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
-
+import org.bson.types.ObjectId;
 import java.util.Optional;
 import java.util.List;
 
@@ -25,7 +25,7 @@ public interface JobOfferRepository extends MongoRepository<JobOffer, String> {
     List<JobOffer> findByCompanyId(ObjectId companyId);
 
     List<JobOffer> findAllByCompanyId(ObjectId companyId);
-
+    long countByCompanyId(ObjectId companyId);
     void deleteByCompanyId(ObjectId companyId);
     boolean existsByTitle(String title);
 
