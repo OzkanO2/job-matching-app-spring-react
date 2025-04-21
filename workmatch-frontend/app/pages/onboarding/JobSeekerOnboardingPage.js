@@ -499,6 +499,9 @@ const updateSkillAtIndex = (index, field, value) => {
   const updated = [...skillsList];
   updated[index][field] = field === 'experience' ? parseInt(value) : value;
   setSkillsList(updated);
+
+  const hasValid = updated.some(skill => skill.name.trim() !== '');
+    if (hasValid) setSkillsError('');
 };
 
 // Gestion des localisations
@@ -510,6 +513,9 @@ const updateLocationAtIndex = (index, value) => {
   const updated = [...selectedLocations];
   updated[index] = value;
   setSelectedLocations(updated);
+
+  const hasValid = updated.some(loc => loc.trim() !== '');
+  if (hasValid) setLocationsError('');
 };
 
 const removeLocationAtIndex = (index) => {
@@ -727,7 +733,11 @@ console.log("Compte mis à jour, on affiche l'alerte");
               styles.contractButton,
               employmentType === type && styles.contractSelected,
             ]}
-            onPress={() => setEmploymentType(type)}
+            onPress={() => {
+              setEmploymentType(type);
+              setEmploymentTypeError('');
+            }}
+
           >
             <Text
               style={[
