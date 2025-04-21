@@ -163,11 +163,18 @@ public class UserController {
     public ResponseEntity<?> updateUsername(@RequestBody Map<String, String> updateRequest) {
         String oldUsername = updateRequest.get("oldUsername");
         String newUsername = updateRequest.get("newUsername");
+        String newEmail = updateRequest.get("newEmail");
 
         Optional<User> optionalUser = userRepository.findOptionalByUsername(oldUsername);
         if (optionalUser.isPresent()) {
             User user = optionalUser.get();
+
             user.setUsername(newUsername);
+
+            if (newEmail != null && !newEmail.isEmpty()) {
+                user.setEmail(newEmail);
+            }
+
             userRepository.save(user);
 
             String newToken = jwtUtil.generateToken(newUsername);

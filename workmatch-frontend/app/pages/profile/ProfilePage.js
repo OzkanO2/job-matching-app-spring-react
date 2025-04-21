@@ -33,6 +33,7 @@ const ProfilePage = () => {
     const [skillsError, setSkillsError] = useState('');
     const [locationError, setLocationError] = useState('');
     const [categorySuccess, setCategorySuccess] = useState(false);
+    const [editableEmail, setEditableEmail] = useState('');
 
     const addSkillRow = () => {
       setSkillsList([...skillsList, { name: '', experience: 1 }]);
@@ -1030,6 +1031,39 @@ const allSkills = [
         fetchUserType();
         fetchUserInfo();
     }, [navigation]);
+
+useFocusEffect(
+  React.useCallback(() => {
+    const fetchUserInfoAndType = async () => {
+      const token = await AsyncStorage.getItem('userToken');
+      const username = await AsyncStorage.getItem('username'); // ← récupère le *nouveau*
+      const userId = await AsyncStorage.getItem('userId');
+      const type = await AsyncStorage.getItem('userType');
+
+      setUserType(type);
+
+      if (!token || !username || !userId) {
+        console.error('Token, username ou userId manquant');
+        return;
+      }
+
+      const bearerToken = `${token}`;
+
+      try {
+        const response = await axios.get(`${BASE_URL}/users/${username}`, {
+          headers: { Authorization: bearerToken },
+        });
+
+        setUserInfo(response.data);
+        console.log("🎉 User info rechargée:", response.data);
+      } catch (err) {
+        console.error("❌ Erreur récupération user:", err);
+      }
+    };
+
+    fetchUserInfoAndType();
+  }, [])
+);
 
     const updateLocationAtIndex = (index, newValue) => {
       const updated = [...selectedLocations];
