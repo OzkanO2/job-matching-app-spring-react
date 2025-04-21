@@ -511,6 +511,9 @@ const availableLocations = [
       const updated = [...skillsList];
       updated[index][field] = field === 'experience' ? parseInt(value) : value;
       setSkillsList(updated);
+
+      const hasValid = updated.some(skill => skill.name.trim() !== '');
+        if (hasValid) setSkillsError('');
     };
 
     const handleSkillToggle = (skill) => {
@@ -748,7 +751,11 @@ window.alert("Votre compte a été créé avec succès. Veuillez vous connecter.
                     styles.contractButton,
                     employmentType === type && styles.contractSelected,
                   ]}
-                  onPress={() => setEmploymentType(type)}
+                  onPress={() => {
+                    setEmploymentType(type);
+                    setEmploymentTypeError('');
+                  }}
+
                 >
                   <Text
                     style={[
