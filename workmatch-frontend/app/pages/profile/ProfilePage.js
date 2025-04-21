@@ -36,19 +36,37 @@ const ProfilePage = () => {
     const [editableEmail, setEditableEmail] = useState('');
 
     const addSkillRow = () => {
-      setSkillsList([...skillsList, { name: '', experience: 1 }]);
+      setSkillsList(prev => {
+        const updated = [...prev, { name: '', experience: 1 }];
+        if (updated.some(skill => skill.name.trim() !== '')) {
+          setSkillsError('');
+        }
+        return updated;
+      });
     };
+
 
     const removeSkillAtIndex = (index) => {
       const updated = [...skillsList];
       updated.splice(index, 1);
       setSkillsList(updated);
+
+      if (updated.some(skill => skill.name.trim() !== '')) {
+        setSkillsError('');
+      } else {
+        setSkillsError("Veuillez ajouter au moins une compétence.");
+      }
     };
+
 
     const updateSkillAtIndex = (index, field, value) => {
       const updated = [...skillsList];
       updated[index][field] = field === 'experience' ? parseInt(value) : value;
       setSkillsList(updated);
+
+      if (updated.some(skill => skill.name.trim() !== '')) {
+          setSkillsError('');
+        }
     };
     const validateProfileInputs = () => {
       let isValid = true;
@@ -1069,9 +1087,20 @@ useFocusEffect(
       const updated = [...selectedLocations];
       updated[index] = newValue;
       setSelectedLocations(updated);
+
+      if (updated.some(loc => loc.trim() !== '')) {
+          setLocationError('');
+        }
     };
+
     const addNewLocation = () => {
-      setSelectedLocations([...selectedLocations, ""]);
+      setSelectedLocations(prev => {
+        const updated = [...prev, ""];
+        if (updated.some(loc => loc.trim() !== '')) {
+          setLocationError('');
+        }
+        return updated;
+      });
     };
 
     const toggleCategory = (category) => {
