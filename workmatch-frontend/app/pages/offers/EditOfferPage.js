@@ -3,6 +3,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import { Ionicons } from '@expo/vector-icons';
 import { View,Picker, Text, TextInput, Button, StyleSheet, Alert, ScrollView, TouchableOpacity } from 'react-native';
+import { BASE_URL } from '../../../constants/api';
 
 const allSkills = [
     "HTML", "CSS", "JavaScript", "TypeScript", "React", "Angular", "Vue.js", "Next.js",
@@ -569,11 +570,14 @@ const EditOfferPage = ({ route, navigation }) => {
     const [category, setCategory] = useState(offer.category);
     const [locationDropdowns, setLocationDropdowns] = useState(offer.locations?.length || 1);
 
-    const [selectedLocations, setSelectedLocations] = useState(offer.locations || []);
-    const [selectedSkills, setSelectedSkills] = useState(
-      offer.skills.map((skill) => ({ name: skill.name, experience: skill.experience }))
+    const [selectedLocations, setSelectedLocations] = useState(
+      offer.locations?.length ? offer.locations : [""]
     );
-
+    const [selectedSkills, setSelectedSkills] = useState(
+      offer.skills?.length
+        ? offer.skills.map(skill => ({ name: skill.name, experience: skill.experience }))
+        : [{ name: "", experience: 1 }]
+    );
 
     const [titleError, setTitleError] = useState('');
       const [descriptionError, setDescriptionError] = useState('');
@@ -595,8 +599,11 @@ const EditOfferPage = ({ route, navigation }) => {
     const updateLocationAtIndex = (index, newValue) => {
       const updated = [...selectedLocations];
       updated[index] = newValue;
+      if (newValue !== "") setLocationError("");
       setSelectedLocations(updated);
+
     };
+
     const removeLocationAtIndex = (index) => {
       const updated = [...selectedLocations];
       updated.splice(index, 1);
@@ -609,12 +616,16 @@ const EditOfferPage = ({ route, navigation }) => {
 
     const updateSkillAtIndex = (index, key, value) => {
       setSelectedSkills((prevSkills) => {
-        const updatedSkills = [...prevSkills]; // clone du tableau
-        const updatedSkill = { ...updatedSkills[index], [key]: value }; // clone de l'objet
-        updatedSkills[index] = updatedSkill; // remplacement dans le tableau cloné
+        const updatedSkills = [...prevSkills];
+        const updatedSkill = { ...updatedSkills[index], [key]: value };
+        updatedSkills[index] = updatedSkill;
+
+        if (key === "name" && value !== "") setSkillsError("");
+
         return updatedSkills;
       });
     };
+
 
     const removeSkillAtIndex = (index) => {
       const updated = [...selectedSkills];
@@ -642,66 +653,41 @@ const EditOfferPage = ({ route, navigation }) => {
       };
 
     const validateInputs = () => {
-        let isValid = true;
-        const titleWithoutSpaces = title.replace(/\s/g, '');
-        const descriptionWithoutSpaces = description.replace(/\s/g, '');
+      let isValid = true;
+      const titleNoSpace = title.replace(/\s/g, '');
+      const descNoSpace = description.replace(/\s/g, '');
 
-        if (titleWithoutSpaces.length < 7) {
-          setTitleError('Le titre doit contenir au moins 7 caractères (hors espaces).');
-          isValid = false;
-        } else {
-          setTitleError('');
-        }
+      setTitleError(titleNoSpace.length < 7 ? 'Le titre doit contenir au moins 7 caractères (hors espaces).' : '');
+      setDescriptionError(descNoSpace.length < 20 ? 'La description doit contenir au moins 20 caractères.' : '');
+      setSalaryError(salaryMin >= salaryMax ? 'Le salaire min doit être inférieur au max.' : '');
+      setEmploymentTypeError(!employmentType ? 'Veuillez choisir un type de contrat.' : '');
+      setCategoryError(!category ? 'Veuillez choisir une catégorie.' : '');
 
-        if (descriptionWithoutSpaces.length < 20) {
-          setDescriptionError('La description doit contenir au moins 20 caractères.');
-          isValid = false;
-        } else {
-          setDescriptionError('');
-        }
+      const validLocations = selectedLocations.filter(loc => loc && loc.trim() !== "");
+      setLocationError(validLocations.length === 0 ? 'Veuillez choisir au moins une ville.' : '');
 
-        if (salaryMin >= salaryMax) {
-          setSalaryError("Le salaire minimum doit être inférieur au maximum.");
-          isValid = false;
-        } else {
-          setSalaryError('');
-        }
+      const filledSkills = selectedSkills.filter(skill => skill.name.trim() !== '');
+      setSkillsError(filledSkills.length === 0 ? 'Veuillez ajouter au moins une compétence.' : '');
 
-        if (!employmentType) {
-          setEmploymentTypeError("Veuillez choisir un type de contrat.");
-          isValid = false;
-        } else {
-          setEmploymentTypeError('');
-        }
+      if (
+        titleNoSpace.length < 7 || descNoSpace.length < 20 || salaryMin >= salaryMax ||
+        !employmentType || !category || validLocations.length === 0 || filledSkills.length === 0
+      ) {
+        isValid = false;
+      }
 
-        if (!category) {
-          setCategoryError("Veuillez choisir une catégorie.");
-          isValid = false;
-        } else {
-          setCategoryError('');
-        }
-
-        if (selectedLocations.length === 0) {
-          setLocationError("Veuillez choisir au moins une ville.");
-          isValid = false;
-        } else {
-          setLocationError('');
-        }
-
-        if (Object.keys(selectedSkills).length === 0) {
-          setSkillsError("Veuillez choisir au moins une compétence.");
-          isValid = false;
-        } else {
-          setSkillsError('');
-        }
-
-        return isValid;
-      };
+      return isValid;
+    };
 
       const handleUpdate = async () => {
           if (!validateInputs()) return;
 
           const token = await AsyncStorage.getItem('userToken');
+
+        const filteredLocations = selectedLocations.filter(loc => loc && loc.trim() !== "");
+          const filteredSkills = selectedSkills
+            .filter(skill => skill.name.trim() !== '')
+            .map(({ name, experience }) => ({ name, experience }));
 
             const updatedOffer = {
               title,
@@ -711,9 +697,9 @@ const EditOfferPage = ({ route, navigation }) => {
               employmentType,
               remote,
               category,
-              locations: selectedLocations,
-              skills: selectedSkills.filter(skill => skill.name).map(({ name, experience }) => ({ name, experience })),
-            };
+      locations: filteredLocations,
+      skills: filteredSkills,
+      };
             try {
             const response = await axios.put(
                 `${BASE_URL}/joboffers/${offer._id}`,
