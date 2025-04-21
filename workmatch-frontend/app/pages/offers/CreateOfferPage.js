@@ -21,11 +21,11 @@ const CreateOfferPage = ({ navigation }) => {
   const [remote, setRemote] = useState(false);
   const [category, setCategory] = useState('');
   const [categoryError, setCategoryError] = useState('');
-  const [selectedLocations, setSelectedLocations] = useState([]);
   const [locationError, setLocationError] = useState('');
   const [selectedSkills, setSelectedSkills] = useState({});
-  const [skillsList, setSkillsList] = useState([{ name: '', experience: 1 }]);
   const [skillsError, setSkillsError] = useState('');
+  const [selectedLocations, setSelectedLocations] = useState([""]);
+  const [skillsList, setSkillsList] = useState([{ name: '', experience: 1 }]); // 👈 une ligne vide
 
     const addSkillRow = () => {
       setSkillsList([...skillsList, { name: '', experience: 1 }]);
@@ -550,7 +550,14 @@ const availableLocations = [
     setSalaryError(salaryMin >= salaryMax ? 'Salaire min doit être inférieur au max.' : '');
     setEmploymentTypeError(!employmentType ? 'Type requis.' : '');
     setCategoryError(!category ? 'Catégorie requise.' : '');
-    setLocationError(selectedLocations.length === 0 ? 'Sélectionnez au moins une ville.' : '');
+    const validLocations = selectedLocations.filter(loc => loc && loc.trim() !== "");
+    setLocationError(
+      validLocations.length === 0
+        ? 'Sélectionnez au moins une ville.'
+        : ''
+    );
+
+
 
     const filledSkills = skillsList.filter(skill => skill.name.trim() !== '');
     if (filledSkills.length === 0) {
@@ -562,10 +569,11 @@ const availableLocations = [
     if (
       titleNoSpace.length < 7 || descNoSpace.length < 20 ||
       salaryMin >= salaryMax || !employmentType || !category ||
-      selectedLocations.length === 0 || filledSkills.length === 0
+      validLocations.length === 0 || filledSkills.length === 0
     ) {
       isValid = false;
     }
+
 
     return isValid;
   };
@@ -582,7 +590,8 @@ const availableLocations = [
 
       const newOffer = {
         title, description, companyId, salaryMin, salaryMax,
-        employmentType, remote, category, locations: selectedLocations, skills,
+        employmentType, remote, category, locations: selectedLocations.filter(loc => loc && loc.trim() !== ""),
+ skills,
       };
 
       const res = await axios.post(`${BASE_URL}/joboffers`, newOffer, {
@@ -719,20 +728,16 @@ const availableLocations = [
                   <Text style={styles.label}>Catégorie :</Text>
                   <View style={styles.contractContainer}>
                     {[
-                      "Développement Web",
-                            "Ingénieur DevOps",
-                            "Business Developer",
-                            "Software Developer",
-                            "Data Science",
-                            "Marketing",
-                            "Finance",
-                            "Cybersecurity",
-                            "Support IT",
-                            "Cloud Computing",
-                            "Solution Architect",
-                            "Business Analyst",
-                            "AI/ML",
-                            "Other",
+                          "Software Developer",
+                          "Data Science",
+                          "Marketing",
+                          "Finance",
+                          "Cybersecurity",
+                          "Support IT",
+                          "Solution Architect",
+                          "Business Analyst",
+                          "AI/ML",
+                          "Other",
                     ].map((cat) => (
                       <TouchableOpacity
                         key={cat}
@@ -768,11 +773,10 @@ const availableLocations = [
                           updated[index] = value;
                           setSelectedLocations(updated);
 
-                          const hasAtLeastOneLocation = updated.some(loc => loc !== "");
-                            if (hasAtLeastOneLocation) {
-                              setLocationError('');
-                            }
+                          const hasValid = updated.some(loc => loc !== "");
+                            setLocationError(hasValid ? '' : 'Sélectionnez au moins une ville.');
                         }}
+
                         style={{ flex: 1, height: 50, color: '#fff', backgroundColor: '#1e293b' }}
                       >
                         <Picker.Item label="Sélectionner une ville" value="" />
@@ -781,19 +785,37 @@ const availableLocations = [
                         ))}
                       </Picker>
 
-                      <TouchableOpacity onPress={() => {
-                        const updated = [...selectedLocations];
-                        updated.splice(index, 1);
-                        setSelectedLocations(updated);
-                      }} style={{ marginLeft: 10 }}>
+                      <TouchableOpacity
+                        onPress={() => {
+                          const updated = [...selectedLocations];
+                          updated.splice(index, 1);
+                          setSelectedLocations(updated);
+
+                          if (updated.length === 0 || updated.every(loc => loc === "")) {
+                            setLocationError("Veuillez sélectionner au moins une ville.");
+                          }
+                        }}
+                        style={{ marginLeft: 10 }}
+                      >
                         <Ionicons name="trash-outline" size={24} color="#dc3545" />
                       </TouchableOpacity>
+
                     </View>
                   ))}
 
-                  <TouchableOpacity onPress={() => setSelectedLocations([...selectedLocations, ""])} style={{ marginBottom: 10 }}>
+                  <TouchableOpacity
+                    onPress={() => {
+                      const updated = [...selectedLocations, ""];
+                      setSelectedLocations(updated);
+
+                      const hasValid = updated.some(loc => loc !== "");
+                        setLocationError(hasValid ? '' : 'Sélectionnez au moins une ville.');
+                    }}
+                    style={{ marginBottom: 10 }}
+                  >
                     <Text style={{ color: '#3b82f6', textAlign: 'center' }}>+ Ajouter une localisation</Text>
                   </TouchableOpacity>
+
 
                   {locationError ? <Text style={styles.errorText}>{locationError}</Text> : null}
 
@@ -806,7 +828,20 @@ const availableLocations = [
                           <View key={index} style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 10 }}>
                             <Picker
                               selectedValue={skill.name}
-                              onValueChange={(value) => updateSkillAtIndex(index, 'name', value)}
+                              onValueChange={(value) => {
+                                updateSkillAtIndex(index, 'name', value);
+
+                                const updatedSkills = [...skillsList];
+                                updatedSkills[index].name = value;
+
+                                const hasAtLeastOneSkill = updatedSkills.some(s => s.name !== '');
+                                if (hasAtLeastOneSkill) {
+                                  setSkillsError('');
+                                } else {
+                                  setSkillsError('Ajoutez au moins une compétence.');
+                                }
+                              }}
+
                               style={{ flex: 1, height: 50 }}
                             >
                               <Picker.Item label="Sélectionner une compétence" value="" />
@@ -825,17 +860,41 @@ const availableLocations = [
                               <Ionicons name="add-circle-outline" size={24} color="#6c757d" />
                             </TouchableOpacity>
 
-                            <TouchableOpacity onPress={() => removeSkillAtIndex(index)} style={{ marginLeft: 10 }}>
+                            <TouchableOpacity
+                              onPress={() => {
+                                const updated = [...skillsList];
+                                updated.splice(index, 1);
+                                setSkillsList(updated);
+
+                                if (updated.length === 0 || updated.every(s => s.name === '')) {
+                                  setSkillsError('Ajoutez au moins une compétence.');
+                                }
+                              }}
+                              style={{ marginLeft: 10 }}
+                            >
                               <Ionicons name="trash-outline" size={24} color="#dc3545" />
                             </TouchableOpacity>
+
                           </View>
                         ))}
 
                         {skillsError ? <Text style={{ color: 'red' }}>{skillsError}</Text> : null}
 
-                        <TouchableOpacity onPress={addSkillRow} style={{ marginBottom: 10 }}>
+                        <TouchableOpacity
+                          onPress={() => {
+                            const updated = [...skillsList, { name: '', experience: 1 }];
+                            setSkillsList(updated);
+
+                            const hasAtLeastOneSkill = updated.some(s => s.name !== '');
+                            if (hasAtLeastOneSkill) {
+                              setSkillsError('');
+                            }
+                          }}
+                          style={{ marginBottom: 10 }}
+                        >
                           <Text style={{ color: '#007bff', textAlign: 'center' }}>+ Ajouter une compétence</Text>
                         </TouchableOpacity>
+
                       </View>
 
                 <Button title="Soumettre l'offre" onPress={handleSubmit} />

@@ -778,13 +778,16 @@ window.alert("Votre compte a été créé avec succès. Veuillez vous connecter.
                 <Text style={styles.label}>Catégorie :</Text>
                 <View style={styles.contractContainer}>
                   {[
-                    "Développement Web",
-                    "Ingénieur DevOps",
-                    "Business Developer",
                     "Software Developer",
                     "Data Science",
                     "Marketing",
                     "Finance",
+                    "Cybersecurity",
+                    "Support IT",
+                    "Solution Architect",
+                    "Business Analyst",
+                    "AI/ML",
+                    "Other",
                   ].map((cat) => (
                     <TouchableOpacity
                       key={cat}
