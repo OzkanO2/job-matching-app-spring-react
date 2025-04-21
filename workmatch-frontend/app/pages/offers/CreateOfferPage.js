@@ -686,7 +686,10 @@ const availableLocations = [
                       styles.contractButton,
                       employmentType === type && styles.contractSelected,
                     ]}
-                    onPress={() => setEmploymentType(type)}
+                    onPress={() => {
+                        setEmploymentType(type);
+                        setEmploymentTypeError(''); // ✅ supprime l'erreur instantanément
+                      }}
                   >
                     <Text
                       style={[
@@ -737,7 +740,10 @@ const availableLocations = [
                           styles.contractButton,
                           category === cat && styles.contractSelected,
                         ]}
-                        onPress={() => setCategory(cat)}
+                        onPress={() => {
+                                setCategory(cat);
+                                setCategoryError(''); // ✅ supprime l'erreur dès qu'on sélectionne
+                              }}e
                       >
                         <Text
                           style={[
@@ -761,6 +767,11 @@ const availableLocations = [
                           const updated = [...selectedLocations];
                           updated[index] = value;
                           setSelectedLocations(updated);
+
+                          const hasAtLeastOneLocation = updated.some(loc => loc !== "");
+                            if (hasAtLeastOneLocation) {
+                              setLocationError('');
+                            }
                         }}
                         style={{ flex: 1, height: 50, color: '#fff', backgroundColor: '#1e293b' }}
                       >
