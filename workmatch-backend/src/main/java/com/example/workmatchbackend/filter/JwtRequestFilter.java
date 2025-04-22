@@ -37,7 +37,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
         String authorizationHeader = request.getHeader("Authorization");
 
         if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
-            System.out.println("JWT Token manquant ou mal formé !");
+            System.out.println("JWT Token !");
             filterChain.doFilter(request, response);
             return;
         }
