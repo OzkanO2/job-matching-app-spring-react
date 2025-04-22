@@ -16,13 +16,10 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     @Autowired
     private JwtUtil jwtUtil;
-    @Autowired
-    private HttpHandshakeInterceptor httpHandshakeInterceptor;
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         registry.addEndpoint("/ws")
-                .addInterceptors(httpHandshakeInterceptor)
                 .setAllowedOriginPatterns("*")
                 .withSockJS();
 
