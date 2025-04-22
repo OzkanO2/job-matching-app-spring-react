@@ -15,7 +15,6 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/jobsearchers")
-@CrossOrigin(origins = "http://localhost:8081")
 public class JobSearcherController {
 
     @Autowired

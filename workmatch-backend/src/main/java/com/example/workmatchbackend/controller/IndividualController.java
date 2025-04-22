@@ -10,7 +10,6 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/individuals")
-@CrossOrigin(origins = "*", allowedHeaders = "*")
 public class IndividualController {
     @Autowired
     private IndividualService individualService;

@@ -129,62 +129,63 @@ const IndividualHomePage = () => {
     };
 
     useEffect(() => {
-        const connectWebSocket = async () => {
-          const userId = await AsyncStorage.getItem('userId');
-          if (!userId) return;
+      const connectWebSocket = async () => {
+        const userId = await AsyncStorage.getItem('userId');
+        const token = await AsyncStorage.getItem('userToken');
+        const rawToken = token?.replace("Bearer ", "");
 
-          const socket = new SockJS(`${BASE_URL}/ws`);
-          const stomp = Stomp.over(socket);
-          stomp.debug = null;
+        if (!userId || !rawToken) return;
 
-          stomp.connect({}, () => {
-            stomp.subscribe(`/topic/messages/${userId}`, (message) => {
-              const msg = JSON.parse(message.body);
-              console.log('Nouveau message reçu (notification) :', msg);
-              setUnreadCount((prev) => prev + 1);
-            });
+        const socket = new SockJS(`${BASE_URL}/ws?token=${rawToken}`);
+        const stomp = Stomp.over(socket);
+        stomp.debug = null;
+
+        stomp.connect({}, () => {
+          stomp.subscribe(`/topic/messages/${userId}`, (message) => {
+            const msg = JSON.parse(message.body);
+            console.log("📩 Nouveau message reçu :", msg);
+            setUnreadCount((prev) => prev + 1);
           });
-        };
+        });
+      };
 
-        connectWebSocket();
-      }, []);
-
+      connectWebSocket();
+    }, []);
 
     useEffect(() => {
       const connectNotificationWebSocket = async () => {
         const userId = await AsyncStorage.getItem('userId');
-        if (!userId) return;
+        const token = await AsyncStorage.getItem('userToken');
+        const rawToken = token?.replace("Bearer ", "");
 
-        const socket = new SockJS(`${BASE_URL}/ws`);
-        const stomp = Stomp.over(socket);
+        if (!userId || !rawToken) return;
+
+        const socket = new SockJS(`${BASE_URL}/ws?token=${rawToken}`); // ← ajoute cette ligne
+        const stomp = Stomp.over(socket); // ← ajoute cette ligne
         stomp.debug = null;
 
         stomp.connect({}, () => {
           stomp.subscribe(`/topic/notifications/${userId}`, (message) => {
             const msg = JSON.parse(message.body);
             console.log('Notification reçue !', msg);
-              const senderId = msg.senderId;
 
-              if (msg.type === "match") {
-                setUnreadCount((prev) => prev + 1);
+            if (msg.type === "match") {
+              setUnreadCount((prev) => prev + 1);
 
-
-                // Et incrémenter par conversation :
-                AsyncStorage.getItem('unreadByConversation').then((raw) => {
-                  const map = raw ? JSON.parse(raw) : {};
-                  const convId = msg.conversationId;
-
-                  map[convId] = (map[convId] || 0) + 1;
-                  AsyncStorage.setItem('unreadByConversation', JSON.stringify(map));
-                });
-              }
-
+              AsyncStorage.getItem('unreadByConversation').then((raw) => {
+                const map = raw ? JSON.parse(raw) : {};
+                const convId = msg.conversationId;
+                map[convId] = (map[convId] || 0) + 1;
+                AsyncStorage.setItem('unreadByConversation', JSON.stringify(map));
+              });
+            }
           });
         });
       };
 
       connectNotificationWebSocket();
     }, []);
+
 
     useEffect(() => {
       const loadUnreadCount = async () => {

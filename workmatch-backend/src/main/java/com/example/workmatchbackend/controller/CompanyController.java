@@ -12,7 +12,6 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/companies")
-@CrossOrigin(origins = "*", allowedHeaders = "*")
 public class CompanyController {
 
     @Autowired

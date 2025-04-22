@@ -10,7 +10,6 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/settings")
-@CrossOrigin(origins = "*", allowedHeaders = "*")
 public class SettingsController {
     @Autowired
     private SettingsService settingsService;

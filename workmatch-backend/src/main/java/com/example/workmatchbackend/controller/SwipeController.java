@@ -23,7 +23,6 @@ import com.example.workmatchbackend.model.SwipedCard;
 
 @RestController
 @RequestMapping("/api/swiped")
-@CrossOrigin(origins = "*", allowedHeaders = "*")
 public class SwipeController {
 
     @Autowired

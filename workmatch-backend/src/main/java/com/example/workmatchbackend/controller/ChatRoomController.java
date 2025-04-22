@@ -10,7 +10,6 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/chatrooms")
-@CrossOrigin(origins = "*", allowedHeaders = "*")
 public class ChatRoomController {
     @Autowired
     private ChatRoomService chatRoomService;

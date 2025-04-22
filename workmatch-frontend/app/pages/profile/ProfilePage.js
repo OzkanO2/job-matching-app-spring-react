@@ -8,7 +8,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { Picker } from '@react-native-picker/picker';
 import SockJS from 'sockjs-client';
 import { BASE_URL } from '../../../constants/api';
-
+import { Client } from '@stomp/stompjs';
 const ProfilePage = () => {
     const navigation = useNavigation();
     const [userInfo, setUserInfo] = useState(null);
@@ -609,55 +609,54 @@ const ProfilePage = () => {
     ];
 
     useEffect(() => {
-      const connectNotificationWebSocket = async () => {
+      const connectWebSocket = async () => {
         const userId = await AsyncStorage.getItem('userId');
-        if (!userId) return;
+        const token = await AsyncStorage.getItem('userToken');  // ✅ On récupère le token ici
+        if (!userId || !token) return;
 
         const socket = new SockJS(`${BASE_URL}/ws`);
-        const stomp = Stomp.over(socket);
-        stomp.debug = null;
 
-        stomp.connect({}, () => {
-          stomp.subscribe(`/topic/notifications/${userId}`, async (message) => {
-            const msg = JSON.parse(message.body);
-            console.log('Notification reçue dans CompanyHomePage !', msg);
+        const stomp = new Client({
+          webSocketFactory: () => socket,
+          debug: () => {},
+          reconnectDelay: 5000,
 
-            const conversationId = msg.conversationId;
-            if (!conversationId) return;
+          // ✅ Ajoute le token dans les headers ici :
+          connectHeaders: {
+            Authorization: `Bearer ${token}`,
+          },
 
-            try {
-              const stored = await AsyncStorage.getItem('unreadByConversation');
-              const unreadMap = stored ? JSON.parse(stored) : {};
+          onConnect: () => {
+            stomp.subscribe(`/topic/notifications/${userId}`, async (message) => {
+              const msg = JSON.parse(message.body);
+              console.log('Notification reçue dans ProfilePage !', msg);
 
-              unreadMap[conversationId] = (unreadMap[conversationId] || 0) + 1;
+              const conversationId = msg.conversationId;
+              if (!conversationId) return;
 
-              await AsyncStorage.setItem('unreadByConversation', JSON.stringify(unreadMap));
-            } catch (error) {
-              console.error("Erreur de stockage des unreadByConversation :", error);
-            }
+              try {
+                const stored = await AsyncStorage.getItem('unreadByConversation');
+                const unreadMap = stored ? JSON.parse(stored) : {};
+                unreadMap[conversationId] = (unreadMap[conversationId] || 0) + 1;
+                await AsyncStorage.setItem('unreadByConversation', JSON.stringify(unreadMap));
+              } catch (error) {
+                console.error("Erreur de stockage des unreadByConversation :", error);
+              }
 
-            const senderId = msg.senderId;
-
-            if (senderId !== userId) {
-              setUnreadCount(1); // juste pour forcer l’affichage de la bulle
-
-              // Et incrémenter par conversation :
-              AsyncStorage.getItem('unreadByConversation').then((raw) => {
-                const map = raw ? JSON.parse(raw) : {};
-                const convId = msg.conversationId;
-
-                map[convId] = (map[convId] || 0) + 1;
-                AsyncStorage.setItem('unreadByConversation', JSON.stringify(map));
-              });
-            }
-
-          });
+              const senderId = msg.senderId;
+              if (senderId !== userId) {
+                setUnreadCount(1);
+              }
+            });
+          },
         });
 
+        stomp.activate();
       };
 
-      connectNotificationWebSocket();
+      connectWebSocket();
     }, []);
+
 
     useEffect(() => {
       const loadUnreadCount = async () => {
@@ -976,7 +975,7 @@ const allSkills = [
               throw new Error('Token, username ou userId manquant');
             }
 
-            const bearerToken = `${token}`;
+const bearerToken = `Bearer ${token}`;
 
             const userResponse = await axios.get(`${BASE_URL}/users/${username}`, {
               headers: {
@@ -1065,7 +1064,7 @@ useFocusEffect(
         return;
       }
 
-      const bearerToken = `${token}`;
+const bearerToken = `Bearer ${token}`;
 
       try {
         const response = await axios.get(`${BASE_URL}/users/${username}`, {

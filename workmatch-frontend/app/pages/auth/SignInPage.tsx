@@ -23,7 +23,9 @@ export default function SignInPage({ navigation }) {
             const userId = response.data.userId;
 
             if (token && userId) {
-                await AsyncStorage.setItem('userToken', `Bearer ${token}`);
+                await AsyncStorage.setItem('userToken', token);
+                console.log("✅✅✅✅✅ Token stocké :", token);
+
                 await AsyncStorage.setItem('userId', userId);
                 await AsyncStorage.setItem('username', username);
                 await AsyncStorage.setItem('userType', userType);

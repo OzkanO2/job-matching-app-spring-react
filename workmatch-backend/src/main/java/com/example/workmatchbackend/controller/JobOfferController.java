@@ -27,9 +27,9 @@ import java.util.Map;
 import java.util.Optional;
 import java.time.LocalDate;
 import org.bson.types.ObjectId;
+
 @RestController
 @RequestMapping("/joboffers")
-@CrossOrigin(origins = "*", allowedHeaders = "*")
 public class JobOfferController {
 
     private static final Logger logger = LoggerFactory.getLogger(JobOfferController.class);

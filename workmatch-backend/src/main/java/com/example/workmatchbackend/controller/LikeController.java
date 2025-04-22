@@ -20,7 +20,6 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/likes")
-@CrossOrigin(origins = "*", allowedHeaders = "*")
 public class LikeController {
 
     @Autowired
