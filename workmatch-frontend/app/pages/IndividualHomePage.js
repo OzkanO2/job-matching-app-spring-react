@@ -146,36 +146,55 @@ const IndividualHomePage = () => {
             connectWebSocket();
           }, []);
 
-            useEffect(() => {
+        useEffect(() => {
               const connectNotificationWebSocket = async () => {
                 const userId = await AsyncStorage.getItem('userId');
                 if (!userId) return;
 
                 const socket = new SockJS(`${BASE_URL}/ws`);
                 const stomp = Stomp.over(socket);
-
                 stomp.debug = null;
+
                 stomp.connect({}, () => {
-                  stomp.subscribe(`/topic/notifications/${userId}`, (message) => {
+                  stomp.subscribe(`/topic/notifications/${userId}`, async (message) => {
                     const msg = JSON.parse(message.body);
-                    console.log('Notification reçue !', msg);
-                      const senderId = msg.senderId;
-                      if (msg.type === "match") {
-                        setUnreadCount((prev) => prev + 1);
-                        // Et incrémenter par conversation :
-                        AsyncStorage.getItem('unreadByConversation').then((raw) => {
-                          const map = raw ? JSON.parse(raw) : {};
-                          const convId = msg.conversationId;
-                          map[convId] = (map[convId] || 0) + 1;
-                          AsyncStorage.setItem('unreadByConversation', JSON.stringify(map));
-                        });
-                      }
+                    console.log(' Notification reçue dans CompanyHomePage !', msg);
+
+                    const conversationId = msg.conversationId;
+
+                    try {
+                      const stored = await AsyncStorage.getItem('unreadByConversation');
+                      const unreadMap = stored ? JSON.parse(stored) : {};
+
+                      unreadMap[conversationId] = (unreadMap[conversationId] || 0) + 1;
+
+                      await AsyncStorage.setItem('unreadByConversation', JSON.stringify(unreadMap));
+                    } catch (error) {
+                      console.error(" Erreur de stockage des unreadByConversation :", error);
+                    }
+
+                    const senderId = msg.senderId;
+
+                    if (senderId !== userId) {
+                      setUnreadCount(1); // juste pour forcer l’affichage de la bulle
+
+                      // Et incrémenter par conversation :
+                      AsyncStorage.getItem('unreadByConversation').then((raw) => {
+                        const map = raw ? JSON.parse(raw) : {};
+                        const convId = msg.conversationId;
+
+                        map[convId] = (map[convId] || 0) + 1;
+                        AsyncStorage.setItem('unreadByConversation', JSON.stringify(map));
+                      });
+                    }
+
                   });
                 });
+
               };
+
               connectNotificationWebSocket();
             }, []);
-
     useEffect(() => {
       const loadUnreadCount = async () => {
         const storedCount = await AsyncStorage.getItem('unreadMessageCount');

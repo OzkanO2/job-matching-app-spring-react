@@ -36,7 +36,6 @@ const CompanyHomePage = () => {
             console.log(' Notification reçue dans CompanyHomePage !', msg);
 
             const conversationId = msg.conversationId;
-            if (!conversationId) return;
 
             try {
               const stored = await AsyncStorage.getItem('unreadByConversation');
