@@ -3,7 +3,7 @@ import Constants from 'expo-constants';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // 🔁 Change ici uniquement pour local vs distant
-const isLocal = true; // ⬅️ true = localhost | false = Render
+const isLocal = false; // ⬅️ true = localhost | false = Render
 
 const BASE_URL = isLocal
     ? 'http://localhost:8080' // BACKEND local
