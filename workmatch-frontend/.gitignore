@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 node_modules/
 .expo/
 dist/
@@ -19,7 +18,7 @@ web-build/
 
 expo-env.d.ts
 # @end expo-cli
-=======
+
 # These are some examples of commonly ignored file patterns.
 # You should customize this list as applicable to your project.
 # Learn more about .gitignore:
@@ -71,4 +70,3 @@ Thumbs.db
 *.wmv
 
 .env
->>>>>>> 13dfb1934badcd6f9bcaca2ca2aaf4f8fcd858d5
