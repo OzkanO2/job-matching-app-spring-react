@@ -1,5 +1,39 @@
-<<<<<<< HEAD
-# Welcome to your Expo app 👋
+# WorkMatch - Job Matching Application
+
+**WorkMatch** is a full-stack web application that connects job seekers and employers through a Tinder-like matching system.
+
+- Backend: Spring Boot (Java)
+- Frontend: React Native Web
+- Database: MongoDB Atlas
+- Goal: Simplify the job-hunting process through intuitive swipe-based matching.
+
+---
+
+# Features
+
+- JWT-based User Authentication (Sign Up, Login)
+- Two-sided matching system (Swipe left/right)
+- Real-time messaging via WebSockets
+- Job posting creation & management
+- Admin dashboard *(optional)*
+- Responsive design for web & mobile
+
+---
+
+# Project Structure
+
+projet-workmatch/
+│
+├── workmatch-backend/         # Spring Boot API (Java)
+│   └── ...                    # Auth, Job, Matching, Chat...
+│
+├── workmatch-frontend/        # React Native Web UI
+│   └── ...                    # Pages, Components, Swipe system
+│
+├── README.md                  # You're here!
+└── .gitignore                 # Ignored files
+
+# Expo app config
 
 This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
 
